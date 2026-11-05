@@ -30,7 +30,7 @@ async function start(){
   if(!response.ok)throw Error("Scénario non disponible");
   const scenario=await response.json();
   engine=createEngine(scenario);initialIP=engine.getSnapshot().objectsById["pc-01"].config.ipv4;
-  engine.subscribe(render);render();
+  engine.subscribe(()=>{render();$("terminal").textContent="Configuration modifiée. Relancez le ping pour obtenir un nouveau résultat.";});render();
   $("ip-form").addEventListener("submit",event=>{event.preventDefault();setIP($("address").value.trim(),$("prefix").value)});
   $("wrong-ip").addEventListener("click",()=>setIP("192.168.22.20",24));
   $("fix-ip").addEventListener("click",()=>setIP(initialIP.address,initialIP.prefix));
