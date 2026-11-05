@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>R2D3 V1 - Laboratoire réseau</title>
+<style>
+:root{font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#17253b;background:#f3f6fb;font-size:16px}
+*{box-sizing:border-box}body{margin:0}header{background:#102a4b;color:white;padding:24px max(20px,calc((100vw - 1120px)/2))}header h1{margin:0 0 6px;font-size:28px}header p{margin:0;color:#cbd9e9}
+main{max-width:1120px;margin:26px auto;padding:0 18px}.lead{margin:0 0 19px;line-height:1.5}
+.layout{display:grid;grid-template-columns:1fr 1fr;gap:18px}@media(max-width:780px){.layout{grid-template-columns:1fr}}
+section{background:#fff;border:1px solid #dbe3ed;border-radius:15px;padding:21px;box-shadow:0 3px 14px #19304b08}
+h2{font-size:21px;margin:0 0 5px}h3{font-size:16px;margin:17px 0 9px}.sub{color:#627187;font-size:14px;margin:0 0 20px}
+label{display:block;font-weight:600;font-size:14px;margin-bottom:6px}input{width:100%;padding:11px;border:1px solid #aab9ca;border-radius:8px;font:inherit}input:focus{outline:2px solid #3d77bd}
+.fields{display:grid;grid-template-columns:2fr 1fr;gap:10px}button{border:0;border-radius:8px;padding:10px 15px;background:#1f609f;color:white;font-weight:650;cursor:pointer;font:inherit}button:hover{background:#174978}button.secondary{background:#eaf0f7;color:#204e7a}button.secondary:hover{background:#dbe6f2}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0} .info{font-size:14px;color:#52617a}.state{padding:11px 12px;background:#edf3fb;border-radius:9px;font-weight:600;margin:13px 0}.state.ok{background:#e7f6ed;color:#14633b}.state.bad{background:#fff0ec;color:#9f3924}
+.devices{display:flex;align-items:center;justify-content:space-around;gap:6px;margin:23px 0;flex-wrap:wrap}.device{border:1px solid #cbd8e7;border-radius:10px;padding:13px 9px;text-align:center;background:#f7faff;min-width:105px;font-size:13px}.device strong{display:block;font-size:15px}.wire{height:4px;width:35px;background:#2e9875;border-radius:2px;flex:1;min-width:15px}.wire.off{background:#c74d48;position:relative}.wire.off:after{content:'✕';position:absolute;top:-12px;left:35%;background:white;color:#bd3d3d;font-size:17px}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;background:#101f31;color:#dfedfa;border-radius:10px;padding:15px;min-height:93px}
+.kv{font-size:14px;color:#45566e;line-height:1.75} .kv b{color:#182d47}.foot{font-size:13px;color:#66768c;margin-top:20px}
+</style></head>
+<body><header><h1>R2D3 <span style="font-weight:400;opacity:.7">/ Laboratoire V1</span></h1><p>Moteur de simulation réseau autonome • PC, switch, imprimante</p></header>
+<main><p class="lead">Deux vues partagent un seul état technique. Modifiez l'adresse du PC, débranchez le câble de l'imprimante, puis testez le ping. Les deux anomalies peuvent se cumuler et se corrigent séparément.</p>
+<div class="layout">
+<section aria-labelledby="pc-title"><h2 id="pc-title">Configuration du PC</h2><p class="sub">Vue 1 • Poste Windows simulé</p>
+<div class="kv" id="pc-summary"></div>
+<h3>Configuration IPv4</h3><form id="ip-form"><div class="fields"><div><label for="address">Adresse IPv4 du PC</label><input id="address" autocomplete="off" inputmode="decimal" required></div><div><label for="prefix">Préfixe CIDR</label><input id="prefix" type="number" min="0" max="32" required></div></div><div class="actions"><button type="submit">Appliquer au PC</button><button type="button" id="wrong-ip" class="secondary">Créer une mauvaise IP</button><button type="button" id="fix-ip" class="secondary">Rétablir l'IP initiale</button></div></form>
+<div id="command-result" class="info" role="status">Prêt.</div></section>
+<section aria-labelledby="network-title"><h2 id="network-title">Réseau et imprimante</h2><p class="sub">Vue 2 • Topologie, câblage et connectivité</p>
+<div class="devices"><div class="device">💻<strong>PC</strong><span id="pc-address"></span></div><div id="wire-pc" class="wire"></div><div class="device">🔀<strong>Switch</strong>2 ports</div><div id="wire-printer" class="wire"></div><div class="device">🖨️<strong>Imprimante</strong><span id="printer-address"></span></div></div>
+<div class="kv" id="link-summary"></div><div class="actions"><button id="toggle-wire" class="secondary">Débrancher le câble imprimante</button><button id="ping">Tester le ping</button></div>
+<div id="connectivity" class="state" aria-live="polite"></div>
+<h3>Test de connectivité</h3><pre id="terminal" aria-live="polite">Aucun test effectué.</pre></section></div>
+<p class="foot">Version 1 • Aucune connexion serveur • Aucune sauvegarde locale • Un rechargement de la page restaure l'état initial. Le bouton Ping calcule les conséquences de l'état actuel.</p>
+</main>
+<script type="module" src="./app.js"></script></body></html>
