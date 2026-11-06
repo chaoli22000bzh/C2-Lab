@@ -9,7 +9,7 @@ function dispatch(type,targetId,params){
  setFeedback(response.status==="applied"?"Modification appliquée (révision "+response.revision+").":"Opération refusée : "+(response.message||response.code),response.status==="applied");
  return response;
 }
-function refreshForm(){const obj=engine.getSnapshot().objectsById[$("device").value];$("address").value=obj.config.ipv4.address;$("prefix").value=obj.config.ipv4.prefix;}
+function refreshForm(){const obj=engine.getSnapshot().objectsById[$("device").value];$("address").value=obj.config.ipv4.address;$("prefix").value=obj.config.ipv4.prefix;const opts=obj.config.networkOptions??{gateway:null,dns:[]};$("gateway").value=opts.gateway??"";$("dns1").value=opts.dns[0]??"";$("dns2").value=opts.dns[1]??"";}
 function update(){
  const s=engine.getSnapshot();
  for(const [id,el] of [["pc-01","ip-pc1"],["pc-02","ip-pc2"],["printer-01","ip-printer"]]){
@@ -69,9 +69,13 @@ function showIpconfig(full) {
   if(connected) lines.push(
     field("Adresse IPv4","Adresse IPv4. . . . . . . . . .",ip.address+" (préféré)"),
     field("Masque","Masque de sous-réseau . . . . .",subnetMask(ip.prefix)),
-    field("Passerelle","Passerelle par défaut. . . . . .")
+    field("Passerelle","Passerelle par défaut. . . . . .",station.config.networkOptions?.gateway??"")
   );
-  if(full && connected) lines.push(field("Serveurs DNS","Serveurs DNS . . . . . . . . . ."));
+  if(full && connected){
+    const dns=station.config.networkOptions?.dns??[];
+    lines.push(field("Serveurs DNS","Serveurs DNS . . . . . . . . . .",dns[0]??""));
+    if(dns[1]) lines.push("    "+(mobile?" ".repeat(maxLabelLength+3):" ".repeat(35))+dns[1]);
+  }
   lines.push("","C:\\Users\\technicien>");
   $("windows-console").textContent=lines.join("\n");
 }
@@ -118,6 +122,12 @@ async function start(){
   engine.subscribe(()=>{$("terminal").textContent="Configuration modifiée. Relancez le ping pour obtenir un diagnostic à jour.";update();if($("windows-console").textContent.includes("Configuration IP de Windows"))showIpconfig($("windows-console").textContent.includes(">ipconfig /all"));});
   $("device").addEventListener("change",refreshForm);
   $("ip-form").addEventListener("submit",e=>{e.preventDefault();dispatch("network.setIPv4",$("device").value,{interfaceId:"eth0",mode:"static",address:$("address").value.trim(),prefix:Number($("prefix").value)});});
+  $("options-form").addEventListener("submit",e=>{
+    e.preventDefault();
+    const gateway=$("gateway").value.trim()||null;
+    const dns=[$("dns1").value.trim(),$("dns2").value.trim()].filter(Boolean);
+    dispatch("network.setNetworkOptions",$("device").value,{gateway,dns});
+  });
   $("wrong-ip").addEventListener("click",()=>{ $("device").value="pc-02";dispatch("network.setIPv4","pc-02",{interfaceId:"eth0",mode:"static",address:"192.168.22.30",prefix:24});});
   $("reset-ip").addEventListener("click",()=>{const id=$("device").value;dispatch("network.setIPv4",id,{...defaults[id]});});
   $("source").addEventListener("change",update);$("target").addEventListener("change",update);
