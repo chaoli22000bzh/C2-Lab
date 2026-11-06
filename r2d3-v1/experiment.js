@@ -44,8 +44,10 @@ function showIpconfig(full) {
   const connected=snapshot.linksById[cable].connected;
   const mobile=window.matchMedia("(max-width: 600px)").matches;
   const lines=["C:\\Users\\Eleve>ipconfig"+(full?" /all":""),"","Configuration IP de Windows",""];
+  const mobileLabels=["Nom de l'hôte","Suffixe DNS","Type de nœud","Routage IP","Proxy WINS","Statut du média","Description","Adresse physique","DHCP activé","Config. automatique","Adresse IPv4","Masque","Passerelle","Serveurs DNS"];
+  const maxLabelLength=Math.max(...mobileLabels.map(label=>label.length));
   const field=(compact,windows,value="")=>{
-    if(mobile) return "  "+compact+" : "+value;
+    if(mobile) return "  "+compact+" "+ ".".repeat(maxLabelLength-compact.length)+" : "+value;
     return "   "+windows+" : "+value;
   };
   if(full) lines.push(
