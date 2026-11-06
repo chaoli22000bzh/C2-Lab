@@ -10,7 +10,8 @@ main{max-width:1080px;margin:20px auto;padding:0 18px}.intro{max-width:900px}
 .layout{display:grid;grid-template-columns:1fr 1fr;gap:18px}@media(max-width:830px){.layout{grid-template-columns:1fr}}
 section{background:#fff;padding:19px;border:1px solid #d4e0eb;border-radius:13px;min-width:0}h2{font-size:19px;margin:0 0 12px}h3{font-size:16px;margin:18px 0 8px}
 button{background:#1e5e9b;color:white;border:0;border-radius:8px;padding:11px 13px;font:inherit;cursor:pointer}button.secondary{background:#e8f0f9;color:#153d6a}button:focus-visible{outline:3px solid #70a6e6;outline-offset:2px}
-.actions{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0}.tile{background:#f4f8fc;border:1px solid #cedce9;border-radius:9px;padding:11px;margin-bottom:9px}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0}
+.command-button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:62px;text-align:center}.command-title{font-weight:650}.command-subtitle{font-family:Consolas,"Courier New",monospace;font-size:.76em;opacity:.86}.tile{background:#f4f8fc;border:1px solid #cedce9;border-radius:9px;padding:11px;margin-bottom:9px}
 .label{font-size:13px;color:#526780}.status{font-weight:600}.good{color:#13603a}.bad{color:#a13b2d}
 pre{background:#101f31;color:#e8eef9;padding:13px;border-radius:9px;line-height:1.65;font:12px/1.65 Consolas,"Courier New",monospace;overflow-x:auto;white-space:pre;max-width:100%}
 @media(max-width:600px){section{padding:14px}pre{font-size:10.5px}}.note{font-size:13px;color:#576e87}.footer{margin:20px 0;font-size:14px}a{color:#1b65ab}
@@ -29,7 +30,7 @@ pre{background:#101f31;color:#e8eef9;padding:13px;border-radius:9px;line-height:
 <div class="actions"><button id="toggle-server" class="secondary">Couper le service DHCP</button><button id="toggle-cable" class="secondary">Débrancher le serveur</button></div>
 <h3>PC Windows : REN-PC-01</h3>
 <div class="tile"><div class="label">État actuel</div><div id="client-status" class="status"></div><div id="client-ip"></div></div>
-<div class="actions"><button id="release" class="secondary" type="button">ipconfig /release</button><button id="request" type="button">ipconfig /renew</button><button id="ping" class="secondary" type="button">Ping imprimante</button><button id="reset" class="secondary" type="button">Réinitialiser</button></div>
+<div class="actions"><button id="release" class="secondary command-button" type="button"><span class="command-title">Libérer l’adresse IP</span><span class="command-subtitle">ipconfig /release</span></button><button id="request" class="command-button" type="button"><span class="command-title">Renouveler le bail DHCP</span><span class="command-subtitle">ipconfig /renew</span></button><button id="ping" class="secondary" type="button">Ping imprimante</button><button id="reset" class="secondary" type="button">Réinitialiser</button></div>
 <p id="feedback" role="status" class="note">Chargement du scénario...</p>
 <p class="note">Le PC démarre sans adresse DHCP. La commande <code>ipconfig /renew</code> demande un bail ; <code>ipconfig /release</code> abandonne le bail et la configuration IPv4 DHCP. Le temps simulé reste fixe pendant cette première expérience.</p>
 </section>
