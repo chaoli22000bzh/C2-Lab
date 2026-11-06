@@ -29,9 +29,9 @@ pre{background:#101f31;color:#e8eef9;padding:13px;border-radius:9px;line-height:
 <div class="actions"><button id="toggle-server" class="secondary">Couper le service DHCP</button><button id="toggle-cable" class="secondary">Débrancher le serveur</button></div>
 <h3>PC Windows : REN-PC-01</h3>
 <div class="tile"><div class="label">État actuel</div><div id="client-status" class="status"></div><div id="client-ip"></div></div>
-<div class="actions"><button id="request">Demander / renouveler l'adresse DHCP</button><button id="ping" class="secondary">Ping imprimante</button><button id="reset" class="secondary">Réinitialiser</button></div>
+<div class="actions"><button id="release" class="secondary" type="button">ipconfig /release</button><button id="request" type="button">ipconfig /renew</button><button id="ping" class="secondary" type="button">Ping imprimante</button><button id="reset" class="secondary" type="button">Réinitialiser</button></div>
 <p id="feedback" role="status" class="note">Chargement du scénario...</p>
-<p class="note">Le PC ne reçoit pas automatiquement un bail au chargement : cliquez sur « Demander / renouveler ». Le temps simulé reste fixe pendant cette première expérience.</p>
+<p class="note">Le PC démarre sans adresse DHCP. La commande <code>ipconfig /renew</code> demande un bail ; <code>ipconfig /release</code> abandonne le bail et la configuration IPv4 DHCP. Le temps simulé reste fixe pendant cette première expérience.</p>
 </section>
 <section>
 <h2>Diagnostic Windows</h2>
