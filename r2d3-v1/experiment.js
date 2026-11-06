@@ -99,7 +99,6 @@ async function start(){
       :"Délai d'attente de la demande dépassé.");
     $("terminal").textContent=[
       "> "+devices[source]+" ("+sourceIp+") : ping "+targetIp,
-      "Simulation d'une commande ping Windows (4 requêtes).",
       "",
       "Envoi d'une requête 'Ping' "+targetIp+" avec 32 octets de données :",
       ...replies,
