@@ -42,35 +42,35 @@ function showIpconfig(full) {
   const ip=station.config.ipv4;
   const cable=id==="pc-01"?"cable-pc":"cable-pc2";
   const connected=snapshot.linksById[cable].connected;
-  const lines=[
-    "C:\\Users\\Eleve>ipconfig"+(full?" /all":""),
-    "",
-    "Configuration IP de Windows",
+  const mobile=window.matchMedia("(max-width: 600px)").matches;
+  const lines=["C:\\Users\\Eleve>ipconfig"+(full?" /all":""),"","Configuration IP de Windows",""];
+  const field=(compact,windows,value="")=>{
+    if(mobile) return "  "+compact+" : "+value;
+    return "   "+windows+" : "+value;
+  };
+  if(full) lines.push(
+    field("Nom de l'hôte","Nom de l'hôte . . . . . . . . . .",station.name),
+    field("Suffixe DNS","Suffixe DNS principal . . . . . ."),
+    field("Type de nœud","Type de nœud. . . . . . . . . .","Hybride"),
+    field("Routage IP","Routage IP activé . . . . . . .","Non"),
+    field("Proxy WINS","Proxy WINS activé . . . . . . .","Non"),
     ""
-  ];
-  if (full) lines.push(
-    "   Nom de l'hôte . . . . . . . . . . : "+station.name,
-    "   Suffixe DNS principal . . . . . . :",
-    "   Type de nœud. . . . . . . . . . . : Hybride",
-    "   Routage IP activé . . . . . . . . : Non",
-    "   Proxy WINS activé . . . . . . . . : Non",
-    ""
   );
-  lines.push("Carte Ethernet Ethernet :", "");
-  if (!connected) lines.push("   Statut du média. . . . . . . . . : Média déconnecté");
-  if (full) lines.push(
-    "   Description. . . . . . . . . . . : Carte réseau Ethernet",
-    "   Adresse physique . . . . . . . . : "+(id==="pc-01"?"02-00-00-00-00-01":"02-00-00-00-00-02"),
-    "   DHCP activé. . . . . . . . . . . : Non",
-    "   Configuration automatique activée : Oui"
+  lines.push("Carte Ethernet Ethernet :","");
+  if(!connected) lines.push(field("Statut du média","Statut du média. . . . . . . . .","Média déconnecté"));
+  if(full) lines.push(
+    field("Description","Description. . . . . . . . . .","Carte réseau Ethernet"),
+    field("Adresse physique","Adresse physique . . . . . . . .",id==="pc-01"?"02-00-00-00-00-01":"02-00-00-00-00-02"),
+    field("DHCP activé","DHCP activé. . . . . . . . . .","Non"),
+    field("Config. automatique","Configuration automatique activée","Oui")
   );
-  if (connected) lines.push(
-    "   Adresse IPv4. . . . . . . . . . : "+ip.address+"(préféré)",
-    "   Masque de sous-réseau . . . . . : "+subnetMask(ip.prefix),
-    "   Passerelle par défaut. . . . . . :"
+  if(connected) lines.push(
+    field("Adresse IPv4","Adresse IPv4. . . . . . . . . .",ip.address+" (préféré)"),
+    field("Masque","Masque de sous-réseau . . . . .",subnetMask(ip.prefix)),
+    field("Passerelle","Passerelle par défaut. . . . . .")
   );
-  if (full && connected) lines.push("   Serveurs DNS . . . . . . . . . . :");
-  lines.push("", "C:\\Users\\Eleve>");
+  if(full && connected) lines.push(field("Serveurs DNS","Serveurs DNS . . . . . . . . . ."));
+  lines.push("","C:\\Users\\Eleve>");
   $("windows-console").textContent=lines.join("\n");
 }
 
@@ -87,6 +87,7 @@ async function start(){
   $("source").addEventListener("change",update);$("target").addEventListener("change",update);
   $("ipconfig").addEventListener("click",()=>showIpconfig(false));
   $("ipconfig-all").addEventListener("click",()=>showIpconfig(true));
+  window.addEventListener("resize",()=>{const text=$("windows-console").textContent;if(text.includes("Configuration IP de Windows"))showIpconfig(text.includes(">ipconfig /all"));});
   $("ping").addEventListener("click",()=>{
     const source=$("source").value,target=$("target").value;
     const snapshot=engine.getSnapshot();
