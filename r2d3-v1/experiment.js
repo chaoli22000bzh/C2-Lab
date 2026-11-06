@@ -42,39 +42,27 @@ function showIpconfig(full) {
   const ip=station.config.ipv4;
   const cable=id==="pc-01"?"cable-pc":"cable-pc2";
   const connected=snapshot.linksById[cable].connected;
-  const mobile=window.matchMedia("(max-width: 600px)").matches;
+  const options=station.config.networkOptions??{gateway:null,dns:[]};
   const lines=["C:\\Users\\technicien>ipconfig"+(full?" /all":""),"","Configuration IP de Windows",""];
-  const mobileLabels=["Nom de l'hôte","Suffixe DNS","Type de nœud","Routage IP","Proxy WINS","Statut du média","Description","Adresse physique","DHCP activé","Config. automatique","Adresse IPv4","Masque","Passerelle","Serveurs DNS"];
-  const maxLabelLength=Math.max(...mobileLabels.map(label=>label.length));
-  const field=(compact,windows,value="")=>{
-    if(mobile) return "  "+compact+" "+ ".".repeat(maxLabelLength-compact.length)+" : "+value;
-    return "   "+windows+" : "+value;
-  };
+  const labelWidth=23;
+  const field=(label,value="")=>"  "+label+" "+ ".".repeat(Math.max(0,labelWidth-label.length))+" : "+value;
   if(full) lines.push(
-    field("Nom de l'hôte","Nom de l'hôte . . . . . . . . . .",station.name),
-    field("Suffixe DNS","Suffixe DNS principal . . . . . ."),
-    field("Type de nœud","Type de nœud. . . . . . . . . .","Hybride"),
-    field("Routage IP","Routage IP activé . . . . . . .","Non"),
-    field("Proxy WINS","Proxy WINS activé . . . . . . .","Non"),
-    ""
+    field("Nom de l'hôte",station.name),
+    field("DHCP activé","Non"),
+    field("Config. automatique","Oui")
   );
-  lines.push("Carte Ethernet Ethernet :","");
-  if(!connected) lines.push(field("Statut du média","Statut du média. . . . . . . . .","Média déconnecté"));
-  if(full) lines.push(
-    field("Description","Description. . . . . . . . . .","Carte réseau Ethernet"),
-    field("Adresse physique","Adresse physique . . . . . . . .",id==="pc-01"?"02-00-00-00-00-01":"02-00-00-00-00-02"),
-    field("DHCP activé","DHCP activé. . . . . . . . . .","Non"),
-    field("Config. automatique","Configuration automatique activée","Oui")
-  );
-  if(connected) lines.push(
-    field("Adresse IPv4","Adresse IPv4. . . . . . . . . .",ip.address+" (préféré)"),
-    field("Masque","Masque de sous-réseau . . . . .",subnetMask(ip.prefix)),
-    field("Passerelle","Passerelle par défaut. . . . . .",station.config.networkOptions?.gateway??"")
-  );
-  if(full && connected){
-    const dns=station.config.networkOptions?.dns??[];
-    lines.push(field("Serveurs DNS","Serveurs DNS . . . . . . . . . .",dns[0]??""));
-    if(dns[1]) lines.push("    "+(mobile?" ".repeat(maxLabelLength+3):" ".repeat(35))+dns[1]);
+  if(!connected) {
+    lines.push(field("Statut du média","Média déconnecté"));
+  } else {
+    lines.push(
+      field("Adresse IPv4",ip.address+" (préféré)"),
+      field("Masque de sous-réseau",subnetMask(ip.prefix)),
+      field("Passerelle par défaut",options.gateway??"")
+    );
+    if(full) {
+      lines.push(field("Serveurs DNS",options.dns[0]??""));
+      if(options.dns[1])lines.push("  "+" ".repeat(labelWidth+4)+options.dns[1]);
+    }
   }
   lines.push("","C:\\Users\\technicien>");
   $("windows-console").textContent=lines.join("\n");
