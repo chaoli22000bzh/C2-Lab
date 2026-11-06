@@ -12,6 +12,17 @@
 <p class="muted">Choisissez le poste à configurer. Les modifications sont immédiatement visibles dans le réseau.</p>
 <label for="device">Équipement à configurer</label><select id="device"><option value="pc-01">PC 1</option><option value="pc-02">PC 2</option><option value="printer-01">Imprimante</option></select>
 <form id="ip-form"><div class="fields"><div><label for="address">Adresse IPv4</label><input id="address" inputmode="decimal" autocomplete="off" required></div><div><label for="prefix">Préfixe CIDR</label><input id="prefix" type="number" min="0" max="32" required></div></div><div class="actions"><button type="submit">Appliquer</button><button id="wrong-ip" type="button" class="secondary">Mettre une mauvaise IP au PC 2</button><button id="reset-ip" type="button" class="secondary">Rétablir l'adresse initiale</button></div></form>
+<h3>Passerelle et serveurs DNS</h3>
+<p class="muted">Pour l'équipement sélectionné. Ces paramètres sont mémorisés par le moteur R2D3 ; le routage et la résolution DNS ne sont pas encore simulés.</p>
+<form id="options-form">
+  <label for="gateway">Passerelle IPv4 (facultative)</label>
+  <input id="gateway" inputmode="decimal" autocomplete="off" placeholder="Ex. 192.168.10.1">
+  <div class="fields">
+    <div><label for="dns1">DNS 1 (facultatif)</label><input id="dns1" inputmode="decimal" autocomplete="off"></div>
+    <div><label for="dns2">DNS 2 (facultatif)</label><input id="dns2" inputmode="decimal" autocomplete="off"></div>
+  </div>
+  <div class="actions"><button type="submit">Appliquer passerelle et DNS</button></div>
+</form>
 <p class="status" id="feedback" role="status">Chargement du scénario...</p>
 <h3>Câblage</h3>
 <div id="cables"></div>
