@@ -5,6 +5,8 @@ const cmd=(type,targetId,params={})=>engine.dispatch({commandVersion:1,id:"dhcp-
 const state=()=>engine.getSnapshot();
 const pc=()=>state().objectsById["pc-dhcp"];
 const pool=()=>state().objectsById["srv-dhcp"].config.dhcpPool;
+const demoClock=Date.UTC(2026,10,6,9,15,0);
+const leaseDate=seconds=>new Intl.DateTimeFormat("fr-FR",{timeZone:"UTC",day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit",second:"2-digit"}).format(new Date(demoClock+seconds*1000));
 const mask=prefix=>{
  const n=prefix===null?null:prefix===0?0:(0xffffffff<<(32-prefix))>>>0;
  return n===null?"": [24,16,8,0].map(x=>(n>>>x)&255).join(".");
@@ -22,7 +24,7 @@ function showIpconfig(full){
  }else lines.push(field("Adresse IPv4","Non attribuée"));
  if(full){
   if(v.lease){
-   lines.push(field("Bail obtenu","Temps simulé : "+v.lease.start+" s"),field("Bail expirant","Temps simulé : "+v.lease.expires+" s"));
+   lines.push(field("Bail obtenu",leaseDate(v.lease.start)),field("Bail expirant",leaseDate(v.lease.expires)));
   }
   lines.push(field("Passerelle par défaut",o.gateway??""),field("Serveur DHCP",v.lease?state().objectsById[v.lease.serverId].config.ipv4.address:""),field("Serveurs DNS",o.dns[0]??""));
   if(o.dns[1])lines.push("  "+" ".repeat("Passerelle par défaut".length+4)+o.dns[1]);
