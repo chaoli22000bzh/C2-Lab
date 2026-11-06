@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>R2D3 - Atelier expérimental deux PC</title>
+<style>
+:root{font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#17253b;background:#f1f5fa;font-size:16px}*{box-sizing:border-box}body{margin:0}header{background:#102a4b;color:#fff;padding:24px max(18px,calc((100vw - 1120px)/2))}header h1{font-size:26px;margin:0 0 7px}header p{margin:0;color:#cbd9e9}main{max-width:1120px;margin:23px auto;padding:0 18px}.intro{line-height:1.6}.layout{display:grid;grid-template-columns:1fr 1fr;gap:18px}@media(max-width:800px){.layout{grid-template-columns:1fr}}section{background:#fff;border:1px solid #d8e3ee;border-radius:14px;padding:20px}h2{font-size:20px;margin:0 0 8px}h3{font-size:16px;margin:15px 0 8px}.muted{color:#5c6f86;font-size:14px}label{display:block;font-weight:600;font-size:14px;margin:11px 0 5px}input,select{width:100%;padding:10px;font:inherit;border:1px solid #a9b8c9;border-radius:8px;background:#fff}.fields{display:grid;grid-template-columns:2fr 1fr;gap:10px}button{background:#1e5e9b;border:0;border-radius:8px;color:#fff;padding:10px 13px;font:inherit;cursor:pointer}button.secondary{background:#e9f0f8;color:#1e4b79}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #6ba6eb;outline-offset:2px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin:13px 0}.topology{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;margin:12px 0}.node{flex:1;min-width:105px;text-align:center;border:1px solid #c2d4e6;background:#f4f8fd;padding:12px 6px;border-radius:10px;font-size:14px}.node strong{display:block;font-size:15px}.node span{overflow-wrap:anywhere}.state{padding:10px;border-radius:9px;background:#eef2f6;margin:11px 0}.state.good{background:#e6f7ed;color:#14623b}.state.bad{background:#feede9;color:#923929}.row{padding:9px 0;border-bottom:1px solid #edf0f5;font-size:14px}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#101f31;color:#e5edf5;padding:14px;min-height:100px;border-radius:9px}.footer{font-size:13px;color:#53687f;margin:24px 0}.status{font-size:14px;min-height:23px}a{color:#1768b0}
+</style></head><body>
+<header><h1>R2D3 / Atelier expérimental</h1><p>Deux PC, un switch, une imprimante • Nouveau scénario, moteur V1 inchangé</p></header>
+<main>
+<p class="intro">Ce scénario permet de vérifier qu'une panne affectant un PC ne coupe pas les communications des autres équipements. Modifiez les adresses, débranchez un câble et choisissez les équipements à tester.</p>
+<div class="layout">
+<section aria-labelledby="config-title"><h2 id="config-title">Configuration des équipements</h2>
+<p class="muted">Choisissez le poste à configurer. Les modifications sont immédiatement visibles dans le réseau.</p>
+<label for="device">Équipement à configurer</label><select id="device"><option value="pc-01">PC 1</option><option value="pc-02">PC 2</option><option value="printer-01">Imprimante</option></select>
+<form id="ip-form"><div class="fields"><div><label for="address">Adresse IPv4</label><input id="address" inputmode="decimal" autocomplete="off" required></div><div><label for="prefix">Préfixe CIDR</label><input id="prefix" type="number" min="0" max="32" required></div></div><div class="actions"><button type="submit">Appliquer</button><button id="wrong-ip" type="button" class="secondary">Mettre une mauvaise IP au PC 2</button><button id="reset-ip" type="button" class="secondary">Rétablir l'adresse initiale</button></div></form>
+<p class="status" id="feedback" role="status">Chargement du scénario...</p>
+<h3>Câblage</h3>
+<div id="cables"></div>
+<p class="muted">Une manipulation invalide est refusée. Une mauvaise configuration techniquement possible reste acceptée.</p>
+</section>
+<section aria-labelledby="network-title"><h2 id="network-title">Réseau et diagnostics</h2>
+<p class="muted">Toutes les informations proviennent du même moteur technique.</p>
+<div class="topology"><div class="node">💻<strong>PC 1</strong><span id="ip-pc1"></span></div><div class="node">💻<strong>PC 2</strong><span id="ip-pc2"></span></div><div class="node">🖨️<strong>Imprimante</strong><span id="ip-printer"></span></div><div class="node">🔀<strong>Switch</strong>3 ports</div></div>
+<div id="links"></div><h3>Tester une communication</h3>
+<label for="source">Depuis</label><select id="source"><option value="pc-01">PC 1</option><option value="pc-02">PC 2</option><option value="printer-01">Imprimante</option></select>
+<label for="target">Vers</label><select id="target"><option value="printer-01">Imprimante</option><option value="pc-01">PC 1</option><option value="pc-02">PC 2</option></select>
+<div class="actions"><button id="ping" type="button">Tester le ping</button><button id="defaults" type="button" class="secondary">Recharger le scénario initial</button></div>
+<div id="connectivity" class="state" aria-live="polite"></div><pre id="terminal" aria-live="polite">Aucun test effectué.</pre>
+</section>
+</div>
+<p class="footer">Atelier expérimental : aucun serveur C², aucune sauvegarde locale, aucune note. Un rechargement remet les équipements dans leur configuration initiale. <a href="./index.html">Retour au démonstrateur V1</a>.</p>
+</main><script type="module" src="./experiment.js"></script></body></html>
