@@ -43,7 +43,7 @@ function showIpconfig(full) {
   const cable=id==="pc-01"?"cable-pc":"cable-pc2";
   const connected=snapshot.linksById[cable].connected;
   const mobile=window.matchMedia("(max-width: 600px)").matches;
-  const lines=["C:\\Users\\Eleve>ipconfig"+(full?" /all":""),"","Configuration IP de Windows",""];
+  const lines=["C:\\Users\\technicien>ipconfig"+(full?" /all":""),"","Configuration IP de Windows",""];
   const mobileLabels=["Nom de l'hôte","Suffixe DNS","Type de nœud","Routage IP","Proxy WINS","Statut du média","Description","Adresse physique","DHCP activé","Config. automatique","Adresse IPv4","Masque","Passerelle","Serveurs DNS"];
   const maxLabelLength=Math.max(...mobileLabels.map(label=>label.length));
   const field=(compact,windows,value="")=>{
@@ -72,8 +72,42 @@ function showIpconfig(full) {
     field("Passerelle","Passerelle par défaut. . . . . .")
   );
   if(full && connected) lines.push(field("Serveurs DNS","Serveurs DNS . . . . . . . . . ."));
-  lines.push("","C:\\Users\\Eleve>");
+  lines.push("","C:\\Users\\technicien>");
   $("windows-console").textContent=lines.join("\n");
+}
+
+function showDhcpExample() {
+  const area=$("dhcp-example");
+  const button=$("dhcp-preview");
+  const open=area.hidden;
+  area.hidden=!open;
+  button.setAttribute("aria-expanded",String(open));
+  button.textContent=open?"Masquer l'exemple DHCP":"Afficher ipconfig /all en DHCP";
+  if(!open)return;
+  area.textContent=[
+    "C:\\Users\\technicien>ipconfig /all",
+    "",
+    "Configuration IP de Windows",
+    "",
+    "Nom de l'hôte ........ : REN-PC-01",
+    "DHCP activé .......... : Oui",
+    "Config. automatique .. : Oui",
+    "Adresse IPv4 ......... : 192.168.1.26",
+    "                         (préféré)",
+    "Masque de sous-réseau  : 255.255.255.0",
+    "",
+    "Bail obtenu .......... :",
+    "  06/11/2026 à 09:15:00",
+    "Bail expirant ........ :",
+    "  07/11/2026 à 09:15:00",
+    "",
+    "Passerelle par défaut  : 192.168.1.1",
+    "Serveur DHCP ......... : 192.168.1.1",
+    "Serveurs DNS ......... : 192.168.1.10",
+    "                         1.1.1.1",
+    "",
+    "C:\\Users\\technicien>"
+  ].join("\n");
 }
 
 async function start(){
@@ -89,6 +123,7 @@ async function start(){
   $("source").addEventListener("change",update);$("target").addEventListener("change",update);
   $("ipconfig").addEventListener("click",()=>showIpconfig(false));
   $("ipconfig-all").addEventListener("click",()=>showIpconfig(true));
+  $("dhcp-preview").addEventListener("click",showDhcpExample);
   window.addEventListener("resize",()=>{const text=$("windows-console").textContent;if(text.includes("Configuration IP de Windows"))showIpconfig(text.includes(">ipconfig /all"));});
   $("ping").addEventListener("click",()=>{
     const source=$("source").value,target=$("target").value;
