@@ -57,7 +57,7 @@ function update(){
  $("toggle-cable").textContent=attached?"Débrancher le serveur":"Rebrancher le serveur";
  $("client-ip").textContent=cl.config.ipv4.address??"Aucune adresse IPv4";
  const mode=snap.runtime["pc-dhcp"]?.dhcpStatus??"waiting";
- const modes={waiting:"En attente de demande DHCP",lease:"Bail DHCP attribué",apipa:"Adresse APIPA obtenue", "lease-retained":"Bail valide conservé (renouvellement impossible)"};
+ const modes={waiting:"En attente de demande DHCP",released:"Adresse DHCP libérée",lease:"Bail DHCP attribué",apipa:"Adresse APIPA obtenue", "lease-retained":"Bail valide conservé (renouvellement impossible)"};
  $("client-status").textContent=modes[mode]??mode;
  $("client-status").className="status "+(mode==="lease"||mode==="lease-retained"?"good":mode==="apipa"?"bad":"");
  const consoleText=$("console").textContent;
@@ -75,10 +75,15 @@ async function start(){
   if(!response.ok)throw Error("Scénario indisponible");
   scenario=await response.json();
   engine=createEngine(scenario);
+  $("release").addEventListener("click",()=>{
+   const result=action("dhcp.release","pc-dhcp");
+   if(result.status==="applied")$("feedback").textContent="ipconfig /release : adresse DHCP et bail libérés.";
+   showIpconfig(true);
+  });
   $("request").addEventListener("click",()=>{
    action("dhcp.request","pc-dhcp");
    const rt=state().runtime["pc-dhcp"];
-   $("feedback").textContent=rt.dhcpStatus==="lease"?"Bail DHCP attribué.":rt.dhcpStatus==="lease-retained"?"Renouvellement impossible. Bail valide conservé." :"Le serveur DHCP ne répond pas. Windows a attribué une adresse IPv4 APIPA (169.254.x.x).";
+   $("feedback").textContent=rt.dhcpStatus==="lease"?"ipconfig /renew : bail DHCP attribué.":rt.dhcpStatus==="lease-retained"?"ipconfig /renew : serveur inaccessible, bail toujours valide conservé." :"ipconfig /renew : aucune réponse DHCP, adresse APIPA attribuée.";
    showIpconfig(true);
   });
   $("toggle-server").addEventListener("click",()=>action("dhcp.setServerEnabled","srv-dhcp",{enabled:!state().objectsById["srv-dhcp"].config.dhcpEnabled}));
