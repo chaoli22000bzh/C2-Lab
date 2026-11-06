@@ -12,7 +12,7 @@ const mask=prefix=>{
  return n===null?"": [24,16,8,0].map(x=>(n>>>x)&255).join(".");
 };
 const field=(label,value="")=>{
- const widest="Passerelle par défaut".length;
+ const widest=Math.max("Passerelle par défaut".length,"IPv4 autoconfiguration".length);
  return "  "+label+" "+".".repeat(Math.max(0,widest-label.length))+" : "+value;
 };
 function showIpconfig(full){
@@ -20,7 +20,7 @@ function showIpconfig(full){
  const lines=["C:\\Users\\technicien>ipconfig"+(full?" /all":""),"","Configuration IP de Windows",""];
  if(full)lines.push(field("Nom de l'hôte",c.name),field("DHCP activé","Oui"),field("Config. automatique","Oui"));
  if(v.address){
-  lines.push(field("Adresse IPv4",v.address+(v.lease?" (préféré)":" (autoconfiguration)")),field("Masque de sous-réseau",mask(v.prefix)));
+  lines.push(field(v.lease?"Adresse IPv4":"IPv4 autoconfiguration",v.address+(v.lease?" (préféré)":" (APIPA)")),field("Masque de sous-réseau",mask(v.prefix)));
  }else lines.push(field("Adresse IPv4","Non attribuée"));
  if(full){
   if(v.lease){
@@ -64,7 +64,7 @@ async function start(){
   $("request").addEventListener("click",()=>{
    action("dhcp.request","pc-dhcp");
    const rt=state().runtime["pc-dhcp"];
-   $("feedback").textContent=rt.dhcpStatus==="lease"?"Bail DHCP attribué.":rt.dhcpStatus==="lease-retained"?"Renouvellement impossible. Bail valide conservé.":"Aucune réponse DHCP : adresse APIPA attribuée.";
+   $("feedback").textContent=rt.dhcpStatus==="lease"?"Bail DHCP attribué.":rt.dhcpStatus==="lease-retained"?"Renouvellement impossible. Bail valide conservé." :"Le serveur DHCP ne répond pas. Windows a attribué une adresse IPv4 APIPA (169.254.x.x).";
    showIpconfig(true);
   });
   $("toggle-server").addEventListener("click",()=>action("dhcp.setServerEnabled","srv-dhcp",{enabled:!state().objectsById["srv-dhcp"].config.dhcpEnabled}));
