@@ -44,7 +44,7 @@ function showIpconfig(full) {
   const connected=snapshot.linksById[cable].connected;
   const options=station.config.networkOptions??{gateway:null,dns:[]};
   const lines=["C:\\Users\\technicien>ipconfig"+(full?" /all":""),"","Configuration IP de Windows",""];
-  const labelWidth=23;
+  const labelWidth=Math.max(...["Nom de l'hôte","DHCP activé","Config. automatique","Adresse IPv4","Masque de sous-réseau","Passerelle par défaut","Serveurs DNS","Statut du média"].map(label=>label.length));
   const field=(label,value="")=>"  "+label+" "+ ".".repeat(Math.max(0,labelWidth-label.length))+" : "+value;
   if(full) lines.push(
     field("Nom de l'hôte",station.name),
