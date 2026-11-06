@@ -12,22 +12,36 @@ const mask=prefix=>{
  return n===null?"": [24,16,8,0].map(x=>(n>>>x)&255).join(".");
 };
 const field=(label,value="")=>{
- const widest=Math.max("Passerelle par défaut".length,"IPv4 autoconfiguration".length);
+ const widest=Math.max("Passerelle par défaut".length,"Adresse d'autoconfiguration IPv4".length);
  return "  "+label+" "+".".repeat(Math.max(0,widest-label.length))+" : "+value;
 };
 function showIpconfig(full){
  const c=pc(),v=c.config.ipv4,o=c.config.networkOptions;
+ const apipa=Boolean(v.address?.startsWith("169.254.") && !v.lease);
  const lines=["C:\\Users\\technicien>ipconfig"+(full?" /all":""),"","Configuration IP de Windows",""];
- if(full)lines.push(field("Nom de l'hôte",c.name),field("DHCP activé","Oui"),field("Config. automatique","Oui"));
- if(v.address){
-  lines.push(field(v.lease?"Adresse IPv4":"IPv4 autoconfiguration",v.address+(v.lease?" (préféré)":" (APIPA)")),field("Masque de sous-réseau",mask(v.prefix)));
- }else lines.push(field("Adresse IPv4","Non attribuée"));
- if(full){
-  if(v.lease){
-   lines.push(field("Bail obtenu",leaseDate(v.lease.start)),field("Bail expirant",leaseDate(v.lease.expires)));
+ if(apipa && full){
+  // Libellés et ordre du chapitre 7 APIPA, avec l'IP effective du moteur.
+  lines.push(
+   field("Nom de l'hôte",c.name),
+   field("Description","Intel(R) Ethernet Controller (3) I225-V"),
+   field("Adresse physique","48-21-0B-5F-8C-90"),
+   field("DHCP activé","Oui"),
+   field("Configuration automatique activée","Oui"),
+   field("Adresse d'autoconfiguration IPv4",v.address+" (préféré)"),
+   field("Masque de sous-réseau",mask(v.prefix)),
+   field("Passerelle par défaut",""),
+   field("NetBIOS sur Tcpip","Activé")
+  );
+ }else{
+  if(full)lines.push(field("Nom de l'hôte",c.name),field("DHCP activé","Oui"),field("Config. automatique","Oui"));
+  if(v.address){
+   lines.push(field("Adresse IPv4",v.address+" (préféré)"),field("Masque de sous-réseau",mask(v.prefix)));
+  }else lines.push(field("Adresse IPv4","Non attribuée"));
+  if(full){
+   if(v.lease)lines.push(field("Bail obtenu",leaseDate(v.lease.start)),field("Bail expirant",leaseDate(v.lease.expires)));
+   lines.push(field("Passerelle par défaut",o.gateway??""),field("Serveur DHCP",v.lease?state().objectsById[v.lease.serverId].config.ipv4.address:""),field("Serveurs DNS",o.dns[0]??""));
+   if(o.dns[1])lines.push("  "+" ".repeat("Passerelle par défaut".length+4)+o.dns[1]);
   }
-  lines.push(field("Passerelle par défaut",o.gateway??""),field("Serveur DHCP",v.lease?state().objectsById[v.lease.serverId].config.ipv4.address:""),field("Serveurs DNS",o.dns[0]??""));
-  if(o.dns[1])lines.push("  "+" ".repeat("Passerelle par défaut".length+4)+o.dns[1]);
  }
  lines.push("","C:\\Users\\technicien>");
  $("console").textContent=lines.join("\n");
