@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>R2D3 | Deux clients DHCP</title>
+<style>
+:root{font:16px/1.5 system-ui,Segoe UI,sans-serif;background:#f1f5fa;color:#192b42}*{box-sizing:border-box}body{margin:0}header{background:#102a4b;color:white;padding:22px max(18px,calc((100vw - 1080px)/2))}h1{font-size:25px;margin:0}header p{margin:5px 0;color:#cbd9e9}main{max-width:1080px;margin:20px auto;padding:0 18px}
+section{background:white;border:1px solid #d5e0eb;border-radius:13px;padding:18px;min-width:0}h2{font-size:19px;margin:0 0 12px}h3{font-size:16px;margin:14px 0 6px}.layout{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:15px}
+button{font:inherit;border:0;border-radius:8px;padding:10px 12px;cursor:pointer;background:#225f98;color:#fff}button.secondary{background:#e8f0f9;color:#153d6a}button:focus-visible,select:focus-visible{outline:3px solid #82b1e3;outline-offset:2px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.command-button{display:flex;flex-direction:column;gap:2px;align-items:center;justify-content:center;text-align:center;min-height:62px}.command-title{font-weight:650}.command-subtitle{font:12px Consolas,"Courier New",monospace;opacity:.85}
+.small{font-size:13px;color:#56708a}.card{background:#f4f8fc;padding:12px;border:1px solid #d3e1ed;border-radius:9px;margin-top:10px}.status{font-weight:650}.good{color:#1c6844}.bad{color:#aa4236}.name{font-weight:700}label{display:block;font-weight:650;margin-bottom:5px}
+select{font:inherit;width:100%;max-width:280px;padding:8px;border:1px solid #9bb2c9;border-radius:8px;background:white}
+pre{font:12px/1.65 Consolas,"Courier New",monospace;color:#edf3ff;background:#112337;padding:13px;border-radius:9px;overflow-x:auto;white-space:pre;max-width:100%;min-height:85px}
+#feedback{font-size:14px;font-weight:600}.footer{margin:15px 0;font-size:14px}a{color:#1d609f}
+@media(max-width:800px){.layout{grid-template-columns:1fr}}@media(max-width:500px){section{padding:12px}.actions button{flex:1 1 145px}pre{font-size:10.5px}}
+</style></head><body>
+<header><h1>R2D3 / Deux clients DHCP</h1><p>Laboratoire expérimental : deux PC, un serveur DHCP et une imprimante réseau</p></header>
+<main>
+<p>Attribue un bail à chaque PC, puis provoque une panne sur l'un des deux. Vérifie que les configurations restent indépendantes.</p>
+<section>
+<h2>Service DHCP commun</h2>
+<div class="card"><strong>Serveur : 192.168.10.2</strong> <span id="server-status" class="status"></span><div class="small">Plage 192.168.10.100 à 192.168.10.110 /24 · Passerelle 192.168.10.1 · DNS 192.168.10.10 et 1.1.1.1 · Bail de 24 h</div></div>
+<div class="actions"><button id="toggle-server" class="secondary" type="button">Arrêter le service DHCP</button><button id="reset" class="secondary" type="button">Réinitialiser le laboratoire</button></div>
+</section>
+<div class="layout">
+<section id="panel-pc-dhcp-01">
+<h2>PC 1 : REN-PC-01</h2>
+<div class="card"><div class="small">Adresse IPv4</div><div id="ip-pc-dhcp-01" class="name">Aucune</div><div id="status-pc-dhcp-01" class="status"></div><div class="small">Câble réseau : <span id="cable-pc-dhcp-01">Branché</span></div></div>
+<div class="actions"><button id="release-pc-dhcp-01" class="secondary command-button" type="button"><span class="command-title">Libérer l'adresse IP</span><span class="command-subtitle">ipconfig /release</span></button><button id="renew-pc-dhcp-01" class="command-button" type="button"><span class="command-title">Renouveler le bail DHCP</span><span class="command-subtitle">ipconfig /renew</span></button></div>
+<div class="actions"><button id="wire-pc-dhcp-01" class="secondary" type="button">Débrancher le PC 1</button></div>
+</section>
+<section id="panel-pc-dhcp-02">
+<h2>PC 2 : REN-PC-02</h2>
+<div class="card"><div class="small">Adresse IPv4</div><div id="ip-pc-dhcp-02" class="name">Aucune</div><div id="status-pc-dhcp-02" class="status"></div><div class="small">Câble réseau : <span id="cable-pc-dhcp-02">Branché</span></div></div>
+<div class="actions"><button id="release-pc-dhcp-02" class="secondary command-button" type="button"><span class="command-title">Libérer l'adresse IP</span><span class="command-subtitle">ipconfig /release</span></button><button id="renew-pc-dhcp-02" class="command-button" type="button"><span class="command-title">Renouveler le bail DHCP</span><span class="command-subtitle">ipconfig /renew</span></button></div>
+<div class="actions"><button id="wire-pc-dhcp-02" class="secondary" type="button">Débrancher le PC 2</button></div>
+</section>
+</div>
+<div class="layout">
+<section><h2>Diagnostic Windows</h2><label for="console-pc">Poste concerné</label><select id="console-pc"><option value="pc-dhcp-01">PC 1 : REN-PC-01</option><option value="pc-dhcp-02">PC 2 : REN-PC-02</option></select>
+<div class="actions"><button id="ipconfig" class="secondary" type="button">ipconfig</button><button id="ipconfig-all" class="secondary" type="button">ipconfig /all</button><button id="ping" class="secondary" type="button">Ping imprimante</button></div>
+<pre id="console" aria-live="polite">C:\Users\technicien&gt;</pre></section>
+<section><h2>Communication avec l'imprimante</h2><div class="card"><strong>Imprimante : 192.168.10.50</strong><div class="small">Le ping part du PC choisi dans « Poste concerné ».</div></div><pre id="ping-console">Aucun ping effectué.</pre></section>
+</div>
+<p id="feedback" role="status">Chargement...</p>
+<p class="small">Cette première version simule les attributions et les incidents indépendants. Le temps des baux est fixe et les échanges DHCP détaillés ne sont pas émulés.</p>
+<p class="footer"><a href="./dhcp.html">Retour au laboratoire DHCP à un PC</a> · <a href="./experiment.html">Atelier IPv4</a></p>
+</main><script type="module" src="./dhcp-deux-pc.js"></script></body></html>
