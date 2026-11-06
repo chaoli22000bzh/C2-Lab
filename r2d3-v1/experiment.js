@@ -40,7 +40,32 @@ async function start(){
   $("wrong-ip").addEventListener("click",()=>{ $("device").value="pc-02";dispatch("network.setIPv4","pc-02",{interfaceId:"eth0",mode:"static",address:"192.168.22.30",prefix:24});});
   $("reset-ip").addEventListener("click",()=>{const id=$("device").value;dispatch("network.setIPv4",id,{...defaults[id]});});
   $("source").addEventListener("change",update);$("target").addEventListener("change",update);
-  $("ping").addEventListener("click",()=>{const source=$("source").value,target=$("target").value;const a=engine.getSnapshot().objectsById[source].config.ipv4.address,b=engine.getSnapshot().objectsById[target].config.ipv4.address;const q=engine.query({type:"network.ping",sourceId:source,targetId:target});$("terminal").textContent="> "+devices[source]+" ("+a+") : ping "+b+"\n"+(q.success?"Réponse simulée reçue.":"Échec : "+q.reason);});
+  $("ping").addEventListener("click",()=>{
+    const source=$("source").value,target=$("target").value;
+    const snapshot=engine.getSnapshot();
+    const sourceIp=snapshot.objectsById[source].config.ipv4.address;
+    const targetIp=snapshot.objectsById[target].config.ipv4.address;
+    const outcome=engine.query({type:"network.ping",sourceId:source,targetId:target});
+    const received=outcome.success?4:0, lost=4-received;
+    const replies=Array.from({length:4},()=>outcome.success
+      ?"Réponse de "+targetIp+" : octets=32 temps<1 ms TTL=128"
+      :"Délai d'attente de la demande dépassé.");
+    $("terminal").textContent=[
+      "> "+devices[source]+" ("+sourceIp+") : ping "+targetIp,
+      "Simulation d'une commande ping Windows (4 requêtes).",
+      "",
+      "Envoi d'une requête 'Ping' "+targetIp+" avec 32 octets de données :",
+      ...replies,
+      "",
+      "Statistiques Ping pour "+targetIp+" :",
+      "    Paquets : envoyés = 4, reçus = "+received+", perdus = "+lost+
+        " (perte "+(lost?100:0)+" %)",
+      ...(outcome.success
+        ?["Durées approximatives des boucles en millisecondes :",
+          "    Minimum = <1ms, Maximum = <1ms, Moyenne = <1ms"]
+        :["Échec de la simulation : "+outcome.reason])
+    ].join("\n");
+  });
   $("defaults").addEventListener("click",()=>window.location.reload());
   setFeedback("Scénario chargé.");update();
  }catch(error){setFeedback("Chargement impossible : "+error.message,false);}
