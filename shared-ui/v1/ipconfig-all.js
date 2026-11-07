@@ -52,7 +52,7 @@ export function formatIpconfigAll({
     "Configuration IP de Windows",""
   ];
   if(hostname!==undefined)lines.push(field("Nom de l'hôte",hostname));
-  lines.push("","Carte Ethernet "+interfaceName+" :","");
+  lines.push("");
   if(description!==undefined)lines.push(field("Description",description));
   if(mac!==undefined)lines.push(field("Adresse physique",mac));
   lines.push(field("DHCP activé",yesNo(dhcp)));
