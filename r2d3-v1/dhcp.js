@@ -1,3 +1,4 @@
+import {formatIpconfigRelease,formatIpconfigRenew} from "../shared-ui/v1/dhcp-commands.js";
 import {formatIpconfigAll} from "../shared-ui/v1/ipconfig-all.js";
 import {formatIpconfig} from "../shared-ui/v1/ipconfig.js";
 import {createPingAnimator} from "../shared-ui/v1/ping-animation.js";
@@ -58,13 +59,13 @@ async function start(){
   $("release").addEventListener("click",()=>{
    const result=action("dhcp.release","pc-dhcp");
    if(result.status==="applied")$("feedback").textContent="ipconfig /release : adresse DHCP et bail libérés.";
-   showIpconfig(true);
+   if(result.status==="applied")$("console").textContent=formatIpconfigRelease({ipv4:pc().config.ipv4});
   });
   $("request").addEventListener("click",()=>{
-   action("dhcp.request","pc-dhcp");
+   const result=action("dhcp.request","pc-dhcp");
    const rt=state().runtime["pc-dhcp"];
    $("feedback").textContent=rt.dhcpStatus==="lease"?"ipconfig /renew : bail DHCP attribué.":rt.dhcpStatus==="lease-retained"?"ipconfig /renew : serveur inaccessible, bail toujours valide conservé." :"ipconfig /renew : aucune réponse DHCP, adresse APIPA attribuée.";
-   showIpconfig(true);
+   if(result.status==="applied")$("console").textContent=formatIpconfigRenew({ipv4:pc().config.ipv4,status:rt.dhcpStatus,gateway:pc().config.networkOptions?.gateway});
   });
   $("toggle-server").addEventListener("click",()=>action("dhcp.setServerEnabled","srv-dhcp",{enabled:!state().objectsById["srv-dhcp"].config.dhcpEnabled}));
   $("toggle-cable").addEventListener("click",()=>action("network.setLinkConnected","cable-dhcp-server",{connected:!state().linksById["cable-dhcp-server"].connected}));
