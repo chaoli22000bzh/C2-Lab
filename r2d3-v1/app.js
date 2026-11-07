@@ -1,3 +1,4 @@
+import {createPingAnimator} from "./ping-animation.js";
 import {createEngine} from "./r2d3-core.js";
 const $=id=>document.getElementById(id);
 let engine, seq=0, initialIP;
@@ -24,22 +25,23 @@ function render(){
  $("connectivity").textContent=(ping.success?"Connectivité disponible":"Connectivité indisponible")+" : "+ping.reason;
 }
 function setIP(address,prefix){cmd("network.setIPv4","pc-01",{interfaceId:"eth0",mode:"static",address,prefix:Number(prefix)})}
+const pingAnimator=createPingAnimator($("terminal"));
 async function start(){
  try{
   const response=await fetch("./scenario.json",{cache:"no-store"});
   if(!response.ok)throw Error("Scénario non disponible");
   const scenario=await response.json();
   engine=createEngine(scenario);initialIP=engine.getSnapshot().objectsById["pc-01"].config.ipv4;
-  engine.subscribe(()=>{render();$("terminal").textContent="Configuration modifiée. Relancez le ping pour obtenir un nouveau résultat.";});render();
+  engine.subscribe(()=>{render();pingAnimator.cancel("Configuration modifiée. Relancez le ping pour obtenir un nouveau résultat.");});render();
   $("ip-form").addEventListener("submit",event=>{event.preventDefault();setIP($("address").value.trim(),$("prefix").value)});
   $("wrong-ip").addEventListener("click",()=>setIP("192.168.22.20",24));
   $("fix-ip").addEventListener("click",()=>setIP(initialIP.address,initialIP.prefix));
   $("toggle-wire").addEventListener("click",()=>{const connected=engine.getSnapshot().linksById["cable-printer"].connected;cmd("network.setLinkConnected","cable-printer",{connected:!connected})});
   $("ping").addEventListener("click",()=>{
-   const pc=engine.getSnapshot().objectsById["pc-01"].config.ipv4;
-   const printer=engine.getSnapshot().objectsById["printer-01"].config.ipv4;
+   const objects=engine.getSnapshot().objectsById,pc=objects["pc-01"],printer=objects["printer-01"];
    const outcome=engine.query({type:"network.ping",sourceId:"pc-01",targetId:"printer-01"});
-   $("terminal").textContent="> ping "+printer.address+"\n"+(outcome.success?"Réponse de "+printer.address+" : simulation réussie":"Échec : "+outcome.reason)+"\nSource : "+pc.address+"/"+pc.prefix;
+   pingAnimator.run({sourceName:pc.name,sourceAddress:pc.config.ipv4.address,
+    targetAddress:printer.config.ipv4.address,outcome});
   });
  }catch(e){result("Chargement impossible : "+e.message,false);$("connectivity").textContent="Démonstration indisponible"}
 }
