@@ -1,4 +1,5 @@
 import {createPingAnimator} from "../shared-ui/v1/ping-animation.js";
+import {createWindowsFieldFormatter} from "../shared-ui/v1/windows-fields.js";
 import {createEngine} from "./r2d3-core.js";
 const $=id=>document.getElementById(id);
 const devices={"pc-01":"PC 1","pc-02":"PC 2","printer-01":"Imprimante"};
@@ -46,7 +47,7 @@ function showIpconfig(full) {
   const options=station.config.networkOptions??{gateway:null,dns:[]};
   const lines=["C:\\Users\\technicien>ipconfig"+(full?" /all":""),"","Configuration IP de Windows",""];
   const labelWidth=Math.max(...["Nom de l'hôte","DHCP activé","Config. automatique","Adresse IPv4","Masque de sous-réseau","Passerelle par défaut","Serveurs DNS","Statut du média"].map(label=>label.length));
-  const field=(label,value="")=>"  "+label+" "+ ".".repeat(Math.max(0,labelWidth-label.length))+" : "+value;
+  const field=createWindowsFieldFormatter(["Nom de l'hôte","DHCP activé","Config. automatique","Adresse IPv4","Masque de sous-réseau","Passerelle par défaut","Serveurs DNS","Statut du média"]);
   if(full) lines.push(
     field("Nom de l'hôte",station.name),
     field("DHCP activé","Non"),
