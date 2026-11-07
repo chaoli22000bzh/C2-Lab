@@ -1,3 +1,4 @@
+import {formatIpconfigAll} from "../shared-ui/v1/ipconfig-all.js";
 import {formatIpconfig} from "../shared-ui/v1/ipconfig.js";
 import {createPingAnimator} from "../shared-ui/v1/ping-animation.js";
 import {createWindowsFieldFormatter} from "../shared-ui/v1/windows-fields.js";
@@ -18,12 +19,7 @@ function showIpconfig(all){
   $("console").textContent=formatIpconfig({ipv4:v,gateway:opts?.gateway});
   return;
  }
- const output=["C:\\Users\\technicien>ipconfig"+(all?" /all":""),"","Configuration IP de Windows",""];
- if(all)output.push(field("Nom de l'hôte",c.name),field("DHCP activé","Non"));
- output.push(field("Adresse IPv4",v.address+" (préféré)"),field("Masque de sous-réseau",mask(v.prefix)));
- if(all)output.push(field("Passerelle par défaut",opts.gateway??""),field("Serveurs DNS",opts.dns[0]??""));
- output.push("","C:\\Users\\technicien>");
- $("console").textContent=output.join("\n");
+ $("console").textContent=formatIpconfigAll({ipv4:v,hostname:c.name,dhcp:false,gateway:opts?.gateway,dns:opts?.dns??[]});
 }
 function update(){
  for(const id of ids)$("ip-"+id).textContent=ip(id).address;
