@@ -1,3 +1,4 @@
+import {createPingAnimator} from "./ping-animation.js";
 import {createEngine} from "./r2d3-core.js";
 const $=id=>document.getElementById(id);
 let engine,scenario,sequence=0;
@@ -69,6 +70,7 @@ function action(type,targetId,params){
  update();
  return result;
 }
+const pingAnimator=createPingAnimator($("ping-console"));
 async function start(){
  try{
   const response=await fetch("./dhcp-scenario.json",{cache:"no-store"});
@@ -90,12 +92,12 @@ async function start(){
   $("toggle-cable").addEventListener("click",()=>action("network.setLinkConnected","cable-dhcp-server",{connected:!state().linksById["cable-dhcp-server"].connected}));
   $("ipconfig").addEventListener("click",()=>showIpconfig(false));
   $("ipconfig-all").addEventListener("click",()=>showIpconfig(true));
-  $("reset").addEventListener("click",()=>{engine=createEngine(scenario);$("ping-console").textContent="Aucun ping effectué.";$("feedback").textContent="Scénario réinitialisé.";update();});
+  $("reset").addEventListener("click",()=>{engine=createEngine(scenario);pingAnimator.cancel();$("feedback").textContent="Scénario réinitialisé.";update();});
   $("ping").addEventListener("click",()=>{
+   const source=pc(),target=state().objectsById["printer-dhcp"];
    const result=engine.query({type:"network.ping",sourceId:"pc-dhcp",targetId:"printer-dhcp"});
-   const target="192.168.10.50";
-   const replies=Array.from({length:4},()=>result.success?"Réponse de "+target+" : octets=32 temps<1 ms TTL=128":"Délai d'attente de la demande dépassé.");
-   $("ping-console").textContent=["C:\\Users\\technicien>ping "+target,"",...replies,"","Paquets : envoyés = 4, reçus = "+(result.success?4:0)+", perdus = "+(result.success?0:4)+" ("+(result.success?0:100)+" % de perte)","",result.reason].join("\n");
+   pingAnimator.run({sourceName:source.name,sourceAddress:source.config.ipv4.address,
+    targetAddress:target.config.ipv4.address,outcome:result});
   });
   update();
   $("feedback").textContent="Scénario chargé.";
