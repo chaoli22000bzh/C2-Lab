@@ -1,3 +1,4 @@
+import {formatIpconfigAll} from "../shared-ui/v1/ipconfig-all.js";
 import {formatIpconfig} from "../shared-ui/v1/ipconfig.js";
 import {createPingAnimator} from "../shared-ui/v1/ping-animation.js";
 import {createWindowsFieldFormatter} from "../shared-ui/v1/windows-fields.js";
@@ -50,31 +51,8 @@ function showIpconfig(full) {
     $("windows-console").textContent=formatIpconfig({ipv4:ip,connected,gateway:options.gateway});
     return;
   }
-  const lines=["C:\\Users\\technicien>ipconfig"+(full?" /all":""),"","Configuration IP de Windows",""];
-  const labelWidth=Math.max(...["Nom de l'hôte","DHCP activé","Config. automatique","Adresse IPv4","Masque de sous-réseau","Passerelle par défaut","Serveurs DNS","Statut du média"].map(label=>label.length));
-  const field=createWindowsFieldFormatter(["Nom de l'hôte","DHCP activé","Config. automatique","Adresse IPv4","Masque de sous-réseau","Passerelle par défaut","Serveurs DNS","Statut du média"]);
-  if(full) lines.push(
-    field("Nom de l'hôte",station.name),
-    field("DHCP activé","Non"),
-    field("Config. automatique","Oui")
-  );
-  if(!connected) {
-    lines.push(field("Statut du média","Média déconnecté"));
-  } else {
-    lines.push(
-      field("Adresse IPv4",ip.address+" (préféré)"),
-      field("Masque de sous-réseau",subnetMask(ip.prefix)),
-      field("Passerelle par défaut",options.gateway??"")
-    );
-    if(full) {
-      lines.push(field("Serveurs DNS",options.dns[0]??""));
-      if(options.dns[1])lines.push("  "+" ".repeat(labelWidth+4)+options.dns[1]);
-    }
-  }
-  lines.push("","C:\\Users\\technicien>");
-  $("windows-console").textContent=lines.join("\n");
+  $("windows-console").textContent=formatIpconfigAll({ipv4:ip,hostname:station.name,connected,gateway:options.gateway,dns:options.dns,dhcp:false});
 }
-
 function showDhcpExample() {
   const area=$("dhcp-example");
   const button=$("dhcp-preview");
