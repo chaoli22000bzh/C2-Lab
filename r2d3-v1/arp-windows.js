@@ -1,3 +1,4 @@
+import {formatIpconfig} from "../shared-ui/v1/ipconfig.js";
 import {createPingAnimator} from "../shared-ui/v1/ping-animation.js";
 import {createWindowsFieldFormatter} from "../shared-ui/v1/windows-fields.js";
 import {createEngine} from "./r2d3-core.js";
@@ -25,13 +26,7 @@ function showArp(){
 }
 function showConfig(){
  const p=snap().objectsById[selected()];
- $("console").textContent=[
- "C:\\Users\\technicien>ipconfig","","Configuration IP de Windows","",
- "Carte Ethernet Ethernet :","",field("Adresse IPv4",p.config.ipv4.address),
- field("Masque de sous-réseau",mask),
- field("Passerelle par défaut",p.config.networkOptions?.gateway??""),
- "","C:\\Users\\technicien>"
- ].join("\n");
+ $("console").textContent=formatIpconfig({ipv4:p.config.ipv4,gateway:p.config.networkOptions?.gateway});
 }
 function ping(targetId){
  const sourceId=selected(),st=snap(),from=st.objectsById[sourceId],to=st.objectsById[targetId];
