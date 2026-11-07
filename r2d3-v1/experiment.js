@@ -1,3 +1,4 @@
+import {formatIpconfig} from "../shared-ui/v1/ipconfig.js";
 import {createPingAnimator} from "../shared-ui/v1/ping-animation.js";
 import {createWindowsFieldFormatter} from "../shared-ui/v1/windows-fields.js";
 import {createEngine} from "./r2d3-core.js";
@@ -45,6 +46,10 @@ function showIpconfig(full) {
   const cable=id==="pc-01"?"cable-pc":"cable-pc2";
   const connected=snapshot.linksById[cable].connected;
   const options=station.config.networkOptions??{gateway:null,dns:[]};
+  if(!full){
+    $("windows-console").textContent=formatIpconfig({ipv4:ip,connected,gateway:options.gateway});
+    return;
+  }
   const lines=["C:\\Users\\technicien>ipconfig"+(full?" /all":""),"","Configuration IP de Windows",""];
   const labelWidth=Math.max(...["Nom de l'hôte","DHCP activé","Config. automatique","Adresse IPv4","Masque de sous-réseau","Passerelle par défaut","Serveurs DNS","Statut du média"].map(label=>label.length));
   const field=createWindowsFieldFormatter(["Nom de l'hôte","DHCP activé","Config. automatique","Adresse IPv4","Masque de sous-réseau","Passerelle par défaut","Serveurs DNS","Statut du média"]);
