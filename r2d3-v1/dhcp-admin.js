@@ -34,12 +34,13 @@ function showIpconfig(full){
 }
 function poolSummary(){
  const pool=snapshot().objectsById["srv-dhcp"].config.dhcpPool;
- $("pool-summary").textContent="Plage "+pool.start+" à "+pool.end+" · Exclusions : "+(pool.exclusions.length?pool.exclusions.join(", "):"aucune")+" · Réservation PC 2 : "+(pool.reservations.length?pool.reservations[0].address:"aucune");
+ $("pool-summary").textContent="Plage "+pool.start+" à "+pool.end+" · Durée des nouveaux baux : "+(pool.leaseSeconds/3600)+" h · Exclusions : "+(pool.exclusions.length?pool.exclusions.join(", "):"aucune")+" · Réservation PC 2 : "+(pool.reservations.length?pool.reservations[0].address:"aucune");
 }
 function fillPoolInputs(){
  const pool=snapshot().objectsById["srv-dhcp"].config.dhcpPool;
  $("pool-start").value=pool.start;
  $("pool-end").value=pool.end;
+ $("lease-hours").value=String(pool.leaseSeconds/3600);
  $("exclusions").value=pool.exclusions.join(", ");
  $("reservation").value=pool.reservations.find(r=>r.mac==="02-52-32-44-33-02")?.address??"";
 }
@@ -119,13 +120,18 @@ async function start(){
    const end=$("pool-end").value.trim();
    const exclusions=$("exclusions").value.split(",").map(x=>x.trim()).filter(Boolean);
    const reserved=$("reservation").value.trim();
+   const leaseHours=Number($("lease-hours").value);
    const reservations=reserved?[{mac:"02-52-32-44-33-02",address:reserved}]:[];
-   const result=apply("dhcp.configurePool","srv-dhcp",{start,end,exclusions,reservations});
+   if(!Number.isInteger(leaseHours)||leaseHours<1||leaseHours>720){
+    $("pool-feedback").textContent="Durée invalide : saisir un nombre entier entre 1 et 720 heures.";
+    return;
+   }
+   const result=apply("dhcp.configurePool","srv-dhcp",{start,end,exclusions,reservations,leaseSeconds:leaseHours*3600});
    if(result.status==="applied"){
-    $("pool-feedback").textContent="Configuration enregistrée. Les baux déjà attribués ne sont pas supprimés automatiquement.";
+    $("pool-feedback").textContent="Configuration enregistrée. La nouvelle durée s'appliquera aux prochains baux ou renouvellements. Les échéances existantes restent inchangées.";
     $("feedback").textContent="Paramètres du serveur DHCP enregistrés.";
    }else{
-    $("pool-feedback").textContent="Configuration refusée : vérifier la plage, les exclusions et la réservation (adresse unique comprise dans la plage et non exclue).";
+    $("pool-feedback").textContent="Configuration refusée : vérifier la plage, la durée du bail, les exclusions et la réservation (adresse unique comprise dans la plage et non exclue).";
    }
   });
   for(const hours of [12,9,3,1]){
