@@ -1,3 +1,4 @@
+import {createPingAnimator} from "./ping-animation.js";
 import {createEngine} from "./r2d3-core.js";
 const $=id=>document.getElementById(id);
 const clients=["pc-dhcp-01","pc-dhcp-02"];
@@ -91,6 +92,7 @@ function renewalMessage(id){
  const parts={lease:"bail DHCP attribué",apipa:"aucune réponse DHCP, adresse APIPA obtenue","lease-retained":"renouvellement impossible, bail valide conservé"};
  return labels[id]+" · ipconfig /renew : "+(parts[outcome]??"état indisponible")+".";
 }
+const pingAnimator=createPingAnimator($("ping-console"));
 async function start(){
  try{
   const res=await fetch("./dhcp-admin-scenario.json",{cache:"no-store"});
@@ -135,21 +137,24 @@ async function start(){
   $("reset").addEventListener("click",()=>{
    engine=createEngine(scenario);fillPoolInputs();$("pool-feedback").textContent="Aucune modification enregistrée.";
    $("console").textContent="C:\\Users\\technicien>";
-   $("ping-console").textContent="Aucun ping effectué.";
+   pingAnimator.cancel();
    $("feedback").textContent="Laboratoire réinitialisé.";update();
   });
   $("ipconfig").addEventListener("click",()=>showIpconfig(false));
   $("ipconfig-all").addEventListener("click",()=>showIpconfig(true));
   $("console-pc").addEventListener("change",()=>{
+   pingAnimator.cancel("Aucun ping effectué depuis ce poste.");
    if($("console").textContent.includes("Configuration IP de Windows"))showIpconfig($("console").textContent.includes(">ipconfig /all"));
   });
   $("ping").addEventListener("click",()=>{
-   const id=selected(),v=pc(id).config.ipv4;
+   const id=selected(),source=pc(id),target=snapshot().objectsById["printer-dhcp"];
    const result=engine.query({type:"network.ping",sourceId:id,targetId:"printer-dhcp"});
-   const target="192.168.10.50";
-   const replies=Array.from({length:4},()=>result.success?"Réponse de "+target+" : octets=32 temps<1 ms TTL=128":"Délai d'attente de la demande dépassé.");
-   $("ping-console").textContent=["C:\\Users\\technicien>ping "+target,"",...replies,"","Paquets : envoyés = 4, reçus = "+(result.success?4:0)+", perdus = "+(result.success?0:4)+" ("+(result.success?0:100)+" % de perte)","",result.reason].join("\n");
-   $("feedback").textContent=labels[id]+" : "+(result.success?"ping réussi.":"ping en échec.");
+   pingAnimator.run({
+     sourceName:source.name,sourceAddress:source.config.ipv4.address,
+     targetAddress:target.config.ipv4.address,outcome:result,
+     onProgress:n=>{$("feedback").textContent="Ping depuis "+source.name+" : "+n+"/4 réponses."},
+     onComplete:({success})=>{$("feedback").textContent=source.name+" : "+(success?"ping réussi.":"ping en échec.")}
+   });
   });
   fillPoolInputs();update();$("feedback").textContent="Scénario chargé.";
  }catch(err){$("feedback").textContent="Erreur : "+err.message;}
