@@ -45,6 +45,21 @@ function fillPoolInputs(){
 }
 function update(){
  const st=snapshot(),sv=st.objectsById["srv-dhcp"];
+ const clock=st.simulationClock;
+ $("time-value").textContent=Math.floor(clock/3600)+" h "+String(Math.floor(clock%3600/60)).padStart(2,"0");
+ const time=seconds=>Math.floor(seconds/3600)+" h "+String(Math.floor(seconds%3600/60)).padStart(2,"0");
+ const timing=id=>{
+  const lease=st.objectsById[id].config.ipv4.lease;
+  const runtime=st.runtime[id];
+  if(!lease)return labels[id]+" : "+(runtime?.dhcpStatus==="expired"?"bail expiré":runtime?.dhcpStatus==="apipa"?"APIPA":"aucun bail actif");
+  const duration=lease.expires-lease.start;
+  const phase=runtime?.dhcpLeasePhase;
+  const note=phase?(" · Dernier événement : "+({"renewed-t1":"T1 renouvelé","renewed-t2":"T2 renouvelé","t1-failed":"échec T1","t2-failed":"échec T2"}[phase]??phase)):"";
+  return labels[id]+" : T1 à "+time(lease.start+Math.floor(duration/2))+
+   ", T2 à "+time(lease.start+Math.floor(duration*0.875))+
+   ", expiration à "+time(lease.expires)+note;
+ };
+ $("lease-summary").textContent=clients.map(timing).join(" | ");
  $("server-status").textContent=sv.config.dhcpEnabled?"Service actif":"Service arrêté";
  $("server-status").className="status "+(sv.config.dhcpEnabled?"good":"bad");
  poolSummary();
@@ -52,7 +67,7 @@ function update(){
  for(const id of clients){
   const v=st.objectsById[id].config.ipv4;
   const status=st.runtime[id]?.dhcpStatus??"waiting";
-  const modes={waiting:"En attente de bail",released:"Adresse DHCP libérée",lease:"Bail DHCP attribué",apipa:"Adresse APIPA obtenue","lease-retained":"Bail valide conservé"};
+  const modes={waiting:"En attente de bail",released:"Adresse DHCP libérée",lease:"Bail DHCP attribué",apipa:"Adresse APIPA obtenue","lease-retained":"Bail valide conservé",expired:"Bail expiré"};
   const linked=st.linksById[cables[id]].connected;
   $("ip-"+id).textContent=v.address??"Aucune adresse IPv4";
   $("status-"+id).textContent=modes[status]??status;
@@ -113,6 +128,13 @@ async function start(){
     $("pool-feedback").textContent="Configuration refusée : vérifier la plage, les exclusions et la réservation (adresse unique comprise dans la plage et non exclue).";
    }
   });
+  for(const hours of [12,9,3,1]){
+   $("advance-"+hours).addEventListener("click",()=>{
+    const result=apply("dhcp.advanceTime","srv-dhcp",{seconds:hours*3600});
+    if(result.status==="applied")
+     $("feedback").textContent="Horloge simulée avancée de "+hours+" h. Vérifie les échéances des baux et les états des postes.";
+   });
+  }
   $("toggle-server").addEventListener("click",()=>{
    const enabled=snapshot().objectsById["srv-dhcp"].config.dhcpEnabled;
    if(apply("dhcp.setServerEnabled","srv-dhcp",{enabled:!enabled}).status==="applied")
