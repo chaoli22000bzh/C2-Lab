@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Composants partagés | C2-Lab</title>
+<style>
+:root{font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;color-scheme:light;line-height:1.5;color:#18304a;background:#f4f7fb}
+*{box-sizing:border-box}body{margin:0}header{background:#102c49;color:white;padding:24px max(20px,calc((100vw - 1120px)/2))}header a{color:#cce4ff}h1{font-size:clamp(1.6rem,4vw,2.35rem);margin:10px 0 4px}header p{margin:0;color:#d6e4f0;max-width:70ch}main{max-width:1160px;margin:auto;padding:22px 18px 60px}h2{margin:26px 0 8px;font-size:1.4rem}h3{font-size:1.03rem;margin:0 0 8px}p{margin:6px 0 12px}.muted{color:#526780}.hint{font-size:.91rem}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:14px;margin-top:14px}.card{background:#fff;border:1px solid #cfdae5;border-radius:12px;padding:17px;min-width:0;box-shadow:0 2px 10px #142f4d09}.card p{font-size:.93rem}.tag{background:#e7f2ff;border-radius:30px;padding:3px 9px;font-size:.79rem;color:#245582;display:inline-block;margin:0 4px 8px 0}.controls{display:flex;flex-wrap:wrap;gap:9px;margin:12px 0}button,select,input{font:inherit}button{border:1px solid #789bc0;border-radius:8px;padding:9px 12px;background:#e8f2ff;color:#132b47;cursor:pointer;font-weight:600}button:hover{background:#d6eaff}button:focus-visible,a:focus-visible{outline:3px solid #fdad33;outline-offset:2px}button.active{background:#153a61;color:white}.demo{background:#0d1724;color:#f2f6ff;border-radius:9px;padding:14px;overflow:auto;white-space:pre;font:12px/1.5 Consolas,"Courier New",monospace;min-height:300px;max-height:460px;tab-size:2}.demo.short{min-height:190px}.demo-label{font-size:.86rem;color:#526780;margin:0 0 10px}.catalogue-header{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;align-items:center}.search{width:100%;max-width:380px;border:1px solid #9eb2c5;background:white;border-radius:9px;padding:10px 12px}a{color:#15538b;overflow-wrap:anywhere}.status{font-weight:600;color:#24634c}.file{font-family:Consolas,monospace;font-size:.8rem;display:block;margin:6px 0}details summary{cursor:pointer;font-weight:600}details p{margin:9px 0 0}footer{margin-top:25px;color:#526780;font-size:.87rem}#results{min-height:1em}@media(max-width:500px){main{padding:13px}header{padding:22px 16px}.card{padding:13px}.demo{font-size:10.5px;padding:10px}.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><a href="../">C2-Lab</a><h1>Bibliothèque des composants partagés</h1><p>Une seule bibliothèque pour les laboratoires R2D3, les futurs exercices C² et les portails pédagogiques.</p></header>
+<main>
+<section aria-labelledby="essais">
+<h2 id="essais">Vérifier les trois commandes Windows</h2>
+<p class="muted">Les exemples ci-dessous appellent directement les modules partagés. Les valeurs sont des données de démonstration, pas les résultats d'une machine réelle. Aucun rendu n'est recopié dans cette page.</p>
+<div class="grid">
+<article class="card">
+<h3>1. ipconfig</h3>
+<p class="demo-label">Choisir un état réseau pour contrôler le résultat.</p>
+<div class="controls" id="ip-modes"><button type="button" data-mode="static" class="active">IP fixe</button><button type="button" data-mode="apipa">APIPA</button><button type="button" data-mode="disconnected">Déconnecté</button></div>
+<pre class="demo" id="ip-output" aria-live="polite"></pre>
+</article>
+<article class="card">
+<h3>2. ipconfig /all</h3>
+<p class="demo-label">Même affichage partagé pour les cas IP fixe, DHCP et APIPA.</p>
+<div class="controls" id="all-modes"><button type="button" data-mode="static" class="active">IP fixe</button><button type="button" data-mode="dhcp">DHCP</button><button type="button" data-mode="apipa">APIPA</button><button type="button" data-mode="released">Sans adresse</button></div>
+<pre class="demo" id="all-output" aria-live="polite"></pre>
+</article>
+<article class="card">
+<h3>3. ARP</h3>
+<p class="demo-label">La table ARP est propre à chaque PC : les actions ci-dessous modifient uniquement les données de démonstration.</p>
+<div class="controls"><button type="button" id="arp-a" class="active">Afficher la table ARP <span style="font-weight:400">arp -a</span></button><button type="button" id="arp-ping">Simuler un échange</button><button type="button" id="arp-d">Vider la table ARP <span style="font-weight:400">arp -d *</span></button></div>
+<pre class="demo short" id="arp-output" aria-live="polite"></pre>
+</article>
+</div>
+</section>
+<section aria-labelledby="catalogue-heading">
+<div class="catalogue-header"><div><h2 id="catalogue-heading">Catalogue des composants</h2><p class="muted">Recherche par commande, besoin pédagogique ou mot-clé.</p></div><input class="search" id="search" type="search" placeholder="Ex. DHCP, ping, MAC, bouton..." aria-label="Rechercher un composant"></div>
+<div id="results" class="muted" role="status"></div>
+<div class="grid" id="catalogue"></div>
+</section>
+<footer>Référence : <a href="catalogue.json">inventaire structuré du catalogue</a>. Un composant annoncé comme réutilisable dans C² ou un portail n'y est pas automatiquement installé : son intégration reste à effectuer.</footer>
+</main>
+<script type="module">
+import {formatIpconfig} from "../shared-ui/v1/ipconfig.js";
+import {formatIpconfigAll} from "../shared-ui/v1/ipconfig-all.js";
+import {formatArpTable,formatArpClear} from "../shared-ui/v1/arp.js";
+const $=id=>document.getElementById(id);
+const ipv4=(address,prefix,lease)=>({address,prefix,...(lease?{lease}:{})});
+function choose(group,mode){for(const button of group.querySelectorAll("button")){const on=button.dataset.mode===mode;button.classList.toggle("active",on);button.setAttribute("aria-pressed",String(on));}}
+function showIp(mode){
+ const config=mode==="disconnected"?{ipv4:ipv4("192.168.10.20",24),connected:false}:{ipv4:mode==="apipa"?ipv4("169.254.10.20",16):ipv4("192.168.10.20",24),gateway:mode==="static"?"192.168.10.1":null};
+ $("ip-output").textContent=formatIpconfig(config);choose($("ip-modes"),mode);
+}
+function showAll(mode){
+ const lease={serverId:"srv-dhcp"};
+ const base={hostname:"PC1",ipv4:ipv4("192.168.10.20",24),gateway:"192.168.10.1",dns:["192.168.10.10","1.1.1.1"],dhcp:false};
+ if(mode==="dhcp")Object.assign(base,{ipv4:ipv4("192.168.10.100",24,lease),dhcp:true,description:"Intel(R) Ethernet Controller (3) I225-V",mac:"48-21-0B-5F-8C-90",dhcpServer:"192.168.10.2",leaseStart:"06/11/2026 09:15:00",leaseEnd:"07/11/2026 09:15:00"});
+ if(mode==="apipa")Object.assign(base,{ipv4:ipv4("169.254.10.20",16),gateway:null,dns:[],dhcp:true,description:"Intel(R) Ethernet Controller (3) I225-V",mac:"48-21-0B-5F-8C-90"});
+ if(mode==="released")Object.assign(base,{ipv4:ipv4(null,null),gateway:null,dns:[],dhcp:true});
+ $("all-output").textContent=formatIpconfigAll(base);choose($("all-modes"),mode);
+}
+let entries=[];
+const arpAddress="192.168.10.20";
+function arpTable(){$("arp-output").textContent=formatArpTable({interfaceAddress:arpAddress,entries});}
+$("ip-modes").addEventListener("click",event=>{const b=event.target.closest("button[data-mode]");if(b)showIp(b.dataset.mode);});
+$("all-modes").addEventListener("click",event=>{const b=event.target.closest("button[data-mode]");if(b)showAll(b.dataset.mode);});
+$("arp-a").addEventListener("click",arpTable);
+$("arp-ping").addEventListener("click",()=>{entries=[{address:"192.168.10.50",mac:"02-52-32-41-00-50",type:"dynamique"}];arpTable();});
+$("arp-d").addEventListener("click",()=>{entries=[];$("arp-output").textContent=formatArpClear();});
+showIp("static");showAll("static");arpTable();
+
+let components=[];
+function normalize(value){return String(value).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();}
+function renderCatalogue(){
+ const query=normalize($("search").value.trim());
+ const found=components.filter(c=>normalize([c.name,c.category,c.summary,...c.keywords,...c.exports].join(" ")).includes(query));
+ $("results").textContent=found.length+" composant"+(found.length>1?"s":"")+" trouvé"+(found.length>1?"s":"");
+ const root=$("catalogue");root.replaceChildren();
+ for(const item of found){
+   const card=document.createElement("article");card.className="card";
+   const name=document.createElement("h3");name.textContent=item.name;card.append(name);
+   const group=document.createElement("span");group.className="tag";group.textContent=item.category;card.append(group);
+   const desc=document.createElement("p");desc.textContent=item.summary;card.append(desc);
+   const state=document.createElement("p");state.className="status";state.textContent="Validé dans R2D3 | Réutilisable dans C² et les portails après intégration";card.append(state);
+   const files=document.createElement("details");const summary=document.createElement("summary");summary.textContent="Fichiers du composant";files.append(summary);
+   for(const file of item.files){const a=document.createElement("a");a.className="file";a.href="https://github.com/chaoli22000bzh/C2-Lab/blob/main/"+file;a.textContent=file;files.append(a);}card.append(files);
+   root.append(card);
+ }
+}
+$("search").addEventListener("input",renderCatalogue);
+try{const response=await fetch("./catalogue.json");if(!response.ok)throw new Error("Inventaire indisponible");const data=await response.json();components=data.components;renderCatalogue();}
+catch(error){$("results").textContent="Catalogue indisponible : "+error.message;}
+</script>
+</body>
+</html>
