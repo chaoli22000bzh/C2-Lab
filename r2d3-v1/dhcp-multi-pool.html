@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>R2D3 | Test DHCP multi-plages</title>
+<style>
+:root{font:16px/1.5 system-ui,sans-serif;color:#172b45;background:#f2f6fa}*{box-sizing:border-box}body{margin:0}main{max-width:1040px;margin:0 auto;padding:20px}h1{font-size:1.65rem}h2{font-size:1.2rem}section{background:white;border:1px solid #d4dfec;border-radius:12px;padding:16px;margin:14px 0}label{display:block;margin:8px 0}input,select,button{font:inherit;padding:9px;border-radius:8px}input,select{width:100%;border:1px solid #a9bfd2}button{border:0;background:#1c5c96;color:#fff;cursor:pointer;margin:5px 5px 5px 0}button.secondary{background:#e4edf7;color:#143c67}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.muted{font-size:.87rem;color:#536b86}table{width:100%;border-collapse:collapse;font-size:.9rem}th,td{text-align:left;padding:7px;border-bottom:1px solid #d6e1ef}#status{min-height:26px;font-weight:600}code{font-size:.9em}@media(max-width:700px){.grid,.fields{grid-template-columns:1fr}main{padding:12px}table{font-size:.76rem}}
+</style><link rel="stylesheet" href="../shared-ui/v1/buttons.css"></head><body class="c2-buttons"><main>
+<h1>DHCP : test de plusieurs plages</h1>
+<p>Ce laboratoire vérifie le <strong>moteur autonome</strong>. Le choix de la plage est manuel tant que les VLAN, VPN et IP Helper ne sont pas simulés. Les contrôles ne constituent pas une interface d'administration à réutiliser dans les TP.</p>
+<section><h2>Serveur DHCP</h2><p id="server"></p><button id="toggle" class="secondary">Arrêter le service</button><button id="reset" class="secondary">Réinitialiser</button><div id="clock"></div></section>
+<div class="grid">
+<section><h2>Administration d'une plage</h2>
+<label>Plage à modifier<select id="pool"></select></label>
+<div class="fields"><label>Début<input id="start"></label><label>Fin<input id="end"></label><label>Durée (heures)<input id="hours" type="number" min="1" max="720"></label></div>
+<label>Exclusions (adresses séparées par une virgule)<input id="exclusions"></label>
+<button id="save">Enregistrer la plage</button><button id="remove" class="secondary">Supprimer cette plage</button>
+<h2>Ajouter une plage</h2><div class="fields"><label>Identifiant<input id="new-id" placeholder="reseau-c"></label><label>Réseau (3 premiers octets)<input id="new-net" placeholder="192.168.30"></label><label>Durée (heures)<input id="new-hours" type="number" value="24" min="1" max="720"></label></div>
+<button id="add">Ajouter</button><p class="muted">Le formulaire d'ajout utilise les paramètres de base d'une plage existante, adaptés au nouveau réseau. Les réservations restent gérées par le moteur.</p></section>
+<section><h2>Clients DHCP</h2><label>Client<select id="client"><option value="pc-dhcp-01">REN-PC-01</option><option value="pc-dhcp-02">REN-PC-02</option></select></label>
+<label>Plage demandée<select id="request-pool"></select></label><button id="renew">Demander / renouveler</button><button id="release" class="secondary">Libérer le bail</button><div id="clients"></div>
+<h2>Temps simulé</h2><label>Avancer de (heures)<input id="advance-hours" type="number" min="1" max="168" value="1"></label><button id="advance">Avancer le temps</button><p class="muted">L'horloge réelle ne modifie jamais les baux.</p></section></div>
+<section><h2>Plages actuellement configurées</h2><div id="pools-view"></div></section>
+<section><h2>Baux gérés par le serveur</h2><div id="leases-view"></div><p class="muted">Après suppression d'une plage, les clients conservent leur bail jusqu'à expiration, mais celui-ci n'est plus géré par le serveur.</p></section>
+<p id="status" role="status"></p><p><a href="./dhcp-admin.html">Retour au laboratoire DHCP classique</a></p>
+</main><script type="module" src="./dhcp-multi-pool.js"></script><script type="module" src="../shared-ui/v1/button-feedback.js"></script></body></html>
