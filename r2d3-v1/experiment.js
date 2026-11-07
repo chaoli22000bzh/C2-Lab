@@ -120,7 +120,7 @@ async function start(){
   });
   $("wrong-ip").addEventListener("click",()=>{ $("device").value="pc-02";dispatch("network.setIPv4","pc-02",{interfaceId:"eth0",mode:"static",address:"192.168.22.30",prefix:24});});
   $("reset-ip").addEventListener("click",()=>{const id=$("device").value;dispatch("network.setIPv4",id,{...defaults[id]});});
-  $("source").addEventListener("change",()=>{pingAnimator.cancel("Aucun ping effectué depuis ce poste.");update();});$("target").addEventListener("change",()=>{pingAnimator.cancel("Aucun ping effectué vers cette destination.");update();});
+  $("source").addEventListener("change",()=>{pingAnimator.cancel();update();});$("target").addEventListener("change",()=>{pingAnimator.cancel();update();});
   $("ipconfig").addEventListener("click",()=>showIpconfig(false));
   $("ipconfig-all").addEventListener("click",()=>showIpconfig(true));
   $("dhcp-preview").addEventListener("click",showDhcpExample);
