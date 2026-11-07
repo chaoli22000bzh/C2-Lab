@@ -130,7 +130,7 @@ async function start(){
     const current=engine.getSnapshot(),src=current.objectsById[sourceId],dst=current.objectsById[targetId];
     const outcome=engine.query({type:"network.ping",sourceId:sourceId,targetId:targetId});
     pingAnimator.run({
-      sourceName:src.name??devices[sourceId],sourceAddress:src.config.ipv4.address,
+      sourceName:devices[sourceId]+(src.name&&src.name!==devices[sourceId]?" - "+src.name:""),sourceAddress:src.config.ipv4.address,
       targetAddress:dst.config.ipv4.address,outcome
     });
   });
