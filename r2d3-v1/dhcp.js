@@ -1,3 +1,4 @@
+import {formatIpconfigAll} from "../shared-ui/v1/ipconfig-all.js";
 import {formatIpconfig} from "../shared-ui/v1/ipconfig.js";
 import {createPingAnimator} from "../shared-ui/v1/ping-animation.js";
 import {createWindowsFieldFormatter} from "../shared-ui/v1/windows-fields.js";
@@ -21,34 +22,8 @@ function showIpconfig(full){
   $("console").textContent=formatIpconfig({ipv4:v,gateway:o?.gateway});
   return;
  }
- const apipa=Boolean(v.address?.startsWith("169.254.") && !v.lease);
- const lines=["C:\\Users\\technicien>ipconfig"+(full?" /all":""),"","Configuration IP de Windows",""];
- if(apipa && full){
-  // Libellés et ordre du chapitre 7 APIPA, avec l'IP effective du moteur.
-  lines.push(
-   field("Nom de l'hôte",c.name),
-   field("Description","Intel(R) Ethernet Controller (3) I225-V"),
-   field("Adresse physique","48-21-0B-5F-8C-90"),
-   field("DHCP activé","Oui"),
-   field("Configuration automatique activée","Oui"),
-   field("Adresse d'autoconfiguration IPv4",v.address+" (préféré)"),
-   field("Masque de sous-réseau",mask(v.prefix)),
-   field("Passerelle par défaut",""),
-   field("NetBIOS sur Tcpip","Activé")
-  );
- }else{
-  if(full)lines.push(field("Nom de l'hôte",c.name),field("DHCP activé","Oui"),field("Config. automatique","Oui"));
-  if(v.address){
-   lines.push(field("Adresse IPv4",v.address+" (préféré)"),field("Masque de sous-réseau",mask(v.prefix)));
-  }else lines.push(field("Adresse IPv4","Non attribuée"));
-  if(full){
-   if(v.lease)lines.push(field("Bail obtenu",leaseDate(v.lease.start)),field("Bail expirant",leaseDate(v.lease.expires)));
-   lines.push(field("Passerelle par défaut",o.gateway??""),field("Serveur DHCP",v.lease?state().objectsById[v.lease.serverId].config.ipv4.address:""),field("Serveurs DNS",o.dns[0]??""));
-   if(o.dns[1])lines.push(" ".repeat("  ".length+"Adresse d’autoconfiguration IPv4".length+3)+o.dns[1]);
-  }
- }
- lines.push("","C:\\Users\\technicien>");
- $("console").textContent=lines.join("\n");
+ const lease=v.lease;
+ $("console").textContent=formatIpconfigAll({ipv4:v,hostname:c.name,dhcp:true,gateway:o?.gateway,dns:o?.dns??[],description:"Intel(R) Ethernet Controller (3) I225-V",mac:"48-21-0B-5F-8C-90",dhcpServer:lease?state().objectsById[lease.serverId]?.config.ipv4.address:undefined,leaseStart:lease?leaseDate(lease.start):undefined,leaseEnd:lease?leaseDate(lease.expires):undefined,netbios:v.address?.startsWith("169.254.")?"Activé":undefined});
 }
 function update(){
  const snap=state(),sv=snap.objectsById["srv-dhcp"],cl=snap.objectsById["pc-dhcp"];
