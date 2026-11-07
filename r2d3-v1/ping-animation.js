@@ -5,7 +5,7 @@
 export function createPingAnimator(element, {intervalMs=230}={}) {
   let generation=0;
   let timeoutId=null;
-  function cancel(message="Aucun ping effectué.") {
+  function cancel(message="") {
     generation++;
     if(timeoutId!==null)clearTimeout(timeoutId);
     timeoutId=null;
@@ -17,8 +17,7 @@ export function createPingAnimator(element, {intervalMs=230}={}) {
     const success=Boolean(outcome.success&&!outcome.conflict);
     const lines=["C:\\Users\\technicien>ping "+targetAddress,"",
       "Envoi d'une requête 'Ping' "+targetAddress+" avec 32 octets de données :"];
-    const display=()=>{element.textContent="Ping depuis : "+sourceName+
-      (sourceAddress?" ("+sourceAddress+")":"")+"\n\n"+lines.join("\n");};
+    const display=()=>{element.textContent=lines.join("\n");};
     let count=0;
     display();
     if(typeof onProgress==="function")onProgress(0);
@@ -33,9 +32,6 @@ export function createPingAnimator(element, {intervalMs=230}={}) {
         lines.push("","Statistiques Ping pour "+targetAddress+" :",
           "    Paquets : envoyés = 4, reçus = "+received+
           ", perdus = "+(4-received)+" ("+(success?0:100)+" % de perte)");
-        if(outcome.conflict)lines.push("",
-          "Simulation R2D3 : conflit IPv4, réponses réelles non déterministes.");
-        else if(!success&&outcome.reason)lines.push("","Diagnostic : "+outcome.reason);
         timeoutId=null;
         display();
         if(typeof onComplete==="function")onComplete({success,outcome});
