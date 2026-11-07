@@ -14,8 +14,9 @@ label{display:block;font-weight:600;font-size:14px;margin-bottom:6px}input{width
 .devices{display:flex;align-items:center;justify-content:space-around;gap:6px;margin:23px 0;flex-wrap:wrap}.device{border:1px solid #cbd8e7;border-radius:10px;padding:13px 9px;text-align:center;background:#f7faff;min-width:105px;font-size:13px}.device strong{display:block;font-size:15px}.wire{height:4px;width:35px;background:#2e9875;border-radius:2px;flex:1;min-width:15px}.wire.off{background:#c74d48;position:relative}.wire.off:after{content:'✕';position:absolute;top:-12px;left:35%;background:white;color:#bd3d3d;font-size:17px}
 pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;background:#101f31;color:#dfedfa;border-radius:10px;padding:15px;min-height:93px}
 .kv{font-size:14px;color:#45566e;line-height:1.75} .kv b{color:#182d47}.foot{font-size:13px;color:#66768c;margin-top:20px}
-</style></head>
-<body><header><h1>R2D3 <span style="font-weight:400;opacity:.7">/ Laboratoire V1</span></h1><p>Moteur de simulation réseau autonome • PC, switch, imprimante</p></header>
+</style><link rel="stylesheet" href="../shared-ui/v1/buttons.css">
+</head>
+<body class="c2-buttons"><header><h1>R2D3 <span style="font-weight:400;opacity:.7">/ Laboratoire V1</span></h1><p>Moteur de simulation réseau autonome • PC, switch, imprimante</p></header>
 <main><p class="lead">Deux vues partagent un seul état technique. Modifiez l'adresse du PC, débranchez le câble de l'imprimante, puis testez le ping. Les deux anomalies peuvent se cumuler et se corrigent séparément.</p>
 <div class="layout">
 <section aria-labelledby="pc-title"><h2 id="pc-title">Configuration du PC</h2><p class="sub">Vue 1 • Poste Windows simulé</p>
@@ -29,4 +30,4 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;background:#101f3
 <h3>Test de connectivité</h3><pre id="terminal" aria-live="polite">Aucun test effectué.</pre></section></div>
 <p class="foot">Version 1 • Aucune connexion serveur • Aucune sauvegarde locale • Un rechargement de la page restaure l'état initial. Le bouton Ping calcule les conséquences de l'état actuel.</p>
 </main>
-<script type="module" src="./app.js"></script></body></html>
+<script type="module" src="./app.js"></script><script type="module" src="../shared-ui/v1/button-feedback.js"></script></body></html>
