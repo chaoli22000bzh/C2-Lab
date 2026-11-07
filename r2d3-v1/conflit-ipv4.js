@@ -24,15 +24,13 @@ function update(){
  if($("console").textContent.includes("Configuration IP de Windows"))showIpconfig($("console").textContent.includes(">ipconfig /all"));
 }
 const pingAnimator=createPingAnimator($("ping-console"),{intervalMs:330});
-function cancelPing(message="Aucun ping effectué."){pingAnimator.cancel(message);}
+function cancelPing(message=""){pingAnimator.cancel(message);}
 function ping(targetId){
  const id=selected(),source=state().objectsById[id];
  const result=engine.query({type:"network.ping",sourceId:id,targetId});
  pingAnimator.run({
   sourceName:source.name,sourceAddress:source.config.ipv4.address,
   targetAddress:ip(targetId).address,outcome:result,
-  onProgress:n=>{$("feedback").textContent="Ping depuis "+source.name+" : "+n+"/4 réponses."},
-  onComplete:({success})=>{$("feedback").textContent=source.name+" : "+(success?"ping réussi.":"ping en échec.")}
  });
 }
 async function start(){
@@ -43,7 +41,8 @@ async function start(){
   $("ipconfig").addEventListener("click",()=>showIpconfig(false));
   $("ipconfig-all").addEventListener("click",()=>showIpconfig(true));
   $("console-pc").addEventListener("change",()=>{
-   cancelPing("Aucun ping effectué depuis ce poste.");
+   $("feedback").textContent="";
+   cancelPing();
    if($("console").textContent.includes("Configuration IP de Windows"))showIpconfig($("console").textContent.includes(">ipconfig /all"));
   });
   $("ping").addEventListener("click",()=>ping("printer-dhcp"));
@@ -52,7 +51,7 @@ async function start(){
    e.preventDefault();
    const address=$("new-address").value.trim();
    const result=command("network.setIPv4","pc-dhcp-02",{mode:"static",interfaceId:"eth0",address,prefix:24});
-   $("feedback").textContent=result.status==="applied"?"Adresse IPv4 du PC 2 appliquée. Vérifie le diagnostic et les pings.":"Adresse refusée : "+(result.message??result.code);
+   $("feedback").textContent=result.status==="applied"?"Adresse IPv4 du PC 2 appliquée.":"Adresse refusée : "+(result.message??result.code);
    if(result.status==="applied")cancelPing();
    update();
   });
@@ -60,7 +59,7 @@ async function start(){
    cancelPing();engine=createEngine(scenario);
    $("new-address").value="192.168.10.20";
    $("console").textContent="C:\\Users\\technicien>";
-   $("ping-console").textContent="Aucun ping effectué.";
+   pingAnimator.cancel();
    $("feedback").textContent="Scénario réinitialisé.";update();
   });
   update();$("feedback").textContent="Scénario chargé.";
