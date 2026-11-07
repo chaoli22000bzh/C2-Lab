@@ -1,3 +1,4 @@
+import {formatArpTable,formatArpClear} from "../shared-ui/v1/arp.js";
 import {formatIpconfig} from "../shared-ui/v1/ipconfig.js";
 import {createPingAnimator} from "../shared-ui/v1/ping-animation.js";
 import {createWindowsFieldFormatter} from "../shared-ui/v1/windows-fields.js";
@@ -15,14 +16,7 @@ const pingAnimator=createPingAnimator($("ping-console"));
 function showArp(){
  const id=selected(),pc=snap().objectsById[id];
  const table=engine.query({type:"network.arpTable",sourceId:id}).entries;
- const rows=table.map(r=>"  "+r.address.padEnd(24)+r.mac.padEnd(23)+r.type);
- $("console").textContent=[
-  "C:\\Users\\technicien>arp -a","",
-  "Interface : "+pc.config.ipv4.address,
-  "  Adresse Internet         Adresse physique       Type",
-  ...rows,
-  "","C:\\Users\\technicien>"
- ].join("\n");
+ $("console").textContent=formatArpTable({interfaceAddress:pc.config.ipv4.address,entries:table});
 }
 function showConfig(){
  const p=snap().objectsById[selected()];
@@ -57,7 +51,7 @@ async function start(){
   $("arp-a").addEventListener("click",showArp);
   $("arp-d").addEventListener("click",()=>{
    const res=command("network.arpClear",selected());
-   if(res.status==="applied")$("console").textContent="C:\\Users\\technicien>arp -d *\n\nC:\\Users\\technicien>";
+   if(res.status==="applied")$("console").textContent=formatArpClear();
   });
   $("ipconfig").addEventListener("click",showConfig);
   $("ping-printer").addEventListener("click",()=>ping("printer-dhcp"));
