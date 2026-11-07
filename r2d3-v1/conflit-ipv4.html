@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>R2D3 | Laboratoire 4 : conflit d'adresses IPv4</title>
+<style>
+:root{font:16px/1.5 system-ui,Segoe UI,sans-serif;background:#f1f5fa;color:#192b42}*{box-sizing:border-box}
+body{margin:0}header{background:#102a4b;color:white;padding:22px max(18px,calc((100vw - 1080px)/2))}h1{margin:0;font-size:25px}header p{margin:5px 0;color:#cbd9e9}main{max-width:1080px;margin:20px auto;padding:0 18px}
+section{background:white;border:1px solid #d5e0eb;border-radius:13px;padding:17px;min-width:0}h2{font-size:19px;margin:0 0 12px}h3{font-size:16px;margin:12px 0 6px}.layout{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
+button{font:inherit;border:0;border-radius:8px;padding:10px 12px;cursor:pointer;background:#225f98;color:#fff}button.secondary{background:#e8f0f9;color:#153d6a}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #82b1e3;outline-offset:2px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.card{background:#f4f8fc;padding:12px;border:1px solid #d3e1ed;border-radius:9px;margin:10px 0}.small{font-size:13px;color:#56708a}.name{font-weight:700}.status{font-weight:650}.bad{color:#aa4236}.good{color:#1c6844}label{display:block;font-weight:650;margin:8px 0 5px}
+input,select{font:inherit;padding:9px;border:1px solid #a3b7ca;border-radius:8px;background:white;color:#192b42;max-width:100%;width:100%}
+pre{font:12px/1.6 Consolas,"Courier New",monospace;background:#112337;color:#edf3ff;padding:12px;border-radius:9px;overflow-x:auto;white-space:pre;max-width:100%;min-height:92px}
+#feedback{font-weight:600;font-size:14px}a{color:#1d609f}
+@media(max-width:800px){.layout{grid-template-columns:1fr}}@media(max-width:500px){section{padding:12px}.actions button{flex:1 1 145px}pre{font-size:10.5px}}
+</style></head><body>
+<header><h1>R2D3 / Conflit d'adresses IPv4</h1><p>Laboratoire 4 : diagnostiquer et corriger un doublon sur le réseau local</p></header>
+<main>
+<p>Deux PC Windows et une imprimante sont connectés au même switch. Les postes utilisent une configuration IPv4 manuelle. Une anomalie empêche une communication fiable : examine les adresses et corrige-la.</p>
+<section>
+<h2>Réseau local</h2>
+<div class="card"><strong>Switch Ethernet</strong><div class="small">Réseau 192.168.10.0/24, sans routeur dans cette simulation · Imprimante : 192.168.10.50/24</div></div>
+<div class="actions"><button id="reset" class="secondary" type="button">Réinitialiser le laboratoire</button><button id="diagnose" class="secondary" type="button">Contrôler les doublons IPv4</button></div>
+<p id="diagnosis" class="small" role="status">Aucun contrôle des doublons effectué.</p>
+</section>
+<div class="layout">
+<section>
+<h2>PC 1 : REN-PC-01</h2>
+<div class="card"><div class="small">Configuration IPv4 manuelle</div><div id="ip-pc-dhcp-01" class="name"></div><div class="small">Masque : 255.255.255.0</div></div>
+<p class="small">Ce poste sert de référence. Sa configuration est consultable dans le diagnostic Windows.</p>
+</section>
+<section>
+<h2>PC 2 : REN-PC-02</h2>
+<div class="card"><div class="small">Configuration IPv4 manuelle</div><div id="ip-pc-dhcp-02" class="name"></div><div class="small">Masque : 255.255.255.0</div></div>
+<form id="address-form"><label for="new-address">Modifier l'adresse IPv4 du PC 2</label>
+<input id="new-address" name="address" type="text" inputmode="decimal" spellcheck="false" autocomplete="off" required value="192.168.10.20">
+<div class="actions"><button id="save-address" type="submit">Appliquer l'adresse IPv4</button></div></form>
+</section>
+</div>
+<div class="layout">
+<section><h2>Diagnostic Windows</h2>
+<label for="console-pc">Poste concerné</label><select id="console-pc"><option value="pc-dhcp-01">PC 1 : REN-PC-01</option><option value="pc-dhcp-02">PC 2 : REN-PC-02</option></select>
+<div class="actions"><button id="ipconfig" class="secondary" type="button">ipconfig</button><button id="ipconfig-all" class="secondary" type="button">ipconfig /all</button><button id="ping" class="secondary" type="button">Ping imprimante</button><button id="ping-peer" class="secondary" type="button">Ping autre PC</button></div>
+<pre id="console" aria-live="polite">C:\Users\technicien&gt;</pre>
+</section>
+<section><h2>Résultat du ping</h2><p class="small">Le ping part du PC sélectionné. En présence d'un doublon, le moteur signale un résultat non fiable plutôt que de prétendre reproduire exactement la réaction de chaque version de Windows.</p>
+<pre id="ping-console" aria-live="polite">Aucun ping effectué.</pre></section>
+</div>
+<p id="feedback" role="status">Chargement du scénario...</p>
+<p class="small">Simulation : la détection des doublons est une analyse R2D3, et non une commande Windows. Un conflit réel peut produire des symptômes variables, notamment selon les tables ARP et la version du système.</p>
+<p><a href="./dhcp-admin.html">Retour au laboratoire 3 : Administration DHCP</a></p>
+</main><script type="module" src="./conflit-ipv4.js"></script></body></html>
