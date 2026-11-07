@@ -1,3 +1,4 @@
+import {formatIpconfig} from "../shared-ui/v1/ipconfig.js";
 import {createPingAnimator} from "../shared-ui/v1/ping-animation.js";
 import {createWindowsFieldFormatter} from "../shared-ui/v1/windows-fields.js";
 import {createEngine} from "./r2d3-core.js";
@@ -13,6 +14,10 @@ const mask=prefix=>{const n=prefix===0?0:(0xffffffff<<(32-prefix))>>>0;return [2
 const field=createWindowsFieldFormatter(["Nom de l\u0027hôte","DHCP activé","Adresse IPv4","Masque de sous-réseau","Passerelle par défaut","Serveurs DNS"]);
 function showIpconfig(all){
  const id=selected(),c=state().objectsById[id],v=c.config.ipv4,opts=c.config.networkOptions;
+ if(!all){
+  $("console").textContent=formatIpconfig({ipv4:v,gateway:opts?.gateway});
+  return;
+ }
  const output=["C:\\Users\\technicien>ipconfig"+(all?" /all":""),"","Configuration IP de Windows",""];
  if(all)output.push(field("Nom de l'hôte",c.name),field("DHCP activé","Non"));
  output.push(field("Adresse IPv4",v.address+" (préféré)"),field("Masque de sous-réseau",mask(v.prefix)));
