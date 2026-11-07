@@ -17,7 +17,7 @@ function showArp(){
  const rows=table.map(r=>"  "+r.address.padEnd(24)+r.mac.padEnd(23)+r.type);
  $("console").textContent=[
   "C:\\Users\\technicien>arp -a","",
-  "Interface : "+pc.config.ipv4.address+" --- 0x2",
+  "Interface : "+pc.config.ipv4.address,
   "  Adresse Internet         Adresse physique       Type",
   ...rows,
   "","C:\\Users\\technicien>"
