@@ -1,4 +1,5 @@
 import {createPingAnimator} from "../shared-ui/v1/ping-animation.js";
+import {createWindowsFieldFormatter} from "../shared-ui/v1/windows-fields.js";
 import {createEngine} from "./r2d3-core.js";
 const $=id=>document.getElementById(id);
 const clients=["pc-dhcp-01","pc-dhcp-02"];
@@ -16,7 +17,7 @@ const mask=prefix=>{
  return [24,16,8,0].map(x=>(m>>>x)&255).join(".");
 };
 const width="Adresse d'autoconfiguration IPv4".length;
-const field=(key,val="")=>"  "+key+" "+".".repeat(Math.max(0,width-key.length))+" : "+val;
+const field=createWindowsFieldFormatter(["Nom de l'hôte","Description","Adresse physique","DHCP activé","Configuration automatique activée","Adresse d'autoconfiguration IPv4","Masque de sous-réseau","Passerelle par défaut","NetBIOS sur Tcpip","Adresse IPv4","Config. automatique","Bail obtenu","Bail expirant","Serveur DHCP","Serveurs DNS"]);
 const selected=()=>$("console-pc").value;
 const pc=id=>snapshot().objectsById[id];
 function showIpconfig(full){
