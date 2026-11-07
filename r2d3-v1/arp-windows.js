@@ -1,12 +1,10 @@
 import {createPingAnimator} from "../shared-ui/v1/ping-animation.js";
+import {createWindowsFieldFormatter} from "../shared-ui/v1/windows-fields.js";
 import {createEngine} from "./r2d3-core.js";
 const $=id=>document.getElementById(id);
 const ids=["pc-dhcp-01","pc-dhcp-02"];
 const mask="255.255.255.0";
-// Seul le libellé le plus long est sans points, les autres sont alignés sur lui.
-const ipconfigFields=["Adresse IPv4","Masque de sous-réseau","Passerelle par défaut"];
-const fieldWidth=Math.max(...ipconfigFields.map(label=>label.length));
-const field=(label,value)=>"   "+label+".".repeat(fieldWidth-label.length)+" : "+value;
+const field=createWindowsFieldFormatter(["Adresse IPv4","Masque de sous-réseau","Passerelle par défaut"],{indent:"   "});
 let engine,scenario,seq=0;
 const snap=()=>engine.getSnapshot();
 const selected=()=>$("console-pc").value;
