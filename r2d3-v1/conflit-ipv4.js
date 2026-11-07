@@ -1,6 +1,7 @@
+import {createPingAnimator} from "./ping-animation.js";
 import {createEngine} from "./r2d3-core.js";
 const $=id=>document.getElementById(id);
-let engine,scenario,seq=0,pingGeneration=0;
+let engine,scenario,seq=0;
 const state=()=>engine.getSnapshot();
 const ids=["pc-dhcp-01","pc-dhcp-02"];
 const selected=()=>$("console-pc").value;
@@ -22,40 +23,17 @@ function update(){
  for(const id of ids)$("ip-"+id).textContent=ip(id).address;
  if($("console").textContent.includes("Configuration IP de Windows"))showIpconfig($("console").textContent.includes(">ipconfig /all"));
 }
-function cancelPing(){
- pingGeneration++;
-}
+const pingAnimator=createPingAnimator($("ping-console"),{intervalMs:330});
+function cancelPing(message="Aucun ping effectué."){pingAnimator.cancel(message);}
 function ping(targetId){
- const generation=++pingGeneration;
- const id=selected(),source=state().objectsById[id].name;
+ const id=selected(),source=state().objectsById[id];
  const result=engine.query({type:"network.ping",sourceId:id,targetId});
- const target=ip(targetId).address;
- const lines=["C:\\Users\\technicien>ping "+target,"","Envoi d'une requête 'Ping' "+target+" avec 32 octets de données :"];
- $("ping-console").textContent=source+" :\n"+lines.join("\n");
- $("feedback").textContent="Ping en cours depuis "+source+"...";
- let completed=0;
- const step=()=>{
-  if(generation!==pingGeneration)return;
-  completed++;
-  // Pour le conflit, représenter une absence de réponse sans prétendre simuler
-  // les multiples comportements possibles du système et du cache ARP.
-  if(result.success && !result.conflict){
-   lines.push("Réponse de "+target+" : octets=32 temps<1 ms TTL=128");
-  }else{
-   lines.push("Délai d'attente de la demande dépassé.");
-  }
-  if(completed===4){
-   const received=result.success&&!result.conflict?4:0;
-   lines.push("","Statistiques Ping pour "+target+" :",
-    "    Paquets : envoyés = 4, reçus = "+received+", perdus = "+(4-received)+" ("+(received?0:100)+" % de perte)");
-   $("feedback").textContent=source+" : "+(received?"ping réussi.":"ping en échec.");
-  }else{
-   $("feedback").textContent="Ping depuis "+source+" : "+completed+"/4 réponses.";
-  }
-  $("ping-console").textContent=source+" :\n"+lines.join("\n");
-  if(completed<4)setTimeout(step,330);
- };
- setTimeout(step,260);
+ pingAnimator.run({
+  sourceName:source.name,sourceAddress:source.config.ipv4.address,
+  targetAddress:ip(targetId).address,outcome:result,
+  onProgress:n=>{$("feedback").textContent="Ping depuis "+source.name+" : "+n+"/4 réponses."},
+  onComplete:({success})=>{$("feedback").textContent=source.name+" : "+(success?"ping réussi.":"ping en échec.")}
+ });
 }
 async function start(){
  try{
@@ -65,7 +43,7 @@ async function start(){
   $("ipconfig").addEventListener("click",()=>showIpconfig(false));
   $("ipconfig-all").addEventListener("click",()=>showIpconfig(true));
   $("console-pc").addEventListener("change",()=>{
-   cancelPing();$("ping-console").textContent="Aucun ping effectué depuis ce poste.";
+   cancelPing("Aucun ping effectué depuis ce poste.");
    if($("console").textContent.includes("Configuration IP de Windows"))showIpconfig($("console").textContent.includes(">ipconfig /all"));
   });
   $("ping").addEventListener("click",()=>ping("printer-dhcp"));
