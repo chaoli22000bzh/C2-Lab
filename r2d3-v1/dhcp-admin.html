@@ -18,7 +18,7 @@ pre{font:12px/1.65 Consolas,"Courier New",monospace;color:#edf3ff;background:#11
 <p>Configure le serveur DHCP et vérifie quelles adresses il attribue aux deux PC. Les réglages du serveur ne changent pas automatiquement un bail déjà attribué.</p>
 <section>
 <h2>Service DHCP commun</h2>
-<div class="card"><strong>Serveur : 192.168.10.2</strong> <span id="server-status" class="status"></span><div class="small">Réseau 192.168.10.0/24 · Passerelle 192.168.10.1 · DNS 192.168.10.10 et 1.1.1.1 · Bail de 24 h</div><div id="pool-summary" class="small"></div></div>
+<div class="card"><strong>Serveur : 192.168.10.2</strong> <span id="server-status" class="status"></span><div class="small">Réseau 192.168.10.0/24 · Passerelle 192.168.10.1 · DNS 192.168.10.10 et 1.1.1.1</div><div id="pool-summary" class="small"></div></div>
 <div class="actions"><button id="toggle-server" class="secondary" type="button">Arrêter le service DHCP</button><button id="reset" class="secondary" type="button">Réinitialiser le laboratoire</button></div>
 </section>
 <section style="margin-top:16px">
@@ -28,6 +28,7 @@ pre{font:12px/1.65 Consolas,"Courier New",monospace;color:#edf3ff;background:#11
 <div><label for="pool-start">Début de la plage</label><input id="pool-start" type="text" value="192.168.10.100" spellcheck="false" required></div>
 <div><label for="pool-end">Fin de la plage</label><input id="pool-end" type="text" value="192.168.10.110" spellcheck="false" required></div>
 <div><label for="exclusions">Adresses exclues</label><input id="exclusions" type="text" placeholder="Ex. : 192.168.10.102, 192.168.10.103" spellcheck="false"><div class="small">Séparer plusieurs adresses par une virgule.</div></div>
+<div><label for="lease-hours">Durée des nouveaux baux (heures)</label><input id="lease-hours" type="number" inputmode="numeric" min="1" max="720" step="1" value="24" required><div class="small">De 1 à 720 heures. Les baux déjà attribués conservent leur échéance jusqu’au prochain renouvellement.</div></div>
 <div><label for="reservation">Réservation pour REN-PC-02</label><input id="reservation" type="text" placeholder="Ex. : 192.168.10.105" spellcheck="false"><div class="small">MAC du PC 2 : <code id="mac-pc2">02-52-32-44-33-02</code>. Laisser vide pour aucune réservation.</div></div>
 </div>
 <div class="actions"><button id="save-pool" type="submit">Enregistrer la configuration DHCP</button></div>
@@ -37,7 +38,7 @@ pre{font:12px/1.65 Consolas,"Courier New",monospace;color:#edf3ff;background:#11
 </section>
 <section style="margin-top:16px" aria-labelledby="time-title">
 <h2 id="time-title">Durée des baux DHCP</h2>
-<p class="small">Le temps ne s'écoule pas automatiquement. Fais-le avancer pour observer le renouvellement à T1 (12 h), la nouvelle tentative à T2 (21 h), puis l'expiration (24 h) si le serveur reste indisponible.</p>
+<p class="small">Le temps ne s'écoule pas automatiquement. Les échéances T1 (50 %), T2 (87,5 %) et l'expiration dépendent de la durée du bail réellement attribué. Fais avancer le temps pour observer leur évolution.</p>
 <div class="card">
 <strong>Temps simulé écoulé : <span id="time-value">0 h 00</span></strong>
 <div id="lease-summary" class="small" aria-live="polite">Aucun bail attribué.</div>
