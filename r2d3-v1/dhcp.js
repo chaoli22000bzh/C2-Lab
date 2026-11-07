@@ -1,3 +1,4 @@
+import {formatIpconfig} from "../shared-ui/v1/ipconfig.js";
 import {createPingAnimator} from "../shared-ui/v1/ping-animation.js";
 import {createWindowsFieldFormatter} from "../shared-ui/v1/windows-fields.js";
 import {createEngine} from "./r2d3-core.js";
@@ -16,6 +17,10 @@ const mask=prefix=>{
 const field=createWindowsFieldFormatter(["Nom de l'hôte","Description","Adresse physique","DHCP activé","Configuration automatique activée","Adresse d'autoconfiguration IPv4","Masque de sous-réseau","Passerelle par défaut","NetBIOS sur Tcpip","Adresse IPv4","Config. automatique","Bail obtenu","Bail expirant","Serveur DHCP","Serveurs DNS"]);
 function showIpconfig(full){
  const c=pc(),v=c.config.ipv4,o=c.config.networkOptions;
+ if(!full){
+  $("console").textContent=formatIpconfig({ipv4:v,gateway:o?.gateway});
+  return;
+ }
  const apipa=Boolean(v.address?.startsWith("169.254.") && !v.lease);
  const lines=["C:\\Users\\technicien>ipconfig"+(full?" /all":""),"","Configuration IP de Windows",""];
  if(apipa && full){
