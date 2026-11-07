@@ -1,4 +1,4 @@
-import {createPingAnimator} from "./ping-animation.js";
+import {createPingAnimator} from "../shared-ui/v1/ping-animation.js";
 import {createEngine} from "./r2d3-core.js";
 const $=id=>document.getElementById(id);
 const devices={"pc-01":"PC 1","pc-02":"PC 2","printer-01":"Imprimante"};
