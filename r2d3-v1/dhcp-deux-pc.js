@@ -29,7 +29,7 @@ function showIpconfig(full){
   return;
  }
  const lease=v.lease;
- $("console").textContent=formatIpconfigAll({ipv4:v,hostname:c.name,dhcp:true,connected:snapshot().linksById[cables[id]].connected,gateway:o.gateway,dns:o.dns,description:"Intel(R) Ethernet Controller (3) I225-V",mac:macs[id],dhcpServer:lease?snapshot().objectsById[lease.serverId]?.config.ipv4.address:undefined,leaseStart:lease?leaseDate(lease.start):undefined,leaseEnd:lease?leaseDate(lease.expires):undefined,netbios:v.address?.startsWith("169.254.")?"Activé":undefined});
+ $("console").textContent=formatIpconfigAll({ipv4:v,hostname:c.name,dhcp:true,gateway:o.gateway,dns:o.dns,description:"Intel(R) Ethernet Controller (3) I225-V",mac:macs[id],dhcpServer:lease?snapshot().objectsById[lease.serverId]?.config.ipv4.address:undefined,leaseStart:lease?leaseDate(lease.start):undefined,leaseEnd:lease?leaseDate(lease.expires):undefined,netbios:v.address?.startsWith("169.254.")?"Activé":undefined});
 }
 function update(){
  const st=snapshot(),sv=st.objectsById["srv-dhcp"];
