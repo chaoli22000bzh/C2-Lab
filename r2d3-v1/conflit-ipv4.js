@@ -1,4 +1,5 @@
 import {createPingAnimator} from "../shared-ui/v1/ping-animation.js";
+import {createWindowsFieldFormatter} from "../shared-ui/v1/windows-fields.js";
 import {createEngine} from "./r2d3-core.js";
 const $=id=>document.getElementById(id);
 let engine,scenario,seq=0;
@@ -9,7 +10,7 @@ const other=id=>ids.find(x=>x!==id);
 const ip=id=>state().objectsById[id].config.ipv4;
 const command=(type,targetId,params)=>engine.dispatch({id:"conflict-"+(++seq),commandVersion:1,type,targetId,params,expectedRevision:state().revision});
 const mask=prefix=>{const n=prefix===0?0:(0xffffffff<<(32-prefix))>>>0;return [24,16,8,0].map(k=>(n>>>k)&255).join(".");};
-const field=(label,value="")=>"  "+label+" "+".".repeat(Math.max(0,32-label.length))+" : "+value;
+const field=createWindowsFieldFormatter(["Nom de l\u0027hôte","DHCP activé","Adresse IPv4","Masque de sous-réseau","Passerelle par défaut","Serveurs DNS"]);
 function showIpconfig(all){
  const id=selected(),c=state().objectsById[id],v=c.config.ipv4,opts=c.config.networkOptions;
  const output=["C:\\Users\\technicien>ipconfig"+(all?" /all":""),"","Configuration IP de Windows",""];
