@@ -116,7 +116,8 @@ async function start(){
   $("ipconfig").addEventListener("click",()=>showIpconfig(false));
   $("ipconfig-all").addEventListener("click",()=>showIpconfig(true));
   $("console-pc").addEventListener("change",()=>{
-   pingAnimator.cancel("Aucun ping effectué depuis ce poste.");
+   $("feedback").textContent="";
+   pingAnimator.cancel();
    if($("console").textContent.includes("Configuration IP de Windows"))showIpconfig($("console").textContent.includes(">ipconfig /all"));
   });
   $("ping").addEventListener("click",()=>{
@@ -125,8 +126,6 @@ async function start(){
    pingAnimator.run({
      sourceName:source.name,sourceAddress:source.config.ipv4.address,
      targetAddress:target.config.ipv4.address,outcome:result,
-     onProgress:n=>{$("feedback").textContent="Ping depuis "+source.name+" : "+n+"/4 réponses."},
-     onComplete:({success})=>{$("feedback").textContent=source.name+" : "+(success?"ping réussi.":"ping en échec.")}
    });
   });
   update();$("feedback").textContent="Scénario chargé.";
