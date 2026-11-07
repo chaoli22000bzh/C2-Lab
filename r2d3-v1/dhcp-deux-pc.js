@@ -1,3 +1,4 @@
+import {formatIpconfigRelease,formatIpconfigRenew} from "../shared-ui/v1/dhcp-commands.js";
 import {formatIpconfigAll} from "../shared-ui/v1/ipconfig-all.js";
 import {formatIpconfig} from "../shared-ui/v1/ipconfig.js";
 import {createPingAnimator} from "../shared-ui/v1/ping-animation.js";
@@ -68,13 +69,16 @@ async function start(){
   scenario=await res.json();engine=createEngine(scenario);
   for(const id of clients){
    $("release-"+id).addEventListener("click",()=>{
-    if(apply("dhcp.release",id).status==="applied")$("feedback").textContent=labels[id]+" · ipconfig /release : adresse et bail DHCP abandonnés.";
-    $("console-pc").value=id;showIpconfig(true);
+    const result=apply("dhcp.release",id);
+    if(result.status==="applied")$("feedback").textContent=labels[id]+" · ipconfig /release : adresse et bail DHCP abandonnés.";
+    $("console-pc").value=id;
+    if(result.status==="applied")$("console").textContent=formatIpconfigRelease({ipv4:pc(id).config.ipv4});
    });
    $("renew-"+id).addEventListener("click",()=>{
     const result=apply("dhcp.request",id);
     if(result.status==="applied")$("feedback").textContent=renewalMessage(id);
-    $("console-pc").value=id;showIpconfig(true);
+    $("console-pc").value=id;
+    if(result.status==="applied")$("console").textContent=formatIpconfigRenew({ipv4:pc(id).config.ipv4,status:snapshot().runtime[id].dhcpStatus,gateway:pc(id).config.networkOptions?.gateway});
    });
    $("wire-"+id).addEventListener("click",()=>{
     const connected=snapshot().linksById[cables[id]].connected;
