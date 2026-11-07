@@ -1,0 +1,21 @@
+/* C2 Shared UI v1 - feedback discret des boutons.
+   Activer sur une interface avec class="c2-buttons" sur le body.
+   Ne modifie aucun texte, aucune commande ni aucun résultat Windows. */
+body.c2-buttons button:not(:disabled),
+body.c2-buttons [role="button"]:not([aria-disabled="true"]) {
+  transition: transform 115ms ease-out, filter 115ms ease-out, box-shadow 115ms ease-out;
+  transform-origin: center;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+body.c2-buttons button:not(:disabled):active,
+body.c2-buttons button.c2-pressed:not(:disabled),
+body.c2-buttons [role="button"]:not([aria-disabled="true"]):active,
+body.c2-buttons [role="button"].c2-pressed:not([aria-disabled="true"]) {
+  transform: translateY(2px) scale(.985);
+  filter: brightness(.84);
+  box-shadow: inset 0 2px 5px rgb(0 0 0 / 14%);
+}
+@media (prefers-reduced-motion: reduce) {
+ body.c2-buttons button,body.c2-buttons [role="button"]{transition:none!important}
+}
