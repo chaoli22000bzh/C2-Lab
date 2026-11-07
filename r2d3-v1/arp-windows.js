@@ -3,6 +3,10 @@ import {createEngine} from "./r2d3-core.js";
 const $=id=>document.getElementById(id);
 const ids=["pc-dhcp-01","pc-dhcp-02"];
 const mask="255.255.255.0";
+// Seul le libellé le plus long est sans points, les autres sont alignés sur lui.
+const ipconfigFields=["Adresse IPv4","Masque de sous-réseau","Passerelle par défaut"];
+const fieldWidth=Math.max(...ipconfigFields.map(label=>label.length));
+const field=(label,value)=>"   "+label+".".repeat(fieldWidth-label.length)+" : "+value;
 let engine,scenario,seq=0;
 const snap=()=>engine.getSnapshot();
 const selected=()=>$("console-pc").value;
@@ -25,9 +29,9 @@ function showConfig(){
  const p=snap().objectsById[selected()];
  $("console").textContent=[
  "C:\\Users\\technicien>ipconfig","","Configuration IP de Windows","",
- "Carte Ethernet Ethernet :","","   Adresse IPv4. . . . . . . . . . . . : "+p.config.ipv4.address,
- "   Masque de sous-réseau. . . . . . . : "+mask,
- "   Passerelle par défaut. . . . . . . : "+(p.config.networkOptions?.gateway??""),
+ "Carte Ethernet Ethernet :","",field("Adresse IPv4",p.config.ipv4.address),
+ field("Masque de sous-réseau",mask),
+ field("Passerelle par défaut",p.config.networkOptions?.gateway??""),
  "","C:\\Users\\technicien>"
  ].join("\n");
 }
