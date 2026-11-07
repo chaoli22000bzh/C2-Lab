@@ -1,4 +1,4 @@
-import {createPingAnimator} from "./ping-animation.js";
+import {createPingAnimator} from "../shared-ui/v1/ping-animation.js";
 import {createEngine} from "./r2d3-core.js";
 const $=id=>document.getElementById(id);
 const clients=["pc-dhcp-01","pc-dhcp-02"];
