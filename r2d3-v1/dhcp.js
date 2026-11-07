@@ -1,4 +1,5 @@
 import {createPingAnimator} from "../shared-ui/v1/ping-animation.js";
+import {createWindowsFieldFormatter} from "../shared-ui/v1/windows-fields.js";
 import {createEngine} from "./r2d3-core.js";
 const $=id=>document.getElementById(id);
 let engine,scenario,sequence=0;
@@ -12,10 +13,7 @@ const mask=prefix=>{
  const n=prefix===null?null:prefix===0?0:(0xffffffff<<(32-prefix))>>>0;
  return n===null?"": [24,16,8,0].map(x=>(n>>>x)&255).join(".");
 };
-const field=(label,value="")=>{
- const widest=Math.max("Passerelle par défaut".length,"Adresse d'autoconfiguration IPv4".length);
- return "  "+label+" "+".".repeat(Math.max(0,widest-label.length))+" : "+value;
-};
+const field=createWindowsFieldFormatter(["Nom de l'hôte","Description","Adresse physique","DHCP activé","Configuration automatique activée","Adresse d'autoconfiguration IPv4","Masque de sous-réseau","Passerelle par défaut","NetBIOS sur Tcpip","Adresse IPv4","Config. automatique","Bail obtenu","Bail expirant","Serveur DHCP","Serveurs DNS"]);
 function showIpconfig(full){
  const c=pc(),v=c.config.ipv4,o=c.config.networkOptions;
  const apipa=Boolean(v.address?.startsWith("169.254.") && !v.lease);
@@ -41,7 +39,7 @@ function showIpconfig(full){
   if(full){
    if(v.lease)lines.push(field("Bail obtenu",leaseDate(v.lease.start)),field("Bail expirant",leaseDate(v.lease.expires)));
    lines.push(field("Passerelle par défaut",o.gateway??""),field("Serveur DHCP",v.lease?state().objectsById[v.lease.serverId].config.ipv4.address:""),field("Serveurs DNS",o.dns[0]??""));
-   if(o.dns[1])lines.push("  "+" ".repeat("Passerelle par défaut".length+4)+o.dns[1]);
+   if(o.dns[1])lines.push(" ".repeat("  ".length+"Adresse d’autoconfiguration IPv4".length+3)+o.dns[1]);
   }
  }
  lines.push("","C:\\Users\\technicien>");
