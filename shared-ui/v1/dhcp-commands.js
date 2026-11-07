@@ -28,21 +28,24 @@ export function formatIpconfigRelease({ipv4}={}){
   return complete(lines);
 }
 
-/** Sortie de /renew selon le resultat du moteur R2D3.
- * status : lease | lease-retained | apipa ; pas de simulation de messages d'erreur
- * particuliers a une version de Windows ni de diagnostic sans source.
+/** Sortie pedagogique de /renew selon le resultat du moteur R2D3.
+ * status : lease | lease-retained | apipa.
+ * /renew rapporte le succes ou l'echec de la demande DHCP. Une adresse APIPA
+ * ou un ancien bail encore actif se consulte avec ipconfig ou ipconfig /all.
+ * Les textes d'echec sont generiques, pas des transcriptions Windows garanties.
  */
 export function formatIpconfigRenew({ipv4,status,gateway=null}={}){
   if(!ipv4||typeof ipv4!=="object")throw new TypeError("Etat IPv4 nécessaire");
   if(!["lease","lease-retained","apipa"].includes(status))
     throw new TypeError("Résultat du renouvellement DHCP inconnu");
   const lines=header("renew");
-  if(status==="apipa"){
-    lines.push(field("Adresse d'autoconfiguration IPv4",ipv4.address??""));
-  }else{
-    lines.push(field("Adresse IPv4",ipv4.address??""));
+  if(status!=="lease"){
+    lines.push("Une erreur s'est produite lors du renouvellement de l'interface Ethernet :");
+    lines.push("aucune nouvelle configuration DHCP n'a été obtenue.");
+    return complete(lines);
   }
+  lines.push(field("Adresse IPv4",ipv4.address??""));
   if(ipv4.address&&ipv4.prefix!=null)lines.push(field("Masque de sous-réseau",mask(ipv4.prefix)));
-  lines.push(field("Passerelle par défaut",status==="apipa"?"":gateway??""));
+  lines.push(field("Passerelle par défaut",gateway??""));
   return complete(lines);
 }
