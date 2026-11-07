@@ -11,7 +11,8 @@ select{font:inherit;width:100%;max-width:280px;padding:8px;border:1px solid #9bb
 pre{font:12px/1.65 Consolas,"Courier New",monospace;color:#edf3ff;background:#112337;padding:13px;border-radius:9px;overflow-x:auto;white-space:pre;max-width:100%;min-height:85px}
 #feedback{font-size:14px;font-weight:600}.footer{margin:15px 0;font-size:14px}a{color:#1d609f}
 @media(max-width:800px){.layout{grid-template-columns:1fr}}@media(max-width:500px){section{padding:12px}.actions button{flex:1 1 145px}pre{font-size:10.5px}}
-</style></head><body>
+</style><link rel="stylesheet" href="../shared-ui/v1/buttons.css">
+</head><body class="c2-buttons">
 <header><h1>R2D3 / Deux clients DHCP</h1><p>Laboratoire expérimental : deux PC, un serveur DHCP et une imprimante réseau</p></header>
 <main>
 <p>Attribue un bail à chaque PC, puis provoque une panne sur l'un des deux. Vérifie que les configurations restent indépendantes.</p>
@@ -43,4 +44,4 @@ pre{font:12px/1.65 Consolas,"Courier New",monospace;color:#edf3ff;background:#11
 <p id="feedback" role="status">Chargement...</p>
 <p class="small">Cette première version simule les attributions et les incidents indépendants. Le temps des baux est fixe et les échanges DHCP détaillés ne sont pas émulés.</p>
 <p class="footer"><a href="./dhcp.html">Retour au laboratoire DHCP à un PC</a> · <a href="./experiment.html">Atelier IPv4</a></p>
-</main><script type="module" src="./dhcp-deux-pc.js"></script></body></html>
+</main><script type="module" src="./dhcp-deux-pc.js"></script><script type="module" src="../shared-ui/v1/button-feedback.js"></script></body></html>
