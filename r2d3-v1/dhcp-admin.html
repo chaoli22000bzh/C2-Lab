@@ -35,6 +35,21 @@ pre{font:12px/1.65 Consolas,"Courier New",monospace;color:#edf3ff;background:#11
 </form>
 <p class="small">Les exclusions empêchent une nouvelle attribution. Une réservation lie une adresse à la MAC du PC 2. Après modification, utiliser <code>ipconfig /release</code> puis <code>ipconfig /renew</code> pour demander une nouvelle adresse.</p>
 </section>
+<section style="margin-top:16px" aria-labelledby="time-title">
+<h2 id="time-title">Durée des baux DHCP</h2>
+<p class="small">Le temps ne s'écoule pas automatiquement. Fais-le avancer pour observer le renouvellement à T1 (12 h), la nouvelle tentative à T2 (21 h), puis l'expiration (24 h) si le serveur reste indisponible.</p>
+<div class="card">
+<strong>Temps simulé écoulé : <span id="time-value">0 h 00</span></strong>
+<div id="lease-summary" class="small" aria-live="polite">Aucun bail attribué.</div>
+</div>
+<div class="actions">
+<button id="advance-12" type="button" class="secondary">Avancer de 12 h</button>
+<button id="advance-9" type="button" class="secondary">Avancer de 9 h</button>
+<button id="advance-3" type="button" class="secondary">Avancer de 3 h</button>
+<button id="advance-1" type="button" class="secondary">Avancer de 1 h</button>
+</div>
+<p class="small">Les échéances T1 et T2 sont recalculées lors de chaque renouvellement réussi. Les adresses restent valides jusqu'à l'expiration, même si le serveur est arrêté.</p>
+</section>
 <div class="layout">
 <section id="panel-pc-dhcp-01">
 <h2>PC 1 : REN-PC-01</h2>
