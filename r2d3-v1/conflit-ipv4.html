@@ -18,8 +18,7 @@ pre{font:12px/1.6 Consolas,"Courier New",monospace;background:#112337;color:#edf
 <section>
 <h2>Réseau local</h2>
 <div class="card"><strong>Switch Ethernet</strong><div class="small">Réseau 192.168.10.0/24, sans routeur dans cette simulation · Imprimante : 192.168.10.50/24</div></div>
-<div class="actions"><button id="reset" class="secondary" type="button">Réinitialiser le laboratoire</button><button id="diagnose" class="secondary" type="button">Contrôler les doublons IPv4</button></div>
-<p id="diagnosis" class="small" role="status">Aucun contrôle des doublons effectué.</p>
+<div class="actions"><button id="reset" class="secondary" type="button">Réinitialiser le laboratoire</button></div>
 </section>
 <div class="layout">
 <section>
@@ -41,10 +40,10 @@ pre{font:12px/1.6 Consolas,"Courier New",monospace;background:#112337;color:#edf
 <div class="actions"><button id="ipconfig" class="secondary" type="button">ipconfig</button><button id="ipconfig-all" class="secondary" type="button">ipconfig /all</button><button id="ping" class="secondary" type="button">Ping imprimante</button><button id="ping-peer" class="secondary" type="button">Ping autre PC</button></div>
 <pre id="console" aria-live="polite">C:\Users\technicien&gt;</pre>
 </section>
-<section><h2>Résultat du ping</h2><p class="small">Le ping part du PC sélectionné. En présence d'un doublon, le moteur signale un résultat non fiable plutôt que de prétendre reproduire exactement la réaction de chaque version de Windows.</p>
+<section><h2>Résultat du ping</h2><p class="small">Le ping part du PC sélectionné. Les réponses apparaissent successivement, comme dans une invite de commandes Windows.</p>
 <pre id="ping-console" aria-live="polite">Aucun ping effectué.</pre></section>
 </div>
 <p id="feedback" role="status">Chargement du scénario...</p>
-<p class="small">Simulation : la détection des doublons est une analyse R2D3, et non une commande Windows. Un conflit réel peut produire des symptômes variables, notamment selon les tables ARP et la version du système.</p>
+<p class="small">Simulation : les réponses au ping sont accélérées. Les symptômes réels d'un conflit IPv4 peuvent varier selon les tables ARP et la version de Windows.</p>
 <p><a href="./dhcp-admin.html">Retour au laboratoire 3 : Administration DHCP</a></p>
 </main><script type="module" src="./conflit-ipv4.js"></script></body></html>
