@@ -13,7 +13,7 @@
 <header><a href="../">C2-Lab</a><h1>Vérifier les commandes Windows</h1><p>Banc d'essai des trois modules partagés, sans inventaire documentaire local.</p></header>
 <main>
 <section aria-labelledby="essais">
-<h2 id="essais">Vérifier les trois commandes Windows</h2>
+<h2 id="essais">Vérifier les commandes Windows</h2>
 <p class="muted">Les exemples ci-dessous appellent directement les modules partagés. Les valeurs sont des données de démonstration, pas les résultats d'une machine réelle. Aucun rendu n'est recopié dans cette page.</p>
 <div class="grid">
 <article class="card">
@@ -34,6 +34,12 @@
 <div class="controls"><button type="button" id="arp-a" class="active">Afficher la table ARP <span style="font-weight:400">arp -a</span></button><button type="button" id="arp-ping">Simuler un échange</button><button type="button" id="arp-d">Vider la table ARP <span style="font-weight:400">arp -d *</span></button></div>
 <pre class="demo short" id="arp-output" aria-live="polite"></pre>
 </article>
+<article class="card">
+<h3>4. ipconfig /release et /renew</h3>
+<p class="demo-label">Sorties du composant partagé à partir de données DHCP de démonstration.</p>
+<div class="controls" id="dhcp-modes"><button type="button" data-mode="release" class="active">/release</button><button type="button" data-mode="lease">/renew : bail</button><button type="button" data-mode="retained">/renew : bail conservé</button><button type="button" data-mode="apipa">/renew : APIPA</button></div>
+<pre class="demo short" id="dhcp-output" aria-live="polite"></pre>
+</article>
 </div>
 </section>
 <section class="card" aria-labelledby="documentation-heading"><h2 id="documentation-heading">Documentation de référence</h2><p>Le catalogue des composants partagés et toutes les règles de maintenance sont conservés exclusivement dans <strong>C2 / main / docs</strong> (dépôt privé, connexion GitHub nécessaire).</p><p><a href="https://github.com/chaoli22000bzh/C2/blob/main/docs/COMPOSANTS_UI_PARTAGES.md">Consulter la documentation centrale dans C²</a></p></section>
@@ -42,6 +48,7 @@
 import {formatIpconfig} from "../shared-ui/v1/ipconfig.js";
 import {formatIpconfigAll} from "../shared-ui/v1/ipconfig-all.js";
 import {formatArpTable,formatArpClear} from "../shared-ui/v1/arp.js";
+import {formatIpconfigRelease,formatIpconfigRenew} from "../shared-ui/v1/dhcp-commands.js";
 const $=id=>document.getElementById(id);
 const ipv4=(address,prefix,lease)=>({address,prefix,...(lease?{lease}:{})});
 function choose(group,mode){for(const button of group.querySelectorAll("button")){const on=button.dataset.mode===mode;button.classList.toggle("active",on);button.setAttribute("aria-pressed",String(on));}}
@@ -57,6 +64,19 @@ function showAll(mode){
  if(mode==="released")Object.assign(base,{ipv4:ipv4(null,null),gateway:null,dns:[],dhcp:true});
  $("all-output").textContent=formatIpconfigAll(base);choose($("all-modes"),mode);
 }
+function showDhcp(mode){
+ const output=mode==="release"
+   ?formatIpconfigRelease({ipv4:ipv4(null,null)})
+   :formatIpconfigRenew({
+      status:mode==="retained"?"lease-retained":mode==="apipa"?"apipa":"lease",
+      ipv4:mode==="apipa"?ipv4("169.254.10.20",16):ipv4("192.168.10.100",24),
+      gateway:mode==="apipa"?null:"192.168.10.1"
+    });
+ $("dhcp-output").textContent=output;
+ choose($("dhcp-modes"),mode);
+}
+$("dhcp-modes").addEventListener("click",event=>{const b=event.target.closest("button[data-mode]");if(b)showDhcp(b.dataset.mode);});
+showDhcp("release");
 let entries=[];
 const arpAddress="192.168.10.20";
 function arpTable(){$("arp-output").textContent=formatArpTable({interfaceAddress:arpAddress,entries});}
