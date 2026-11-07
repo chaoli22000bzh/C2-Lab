@@ -1,6 +1,6 @@
 import {createEngine} from "./r2d3-core.js";
 const $=id=>document.getElementById(id);
-let engine,scenario,seq=0;
+let engine,scenario,seq=0,pingGeneration=0;
 const state=()=>engine.getSnapshot();
 const ids=["pc-dhcp-01","pc-dhcp-02"];
 const selected=()=>$("console-pc").value;
@@ -22,22 +22,40 @@ function update(){
  for(const id of ids)$("ip-"+id).textContent=ip(id).address;
  if($("console").textContent.includes("Configuration IP de Windows"))showIpconfig($("console").textContent.includes(">ipconfig /all"));
 }
+function cancelPing(){
+ pingGeneration++;
+}
 function ping(targetId){
- const id=selected(),result=engine.query({type:"network.ping",sourceId:id,targetId});
+ const generation=++pingGeneration;
+ const id=selected(),source=state().objectsById[id].name;
+ const result=engine.query({type:"network.ping",sourceId:id,targetId});
  const target=ip(targetId).address;
- const lines=["C:\\Users\\technicien>ping "+target,""];
- if(result.conflict){
-  lines.push("Simulation : communication non fiable, conflit d'adresses IPv4.","Les réponses ICMP réelles peuvent varier selon le système et l'état ARP.");
- }else if(result.success){
-  for(let i=0;i<4;i++)lines.push("Réponse de "+target+" : octets=32 temps<1 ms TTL=128");
-  lines.push("","Paquets : envoyés = 4, reçus = 4, perdus = 0 (0 % de perte)");
- }else{
-  for(let i=0;i<4;i++)lines.push("Délai d'attente de la demande dépassé.");
-  lines.push("","Paquets : envoyés = 4, reçus = 0, perdus = 4 (100 % de perte)");
- }
- lines.push("",result.reason);
- $("ping-console").textContent=lines.join("\n");
- $("feedback").textContent=result.conflict?"Conflit IPv4 détecté : résultat du ping non déterministe dans la réalité.":result.success?"Ping réussi.":"Ping en échec.";
+ const lines=["C:\\Users\\technicien>ping "+target,"","Envoi d'une requête 'Ping' "+target+" avec 32 octets de données :"];
+ $("ping-console").textContent=source+" :\n"+lines.join("\n");
+ $("feedback").textContent="Ping en cours depuis "+source+"...";
+ let completed=0;
+ const step=()=>{
+  if(generation!==pingGeneration)return;
+  completed++;
+  // Pour le conflit, représenter une absence de réponse sans prétendre simuler
+  // les multiples comportements possibles du système et du cache ARP.
+  if(result.success && !result.conflict){
+   lines.push("Réponse de "+target+" : octets=32 temps<1 ms TTL=128");
+  }else{
+   lines.push("Délai d'attente de la demande dépassé.");
+  }
+  if(completed===4){
+   const received=result.success&&!result.conflict?4:0;
+   lines.push("","Statistiques Ping pour "+target+" :",
+    "    Paquets : envoyés = 4, reçus = "+received+", perdus = "+(4-received)+" ("+(received?0:100)+" % de perte)");
+   $("feedback").textContent=source+" : "+(received?"ping réussi.":"ping en échec.");
+  }else{
+   $("feedback").textContent="Ping depuis "+source+" : "+completed+"/4 réponses.";
+  }
+  $("ping-console").textContent=source+" :\n"+lines.join("\n");
+  if(completed<4)setTimeout(step,330);
+ };
+ setTimeout(step,260);
 }
 async function start(){
  try{
@@ -47,28 +65,22 @@ async function start(){
   $("ipconfig").addEventListener("click",()=>showIpconfig(false));
   $("ipconfig-all").addEventListener("click",()=>showIpconfig(true));
   $("console-pc").addEventListener("change",()=>{
+   cancelPing();$("ping-console").textContent="Aucun ping effectué depuis ce poste.";
    if($("console").textContent.includes("Configuration IP de Windows"))showIpconfig($("console").textContent.includes(">ipconfig /all"));
   });
   $("ping").addEventListener("click",()=>ping("printer-dhcp"));
   $("ping-peer").addEventListener("click",()=>ping(other(selected())));
-  $("diagnose").addEventListener("click",()=>{
-   const q=engine.query({type:"network.ipv4Conflicts"});
-   $("diagnosis").textContent=q.conflicts.length?q.conflicts.map(c=>"Adresse "+c.address+" utilisée par "+c.ids.map(id=>state().objectsById[id].name).join(" et ")+".").join(" "):"Aucune adresse IPv4 en double détectée sur le segment.";
-   $("diagnosis").className=q.conflicts.length?"status bad":"status good";
-  });
   $("address-form").addEventListener("submit",e=>{
    e.preventDefault();
    const address=$("new-address").value.trim();
    const result=command("network.setIPv4","pc-dhcp-02",{mode:"static",interfaceId:"eth0",address,prefix:24});
    $("feedback").textContent=result.status==="applied"?"Adresse IPv4 du PC 2 appliquée. Vérifie le diagnostic et les pings.":"Adresse refusée : "+(result.message??result.code);
-   if(result.status==="applied")$("diagnosis").textContent="Configuration modifiée. Relancer le contrôle des doublons.";
+   if(result.status==="applied")cancelPing();
    update();
   });
   $("reset").addEventListener("click",()=>{
-   engine=createEngine(scenario);
+   cancelPing();engine=createEngine(scenario);
    $("new-address").value="192.168.10.20";
-   $("diagnosis").textContent="Aucun contrôle des doublons effectué.";
-   $("diagnosis").className="small";
    $("console").textContent="C:\\Users\\technicien>";
    $("ping-console").textContent="Aucun ping effectué.";
    $("feedback").textContent="Scénario réinitialisé.";update();
