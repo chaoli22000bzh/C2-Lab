@@ -1,3 +1,4 @@
+import {formatIpconfig} from "../shared-ui/v1/ipconfig.js";
 import {createPingAnimator} from "../shared-ui/v1/ping-animation.js";
 import {createWindowsFieldFormatter} from "../shared-ui/v1/windows-fields.js";
 import {createEngine} from "./r2d3-core.js";
@@ -22,6 +23,10 @@ const selected=()=>$("console-pc").value;
 const pc=id=>snapshot().objectsById[id];
 function showIpconfig(full){
  const id=selected(),c=pc(id),v=c.config.ipv4,o=c.config.networkOptions??{gateway:null,dns:[]};
+ if(!full){
+  $("console").textContent=formatIpconfig({ipv4:v,gateway:o.gateway,connected:snapshot().linksById[cables[id]].connected});
+  return;
+ }
  const apipa=v.address?.startsWith("169.254.")&&!v.lease;
  const out=["C:\\Users\\technicien>ipconfig"+(full?" /all":""),"","Configuration IP de Windows",""];
  if(full){
