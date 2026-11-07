@@ -1,3 +1,4 @@
+import {formatIpconfigAll} from "../shared-ui/v1/ipconfig-all.js";
 import {formatIpconfig} from "../shared-ui/v1/ipconfig.js";
 import {createPingAnimator} from "../shared-ui/v1/ping-animation.js";
 import {createWindowsFieldFormatter} from "../shared-ui/v1/windows-fields.js";
@@ -27,35 +28,8 @@ function showIpconfig(full){
   $("console").textContent=formatIpconfig({ipv4:v,gateway:o.gateway,connected:snapshot().linksById[cables[id]].connected});
   return;
  }
- const apipa=v.address?.startsWith("169.254.")&&!v.lease;
- const out=["C:\\Users\\technicien>ipconfig"+(full?" /all":""),"","Configuration IP de Windows",""];
- if(full){
-  out.push(field("Nom de l'hôte",c.name));
-  if(apipa){
-   out.push(field("Description","Intel(R) Ethernet Controller (3) I225-V"),
-    field("Adresse physique",macs[id]),
-    field("DHCP activé","Oui"),
-    field("Configuration automatique activée","Oui"),
-    field("Adresse d'autoconfiguration IPv4",v.address+" (préféré)"),
-    field("Masque de sous-réseau",mask(v.prefix)),
-    field("Passerelle par défaut",""),
-    field("NetBIOS sur Tcpip","Activé"));
-  }else{
-   out.push(field("DHCP activé","Oui"),field("Config. automatique","Oui"));
-  }
- }
- if(!apipa||!full){
-  if(v.address){
-   out.push(field("Adresse IPv4",v.address+" (préféré)"),field("Masque de sous-réseau",mask(v.prefix)));
-  }else out.push(field("Adresse IPv4","Non attribuée"));
-  if(full){
-   if(v.lease)out.push(field("Bail obtenu",leaseDate(v.lease.start)),field("Bail expirant",leaseDate(v.lease.expires)));
-   out.push(field("Passerelle par défaut",o.gateway??""),field("Serveur DHCP",v.lease?snapshot().objectsById[v.lease.serverId].config.ipv4.address:""),field("Serveurs DNS",o.dns[0]??""));
-   if(o.dns[1])out.push("  "+" ".repeat(width+4)+o.dns[1]);
-  }
- }
- out.push("","C:\\Users\\technicien>");
- $("console").textContent=out.join("\n");
+ const lease=v.lease;
+ $("console").textContent=formatIpconfigAll({ipv4:v,hostname:c.name,dhcp:true,connected:snapshot().linksById[cables[id]].connected,gateway:o.gateway,dns:o.dns,description:"Intel(R) Ethernet Controller (3) I225-V",mac:macs[id],dhcpServer:lease?snapshot().objectsById[lease.serverId]?.config.ipv4.address:undefined,leaseStart:lease?leaseDate(lease.start):undefined,leaseEnd:lease?leaseDate(lease.expires):undefined,netbios:v.address?.startsWith("169.254.")?"Activé":undefined});
 }
 function update(){
  const st=snapshot(),sv=st.objectsById["srv-dhcp"];
