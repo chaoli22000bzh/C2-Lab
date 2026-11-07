@@ -11,11 +11,11 @@ pre{font:12px/1.6 Consolas,"Courier New",monospace;background:#112337;color:#edf
 </style><link rel="stylesheet" href="../shared-ui/v1/buttons.css"></head>
 <body class="c2-buttons"><header><h1>R2D3 / Table ARP sous Windows</h1><p>Laboratoire 5 : adresses IPv4 et adresses MAC sur le réseau local</p></header><main>
 <p>Deux PC et une imprimante sont connectés au même switch. Utilise les commandes Windows pour observer l'évolution des correspondances entre IPv4 et MAC après une communication.</p>
-<section><h2>Équipements du réseau</h2><div class="card">REN-PC-01 : 192.168.10.20/24<br>REN-PC-02 : <span id="pc2-ip">192.168.10.21</span>/24<br>Imprimante : 192.168.10.50/24</div>
+<section><h2>Équipements du réseau</h2><div class="card">PC1 : 192.168.10.20/24<br>PC2 : <span id="pc2-ip">192.168.10.21</span>/24<br>Imprimante : 192.168.10.50/24</div>
 <div class="actions"><button id="reset" class="secondary" type="button">Réinitialiser le laboratoire</button></div></section>
 <div class="layout">
 <section><h2>Invite de commandes Windows</h2>
-<label for="console-pc">Poste concerné</label><select id="console-pc"><option value="pc-dhcp-01">PC 1 : REN-PC-01</option><option value="pc-dhcp-02">PC 2 : REN-PC-02</option></select>
+<label for="console-pc">Poste concerné</label><select id="console-pc"><option value="pc-dhcp-01">PC 1 : PC1</option><option value="pc-dhcp-02">PC 2 : PC2</option></select>
 <div class="actions"><button id="arp-a" class="secondary" type="button">arp -a</button><button id="arp-d" class="secondary" type="button">arp -d *</button><button id="ipconfig" class="secondary" type="button">ipconfig</button></div>
 <div class="actions"><button id="ping-printer" type="button">Ping imprimante</button><button id="ping-peer" type="button">Ping autre PC</button></div>
 <pre id="console" aria-live="polite">C:\Users\technicien&gt;</pre></section>
