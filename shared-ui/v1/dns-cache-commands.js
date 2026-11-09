@@ -1,7 +1,8 @@
 /* Sorties Windows 11 : ipconfig /displaydns et /flushdns.
  * Le moteur DNS fournit les entrees et TTL restants. Ce module ne simule ni le cache ni l'horloge.
  */
-const f=(label,value)=>"    "+label.padEnd(23,".")+" : "+value;
+import {createWindowsFieldFormatter} from "./windows-fields.js";
+const f=createWindowsFieldFormatter(["Nom de l'enregistrement","Type d'enregistrement","Durée de vie","Longueur des données","Section","Enregistrement A (hôte)","Réponse négative"],{indent:"    "});
 export function formatDisplayDns({entries=[],prompt="C:\\>"}={}){
   const lines=[prompt+"ipconfig /displaydns","","Configuration IP de Windows",""];
   for(const item of entries){
