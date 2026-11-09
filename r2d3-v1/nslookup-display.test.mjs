@@ -5,7 +5,7 @@ import {formatNslookup} from "../shared-ui/v1/nslookup.js";
 const base={status:"ok",serverAddress:"192.168.10.10",serverId:"srv-dns"};
 test("NSLOOKUP-01 : resolution A en sortie Windows",()=>{
  const output=formatNslookup({name:"atelier.test",result:{...base,found:true,address:"192.168.10.50",chain:[{name:"atelier.test",type:"A",value:"192.168.10.50"}]}});
- assert.match(output,/C:\\\\>nslookup atelier\.test/);
+ assert.match(output,/C:\\>nslookup atelier\.test/);
  assert.match(output,/Serveur :  UnKnown/);
  assert.match(output,/Address:  192\.168\.10\.10/);
  assert.match(output,/Nom :    atelier\.test/);
