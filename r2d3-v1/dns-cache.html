@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>R2D3 | DNS cache et TTL</title>
+<style>:root{font:16px/1.5 system-ui,sans-serif;background:#f2f6fa;color:#192e49}*{box-sizing:border-box}body{margin:0}main{max-width:1000px;margin:0 auto;padding:20px}h1{font-size:1.6rem}h2{font-size:1.15rem;margin:0 0 12px}section{background:#fff;border:1px solid #d3e1ef;border-radius:12px;padding:18px;margin:14px 0}button,input,select{font:inherit;padding:9px;border-radius:7px}button{border:0;background:#205f99;color:white;cursor:pointer;margin:4px 6px 4px 0}.secondary{background:#e4edf8;color:#183c65}input,select{border:1px solid #a9bfd1;width:100%}label{display:block;margin:9px 0}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}table{border-collapse:collapse;width:100%}td,th{border-bottom:1px solid #d8e2ee;padding:6px;text-align:left;font-size:.9rem}pre{background:#122b42;color:#edf4ff;border-radius:10px;padding:12px;white-space:pre-wrap;overflow-wrap:anywhere;min-height:110px}.small{font-size:.9rem;color:#4f6880}#status{font-weight:600}@media(max-width:700px){.grid{grid-template-columns:1fr}main{padding:12px}}</style>
+<link rel="stylesheet" href="../shared-ui/v1/buttons.css"></head>
+<body class="c2-buttons"><main>
+<h1>DNS : cache client et TTL</h1>
+<p>Laboratoire de validation du moteur R2D3. L'horloge avance manuellement. La résolution Windows exploite son cache ; <code>nslookup</code> interroge directement le serveur DNS.</p>
+<section><h2>Clients et serveur</h2>
+<label>Poste utilisé<select id="client"><option value="pc-dhcp-01">PC1</option><option value="pc-dhcp-02">PC2</option></select></label>
+<p id="network"></p><button id="dhcp">Obtenir la configuration DHCP</button>
+<button id="toggle" class="secondary">Arrêter DNS</button><button id="reset" class="secondary">Réinitialiser</button>
+<p id="clock" class="small"></p></section>
+<div class="grid"><section><h2>Résolution du nom</h2>
+<label>Nom recherché<input id="name" value="www.atelier.test" spellcheck="false"></label>
+<button id="windows">Résolution Windows (avec cache)</button>
+<button id="nslookup" class="secondary">nslookup (sans cache client)</button>
+<pre id="answer" aria-live="polite">Aucune requête.</pre></section>
+<section><h2>Cache DNS du PC</h2>
+<button id="displaydns">ipconfig /displaydns</button>
+<button id="flushdns" class="secondary">ipconfig /flushdns</button>
+<pre id="cache-output" aria-live="polite">Aucune commande.</pre></section></div>
+<div class="grid"><section><h2>Administration du DNS</h2>
+<label>Enregistrement<select id="record"><option value="atelier.test">atelier.test (A)</option><option value="www.atelier.test">www.atelier.test (CNAME)</option><option value="fichiers.atelier.test">fichiers.atelier.test (A)</option></select></label>
+<label>Valeur<input id="value" spellcheck="false"></label>
+<label>TTL de cet enregistrement, en secondes<input id="ttl" type="number" min="1" max="86400" value="300"></label>
+<button id="save">Enregistrer</button>
+<label>TTL des réponses négatives, en secondes<input id="negative" type="number" min="1" max="86400" value="60"></label>
+<button id="save-negative" class="secondary">Enregistrer le TTL négatif</button></section>
+<section><h2>Horloge simulée</h2>
+<label>Avancer le temps de (secondes)<input id="seconds" type="number" min="1" max="604800" value="60"></label>
+<button id="advance">Avancer l'horloge</button>
+<p class="small">Le temps simulé est également celui des baux DHCP. Aucune attente réelle n'est nécessaire.</p>
+<h2>État des caches</h2><p id="cache-summary"></p>
+</section></div>
+<section><h2>Zone DNS actuelle</h2><table><thead><tr><th>Nom</th><th>Type</th><th>Valeur</th><th>TTL (s)</th></tr></thead><tbody id="records"></tbody></table></section>
+<p id="status" role="status"></p>
+<p class="small">Le moteur conserve les réponses positives et négatives par PC. Un arrêt du serveur n'efface pas un cache valide. Pas de serveur DNS public ni de simulation de trames.</p>
+<p><a href="./dns-local.html">Retour au laboratoire DNS V1</a></p>
+</main><script type="module" src="./dns-cache.js"></script><script type="module" src="../shared-ui/v1/button-feedback.js"></script></body></html>
