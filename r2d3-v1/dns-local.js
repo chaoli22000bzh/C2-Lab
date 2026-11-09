@@ -1,3 +1,4 @@
+import {formatNslookup} from "../shared-ui/v1/nslookup.js";
 import {createEngine} from "./r2d3-core.js";
 const $=id=>document.getElementById(id);
 let scenario,engine,serial=0;
@@ -24,17 +25,9 @@ function render(){
 function lookup(){
  const name=$("name").value.trim();
  const result=engine.query({type:"dns.resolve",sourceId:clientId,name});
- let lines=["C:\\> nslookup "+name,""];
- if(result.status!=="ok")lines.push("*** Requête impossible : "+result.reason);
- else{
-  lines.push("Serveur DNS : "+result.serverAddress);
-  if(result.found){
-   for(const r of result.chain)lines.push(r.name+"  "+r.type+"  "+r.value);
-   lines.push("Adresse résolue : "+result.address);
-  }else lines.push("*** Aucune réponse DNS : "+result.reason);
- }
- $("answer").textContent=lines.join("\n");
+ $("answer").textContent=formatNslookup({name,result});
 }
+
 async function start(){
  try{
   const res=await fetch("./dns-local-scenario.json",{cache:"no-store"});
