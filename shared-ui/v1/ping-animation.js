@@ -11,12 +11,20 @@ export function createPingAnimator(element, {intervalMs=230}={}) {
     timeoutId=null;
     element.textContent=message;
   }
-  function run({sourceName,sourceAddress,targetAddress,outcome,onProgress,onComplete}) {
+  function run({sourceName,sourceAddress,targetAddress,targetInput=targetAddress,outcome,onProgress,onComplete,resolutionFailure=null}) {
     cancel("");
     const ticket=generation;
-    const success=Boolean(outcome.success&&!outcome.conflict);
-    const lines=["C:\\Users\\technicien>ping "+targetAddress,"",
-      "Envoi d'une requête 'Ping' "+targetAddress+" avec 32 octets de données :"];
+    const success=Boolean(outcome?.success&&!outcome?.conflict);
+    const requested=String(targetInput??targetAddress??"").trim();
+    if(resolutionFailure!==null){
+      element.textContent="C:\\Users\\technicien>ping "+requested+"\n\n"+
+        "La requête Ping n'a pas pu trouver l'hôte "+requested+". Vérifiez le nom et essayez à nouveau.";
+      if(typeof onComplete==="function")onComplete({success:false,outcome,resolutionFailure});
+      return;
+    }
+    const ip=String(targetAddress??requested);
+    const lines=["C:\\Users\\technicien>ping "+requested,"",
+      "Envoi d'une requête 'Ping' "+(requested===ip?ip:requested+" ["+ip+"]")+" avec 32 octets de données :"];
     const display=()=>{element.textContent=lines.join("\n");};
     let count=0;
     display();
