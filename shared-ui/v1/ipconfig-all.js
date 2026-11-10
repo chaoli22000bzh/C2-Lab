@@ -12,7 +12,6 @@ const labels=[
   "NetBIOS sur Tcpip","Statut du média"
 ];
 const field=createWindowsFieldFormatter(labels);
-const width=Math.max(...labels.map(label=>label.length));
 const prefixMask=prefix=>{
   if(!Number.isInteger(prefix)||prefix<0||prefix>32)return "";
   const bits=prefix===0?0:(0xffffffff<<(32-prefix))>>>0;
@@ -75,7 +74,7 @@ export function formatIpconfigAll({
     if(dhcp&&dhcpServer!==undefined&&ipv4.lease)lines.push(formatField("Serveur DHCP",dhcpServer));
     if(dns.length&&!apipa){
       lines.push(formatField("Serveurs DNS",dns[0]));
-      for(const server of dns.slice(1))lines.push(compact?"  "+server:"  "+" ".repeat(width+3)+server);
+      for(const server of dns.slice(1))lines.push("    "+server);
     }
     if(netbios!==undefined)lines.push(formatField("NetBIOS sur Tcpip",netbios));
   }
