@@ -7,8 +7,8 @@
 <p>Laboratoire technique R2D3. Deux postes, un serveur DNS interne et une zone <code>atelier.test</code>. Le moteur applique les modifications et produit les résultats sans interpréter l'incident à la place du technicien.</p>
 <section><h2>Postes et réseau</h2><label>Poste de travail<select id="client"><option value="pc-dhcp-01">PC1</option><option value="pc-dhcp-02">PC2</option></select></label>
 <p id="network"></p><button id="dhcp">Obtenir un bail DHCP</button><button id="ipconfig" class="secondary">ipconfig</button><button id="ipconfig-all" class="secondary">ipconfig /all</button>
-<label>Serveur DNS préféré (IPv4)<input id="dns-ip" spellcheck="false" placeholder="192.168.10.10"></label><button id="set-dns">Configurer le DNS du poste</button>
-<label>Équipement à tester par ping<select id="ping-target"><option value="srv-dns">Serveur DNS</option><option value="srv-dhcp">Serveur DHCP</option><option value="pc-dhcp-01">PC1</option><option value="pc-dhcp-02">PC2</option></select></label><button id="ping" class="secondary">ping</button>
+<label>Serveur DNS préféré (IPv4)<input id="dns-ip" spellcheck="false" placeholder="192.168.10.10"></label><label>Serveur DNS auxiliaire (IPv4, facultatif)<input id="dns-secondary" spellcheck="false" placeholder="1.1.1.1"></label><button id="set-dns">Configurer les serveurs DNS du poste</button>
+<label>Cible du ping (adresse IPv4 ou nom DNS)<input id="ping-target" value="192.168.10.10" spellcheck="false" placeholder="192.168.10.10 ou www.atelier.test"></label><button id="ping" class="secondary">ping</button>
 </section>
 <div class="grid"><section><h2>Diagnostic de la résolution</h2><label>Nom recherché<input id="name" value="www.atelier.test" spellcheck="false"></label>
 <button id="windows">Résolution Windows</button><button id="nslookup" class="secondary">nslookup</button><pre id="answer" aria-live="polite">Aucune commande.</pre>
@@ -23,4 +23,4 @@
 <p id="cache-summary"></p><button id="reset" class="secondary">Réinitialiser le laboratoire</button></section>
 <section><h2>Configuration de la zone</h2><table><thead><tr><th>Nom</th><th>Type</th><th>Valeur</th><th>TTL</th></tr></thead><tbody id="records"></tbody></table></section>
 <p id="status" role="status"></p><p class="small">Le test « résolution Windows » utilise le cache du poste ; « nslookup » interroge directement le DNS. Le laboratoire ne simule ni Internet ni la totalité des commandes Windows 11. La réinitialisation restaure le scénario de départ.</p>
-</main><script type="module" src="./dns-diagnostic.js?v=20261110-1"></script><script type="module" src="../shared-ui/v1/button-feedback.js"></script></body></html>
+</main><script type="module" src="./dns-diagnostic.js?v=20261110-2"></script><script type="module" src="../shared-ui/v1/button-feedback.js"></script></body></html>
