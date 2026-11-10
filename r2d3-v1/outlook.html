@@ -9,14 +9,14 @@ const messages=[
 {id:'m2',folder:'inbox',from:'Sophie MARTIN',to:'contact@atelier-kerwen.fr',subject:'Demande de dépannage',body:'Bonjour,\n\nPouvez-vous vérifier la configuration de la messagerie sur mon poste ?\n\nMerci,\nSophie',date:'Hier'},
 {id:'m3',folder:'sent',from:'contact@atelier-kerwen.fr',to:'Camille KOENIG',subject:'Compte rendu',body:'Bonjour,\n\nVoici le compte rendu de notre intervention.',date:'Lundi'}
 ];
-const reference={type:'imap',incomingHost:'imap.entreprise.fr',incomingPort:'993',incomingSecurity:'ssl',outgoingHost:'smtp.entreprise.fr',outgoingPort:'587',outgoingSecurity:'starttls',username:'contact@atelier-kerwen.fr',password:'atelier2026'};
+const reference={incomingHost:'imap.entreprise.fr',incomingPort:'993',incomingSecurity:'ssl',outgoingHost:'smtp.entreprise.fr',outgoingPort:'587',outgoingSecurity:'starttls',username:'contact@atelier-kerwen.fr',password:'atelier2026'};const referenceByType={imap:reference,pop3:{...reference,incomingHost:'pop.entreprise.fr',incomingPort:'995'},m365:{username:'contact@atelier-kerwen.fr',password:'atelier2026'}};
 const outlook=mountOutlook(document.getElementById('outlook'),{
- account:{...reference,password:'',outgoingHost:'smtp.ancien-prestataire.fr',outgoingPort:'465',outgoingSecurity:'ssl'},
+ account:{...reference,type:'imap',password:'',outgoingHost:'smtp.ancien-prestataire.fr',outgoingPort:'465',outgoingSecurity:'ssl'},
  messages,
  callbacks:{
   onTestAccount:async a=>{
-   const check=a.type==='m365'?['username','password']:['incomingHost','incomingPort','incomingSecurity','outgoingHost','outgoingPort','outgoingSecurity','username','password'];
-   const wrong=check.find(k=>String(a[k]||'').trim().toLowerCase()!==String(reference[k]||'').toLowerCase());
+   const expected=referenceByType[a.type]||reference;const check=a.type==='m365'?['username','password']:['incomingHost','incomingPort','incomingSecurity','outgoingHost','outgoingPort','outgoingSecurity','username','password'];
+   const wrong=check.find(k=>String(a[k]||'').trim().toLowerCase()!==String(expected[k]||'').toLowerCase());
    if(wrong)return {success:false,message:'Impossible de configurer le compte. Vérifiez les paramètres du serveur et les informations de connexion.'};
    return {success:true,message:'La configuration du compte a réussi.'};
   },
