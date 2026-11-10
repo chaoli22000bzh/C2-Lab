@@ -42,3 +42,30 @@ export function formatNslookup({name,result,serverName=null,prompt="C:\\>",autho
   }
   return lines.join("\n");
 }
+
+/**
+ * Affichage des recherches DNS typées, sans requête réseau réelle.
+ * L'ancien formatNslookup() demeure intact pour les scénarios A/CNAME.
+ */
+export function formatTypedNslookup({name,recordType="A",result,serverName=null}={}){
+  const type=String(recordType).toUpperCase();
+  if(type==="A")return formatNslookup({name,result,serverName});
+  if(!result || typeof result!=="object")throw new TypeError("Résultat DNS manquant");
+  const asked=String(name??"").trim();
+  const lines=["C:\\>nslookup -type="+type+" "+asked,"",...heading(serverName,result.serverAddress??null)];
+  if(result.status!=="ok"){
+    lines.push("*** Échec de la requête DNS : "+(result.reason??"serveur inaccessible"));
+    return lines.join("\n");
+  }
+  if(!result.found){
+    lines.push("*** Aucun enregistrement "+type+" pour "+asked+".");
+    return lines.join("\n");
+  }
+  for(const record of result.records??[]){
+    if(type==="AAAA")lines.push(record.name+"   AAAA address = "+record.value);
+    else if(type==="MX")lines.push(record.name+"   mail exchanger = "+record.priority+" "+record.value);
+    else if(type==="TXT")lines.push(record.name+"   text = \""+record.value+"\"");
+    else if(type==="PTR")lines.push(record.name+"   name = "+record.value);
+  }
+  return lines.join("\n");
+}
