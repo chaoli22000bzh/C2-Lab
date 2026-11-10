@@ -52,7 +52,7 @@ async function start(){
   });
   $("ipconfig").addEventListener("click",()=>{const pc=state().objectsById[selected()];showCommand(formatIpconfig({ipv4:pc.config.ipv4,connected:connected(selected()),gateway:pc.config.networkOptions?.gateway??null}));});
   $("ipconfig-all").addEventListener("click",()=>{const pc=state().objectsById[selected()],lease=pc.config.ipv4.lease,server=lease?state().objectsById[lease.serverId]:null;
-   showCommand(formatIpconfigAll({ipv4:pc.config.ipv4,hostname:pc.name,dhcp:pc.config.ipv4.mode==="dhcp",connected:connected(selected()),mac:pc.config.macAddress,gateway:pc.config.networkOptions?.gateway??null,dns:pc.config.networkOptions?.dns??[],dhcpServer:server?.config.ipv4?.address,leaseStart:lease?lease.start+" s":undefined,leaseEnd:lease?lease.expires+" s":undefined}));});
+   showCommand(formatIpconfigAll({ipv4:pc.config.ipv4,hostname:pc.name,dhcp:pc.config.ipv4.mode==="dhcp",connected:connected(selected()),mac:pc.config.macAddress,gateway:pc.config.networkOptions?.gateway??null,dns:pc.config.networkOptions?.dns??[],dhcpServer:server?.config.ipv4?.address,leaseStart:lease?lease.start+" s":undefined,leaseEnd:lease?lease.expires+" s":undefined,compact:window.matchMedia("(max-width: 720px)").matches}));});
   $("ping").addEventListener("click",()=>{
    const input=$("ping-target").value.trim(),sourceId=selected(),source=state().objectsById[sourceId];
    if(!input){$("status").textContent="Saisis une adresse IPv4 ou un nom DNS.";return;}
