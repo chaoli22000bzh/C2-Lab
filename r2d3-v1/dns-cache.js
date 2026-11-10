@@ -79,7 +79,7 @@ async function start(){
   });
   $("advance").addEventListener("click",()=>{
    const seconds=Number($("seconds").value);
-   send("dhcp.advanceTime",dhcpId,{seconds});
+   send("simulation.advanceTime","simulation-clock",{seconds});
   });
   $("reset").addEventListener("click",()=>{engine=createEngine(scenario);serial=0;render();fillRecord();clearOutputs();$("status").textContent="Laboratoire réinitialisé.";});
   render();fillRecord();$("status").textContent="Scénario chargé. Commence par obtenir la configuration DHCP.";
