@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>R2D3 | Complément DNS : AAAA, MX, TXT, PTR</title>
+<link rel="stylesheet" href="../shared-ui/v1/buttons.css">
+<style>
+:root{font:16px/1.45 system-ui,sans-serif;background:#f2f6fa;color:#1b314d}
+*{box-sizing:border-box}body{margin:0}main{max-width:1100px;margin:auto;padding:18px}
+h1{font-size:1.7rem;margin:.4rem 0}h2{font-size:1.12rem;margin:0 0 12px}
+section{background:white;border:1px solid #d2deed;border-radius:12px;padding:17px;margin:12px 0}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.grid section{margin:0}
+button,input,select{font:inherit;border-radius:7px;padding:8px}button{background:#205e99;border:0;color:white;cursor:pointer;margin:3px}
+button.secondary{background:#dfebf7;color:#17385b}
+label{display:block;margin:9px 0}input,select{border:1px solid #9db7d0;width:100%;margin-top:3px}
+table{border-collapse:collapse;width:100%;font-size:.94rem}th,td{text-align:left;border-bottom:1px solid #dbe5ee;padding:6px;vertical-align:top}
+.table-wrap{overflow-x:auto}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#152f4a;color:#f1f6fc;padding:14px;border-radius:9px;min-height:100px}
+.note{color:#435a74;font-size:.93rem}.status{font-weight:600}.actions{display:flex;flex-wrap:wrap;gap:4px}
+@media(max-width:720px){.grid{grid-template-columns:1fr}main{padding:10px}}
+</style>
+</head>
+<body class="c2-buttons">
+<main>
+<h1>Complément DNS : AAAA, MX, TXT et PTR</h1>
+<p class="note">Laboratoire de simulation pédagogique R2D3. Aucun DNS public n'est interrogé. Les réponses proviennent exclusivement du scénario local.</p>
+<section>
+<h2>Réseau et temps simulé</h2>
+<p id="network"></p>
+<div class="actions"><button id="dhcp" class="secondary">Obtenir la configuration DHCP</button><button id="toggle" class="secondary">Arrêter le service DNS</button><button id="advance" class="secondary">Avancer de 300 secondes</button><button id="reset" class="secondary">Réinitialiser</button></div>
+</section>
+<div class="grid">
+<section>
+<h2>Interroger le DNS</h2>
+<label>Nom de domaine ou adresse IPv4 pour PTR<input id="lookup-name" value="atelier.test" spellcheck="false"></label>
+<label>Type de requête<select id="lookup-type"><option>A</option><option>AAAA</option><option>MX</option><option>TXT</option><option>PTR</option></select></label>
+<div class="actions"><button id="lookup">Exécuter nslookup</button><button id="windows" class="secondary">Résolution Windows (avec cache)</button><button id="flush" class="secondary">Vider le cache du PC</button></div>
+<p id="origin" class="note"></p>
+<pre id="answer" aria-live="polite">Aucune requête.</pre>
+</section>
+<section>
+<h2>Ajouter ou modifier un enregistrement</h2>
+<label>Nom<input id="edit-name" value="atelier.test" spellcheck="false"></label>
+<label>Type<select id="edit-type"><option>A</option><option>AAAA</option><option>MX</option><option>TXT</option><option>PTR</option><option>CNAME</option></select></label>
+<label>Valeur<input id="edit-value" value="192.168.10.50" spellcheck="false"></label>
+<label id="priority-row" hidden>Priorité MX (0 à 65535)<input id="edit-priority" type="number" min="0" max="65535" value="10"></label>
+<label>TTL (secondes)<input id="edit-ttl" type="number" min="1" max="86400" value="300"></label>
+<button id="add">Enregistrer</button>
+<h2 style="margin-top:24px">Supprimer un enregistrement</h2>
+<label>Enregistrement à supprimer<select id="delete-record"></select></label>
+<button id="remove" class="secondary">Supprimer la sélection</button>
+<p class="note">Un nom peut avoir plusieurs MX ou TXT. Les alias CNAME restent exclusifs. Les modifications de la zone n'effacent pas automatiquement le cache du PC.</p>
+</section>
+</div>
+<section><h2>Zone DNS du serveur</h2><div class="table-wrap"><table><thead><tr><th>Nom</th><th>Type</th><th>Priorité</th><th>Valeur</th><th>TTL</th></tr></thead><tbody id="records"></tbody></table></div></section>
+<section><h2>Cache du PC</h2><div class="table-wrap"><table><thead><tr><th>Nom</th><th>Type</th><th>Réponse</th><th>TTL restant</th></tr></thead><tbody id="cache"></tbody></table></div></section>
+<p id="status" class="status" role="status"></p>
+<p class="note">Pour un PTR, saisir par exemple <code>192.168.10.50</code> ; la zone contient le nom inverse <code>50.10.168.192.in-addr.arpa</code>. SPF, DKIM et DMARC sont représentés par des textes, sans vérification réelle.</p>
+</main>
+<script type="module" src="./dns-enregistrements.js"></script>
+<script type="module" src="../shared-ui/v1/button-feedback.js"></script>
+</body></html>
