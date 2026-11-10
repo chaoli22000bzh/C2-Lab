@@ -21,6 +21,11 @@ function render(){
  const st=snapshot(),pc=st.objectsById[selected()],server=st.objectsById[serverId];
  $("network").textContent="PC : "+(pc.config.ipv4.address??"aucune IPv4")+" | DNS : "+(pc.config.networkOptions?.dns?.join(", ")||"aucun")+" | Service DNS : "+(server.config.dnsEnabled?"actif":"arrêté");
  $("toggle").textContent=server.config.dnsEnabled?"Arrêter le serveur DNS":"Démarrer le serveur DNS";
+ const dhcp=st.objectsById[dhcpId],lease=pc.config.ipv4.lease,rt=st.runtime[selected()]??{};
+ $("toggle-dhcp").textContent=dhcp.config.dhcpEnabled?"Arrêter le serveur DHCP":"Démarrer le serveur DHCP";
+ $("lease-info").textContent=lease
+   ?"Bail DHCP : début "+lease.start+" s | expiration "+lease.expires+" s | état "+(rt.dhcpLeasePhase??rt.dhcpStatus??"actif")
+   :"Bail DHCP : aucun | état "+(rt.dhcpStatus??"non attribué");
  $("clock").textContent="Temps écoulé : "+st.simulationClock+" secondes";
  const counts=clients.map(id=>" "+(id==="pc-dhcp-01"?"PC1":"PC2")+" : "+engine.query({type:"dns.cache",sourceId:id}).entries.length+" entrée(s)");
  $("cache-summary").textContent=counts.join(" | ");
@@ -41,6 +46,7 @@ async function start(){
   $("record").addEventListener("change",fillRecord);
   $("dhcp").addEventListener("click",()=>send("dhcp.request",selected()));
   $("toggle").addEventListener("click",()=>send("dns.setServerEnabled",serverId,{enabled:!snapshot().objectsById[serverId].config.dnsEnabled}));
+  $("toggle-dhcp").addEventListener("click",()=>send("dhcp.setServerEnabled",dhcpId,{enabled:!snapshot().objectsById[dhcpId].config.dhcpEnabled}));
   $("windows").addEventListener("click",()=>{
    const name=$("name").value.trim();
    const response=send("dns.clientResolve",selected(),{name});
