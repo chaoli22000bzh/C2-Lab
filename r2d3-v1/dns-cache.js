@@ -1,4 +1,4 @@
-import {createEngine} from "./r2d3-core.js";
+import {createEngine} from "./r2d3-core.js?v=dhcp-apipa-20261110";
 import {formatNslookup} from "../shared-ui/v1/nslookup.js";
 import {formatDisplayDns,formatFlushDns} from "../shared-ui/v1/dns-cache-commands.js";
 const $=id=>document.getElementById(id);
