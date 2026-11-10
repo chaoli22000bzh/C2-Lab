@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>R2D3 | Diagnostic des incidents DNS</title>
+<style>:root{font:16px/1.5 system-ui,sans-serif;background:#f2f6fa;color:#192e49}*{box-sizing:border-box}body{margin:0}main{max-width:1050px;margin:0 auto;padding:20px}h1{font-size:1.65rem}h2{font-size:1.15rem;margin:0 0 10px}section{background:#fff;border:1px solid #d3e1ef;border-radius:12px;padding:16px;margin:13px 0}button,input,select{font:inherit;padding:9px;border-radius:7px}button{border:0;background:#205f99;color:white;cursor:pointer;margin:4px 6px 4px 0}.secondary{background:#e4edf8;color:#183c65}input,select{border:1px solid #a9bfd1;width:100%}label{display:block;margin:9px 0}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}pre{background:#122b42;color:#edf4ff;border-radius:9px;padding:12px;white-space:pre-wrap;overflow-wrap:anywhere;min-height:110px}.small{font-size:.9rem;color:#4f6880}#status{font-weight:600}table{border-collapse:collapse;width:100%}th,td{border-bottom:1px solid #d8e2ee;padding:7px;text-align:left}@media(max-width:720px){.grid{grid-template-columns:1fr}main{padding:12px}}</style>
+<link rel="stylesheet" href="../shared-ui/v1/buttons.css"></head>
+<body class="c2-buttons"><main><h1>Diagnostic des incidents DNS</h1>
+<p>Laboratoire technique R2D3. Deux postes, un serveur DNS interne et une zone <code>atelier.test</code>. Le moteur applique les modifications et produit les résultats sans interpréter l'incident à la place du technicien.</p>
+<section><h2>Postes et réseau</h2><label>Poste de travail<select id="client"><option value="pc-dhcp-01">PC1</option><option value="pc-dhcp-02">PC2</option></select></label>
+<p id="network"></p><button id="dhcp">Obtenir un bail DHCP</button><button id="ipconfig" class="secondary">ipconfig</button><button id="ipconfig-all" class="secondary">ipconfig /all</button>
+<label>Serveur DNS préféré (IPv4)<input id="dns-ip" spellcheck="false" placeholder="192.168.10.10"></label><button id="set-dns">Configurer le DNS du poste</button>
+<label>Équipement à tester par ping<select id="ping-target"><option value="srv-dns">Serveur DNS</option><option value="srv-dhcp">Serveur DHCP</option><option value="pc-dhcp-01">PC1</option><option value="pc-dhcp-02">PC2</option></select></label><button id="ping" class="secondary">ping</button>
+</section>
+<div class="grid"><section><h2>Diagnostic de la résolution</h2><label>Nom recherché<input id="name" value="www.atelier.test" spellcheck="false"></label>
+<button id="windows">Résolution Windows</button><button id="nslookup" class="secondary">nslookup</button><pre id="answer" aria-live="polite">Aucune commande.</pre>
+</section><section><h2>Cache du poste</h2><button id="displaydns">ipconfig /displaydns</button><button id="flushdns" class="secondary">ipconfig /flushdns</button>
+<pre id="cache-output" aria-live="polite">Aucune commande.</pre></section></div>
+<div class="grid"><section><h2>Serveur et liaison</h2><button id="toggle-dns">Arrêter DNS</button>
+<label>Câble à contrôler<select id="link"><option value="cable-dns-server">Serveur DNS vers switch</option><option value="cable-dhcp-pc">PC1 vers switch</option><option value="cable-dhcp-pc-02">PC2 vers switch</option></select></label>
+<p id="link-state"></p><button id="toggle-link" class="secondary">Débrancher le câble</button></section>
+<section><h2>Zone DNS</h2><label>Enregistrement<select id="record"></select></label><label>Valeur<input id="value" spellcheck="false"></label>
+<button id="save">Enregistrer l'enregistrement</button><p class="small">La modification de la zone n'efface pas le cache des PC.</p></section></div>
+<section><h2>Horloge et état</h2><p id="clock"></p><label>Avancer de (secondes)<input type="number" id="seconds" min="1" max="604800" value="60"></label><button id="advance" class="secondary">Avancer l'horloge</button>
+<p id="cache-summary"></p><button id="reset" class="secondary">Réinitialiser le laboratoire</button></section>
+<section><h2>Configuration de la zone</h2><table><thead><tr><th>Nom</th><th>Type</th><th>Valeur</th><th>TTL</th></tr></thead><tbody id="records"></tbody></table></section>
+<p id="status" role="status"></p><p class="small">Le test « résolution Windows » utilise le cache du poste ; « nslookup » interroge directement le DNS. Le laboratoire ne simule ni Internet ni la totalité des commandes Windows 11. La réinitialisation restaure le scénario de départ.</p>
+</main><script type="module" src="./dns-diagnostic.js?v=20261110-1"></script><script type="module" src="../shared-ui/v1/button-feedback.js"></script></body></html>
