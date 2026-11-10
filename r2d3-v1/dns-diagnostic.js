@@ -28,7 +28,9 @@ function render(){
  $("clock").textContent="Temps écoulé : "+s.simulationClock+" secondes | DNS : "+(dns.config.dnsEnabled?"actif":"arrêté");
  $("cache-summary").textContent=clients.map(id=>label(id)+" : "+engine.query({type:"dns.cache",sourceId:id}).entries.length+" entrée(s) en cache").join(" | ");
  const records=dns.config.dnsZone.records;
+ const chosenRecord=$("record").value;
  $("record").replaceChildren(...records.map(r=>{const el=document.createElement("option");el.value=r.name;el.textContent=r.name+" ("+r.type+")";return el;}));
+ if(records.some(r=>r.name===chosenRecord))$("record").value=chosenRecord;
  $("records").replaceChildren(...records.map(r=>{const tr=document.createElement("tr");for(const v of [r.name,r.type,r.value,r.ttl??300]){const td=document.createElement("td");td.textContent=String(v);tr.appendChild(td);}return tr;}));
 }
 function showCommand(output){ping.cancel();$("answer").textContent=output;}
