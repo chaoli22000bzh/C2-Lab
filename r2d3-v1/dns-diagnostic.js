@@ -56,7 +56,7 @@ async function start(){
   $("ping").addEventListener("click",()=>{
    const input=$("ping-target").value.trim(),sourceId=selected(),source=state().objectsById[sourceId];
    if(!input){$("status").textContent="Saisis une adresse IPv4 ou un nom DNS.";return;}
-   const ipv4=/^(\\d{1,3}\\.){3}\\d{1,3}$/.test(input);
+   const ipv4=/^(\d{1,3}\.){3}\d{1,3}$/.test(input);
    let address=input,resolutionFailure=null;
    if(!ipv4){
      const result=execute("dns.clientResolve",sourceId,{name:input});
