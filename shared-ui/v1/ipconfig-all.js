@@ -74,7 +74,8 @@ export function formatIpconfigAll({
     if(dhcp&&dhcpServer!==undefined&&ipv4.lease)lines.push(formatField("Serveur DHCP",dhcpServer));
     if(dns.length&&!apipa){
       lines.push(formatField("Serveurs DNS",dns[0]));
-      for(const server of dns.slice(1))lines.push("    "+server);
+      const continuation=compact?"  ":" ".repeat(field("Serveurs DNS","").length);
+      for(const server of dns.slice(1))lines.push(continuation+server);
     }
     if(netbios!==undefined)lines.push(formatField("NetBIOS sur Tcpip",netbios));
   }
