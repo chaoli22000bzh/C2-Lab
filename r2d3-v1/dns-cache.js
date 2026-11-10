@@ -19,7 +19,7 @@ function fillRecord(){
 }
 function render(){
  const st=snapshot(),pc=st.objectsById[selected()],server=st.objectsById[serverId];
- $("network").textContent="PC : "+(pc.config.ipv4.address??"aucune IPv4")+" | DNS : "+(pc.config.networkOptions?.dns?.join(", ")||"aucun")+" | Service DNS : "+(server.config.dnsEnabled?"actif":"arrêté");
+ $("network").textContent="PC : "+(pc.config.ipv4.address?(pc.config.ipv4.address+(pc.config.ipv4.prefix!=null?"/"+pc.config.ipv4.prefix:"")):"aucune IPv4")+" | DNS : "+(pc.config.networkOptions?.dns?.join(", ")||"aucun")+" | Service DNS : "+(server.config.dnsEnabled?"actif":"arrêté");
  $("toggle").textContent=server.config.dnsEnabled?"Arrêter le serveur DNS":"Démarrer le serveur DNS";
  const dhcp=st.objectsById[dhcpId],lease=pc.config.ipv4.lease,rt=st.runtime[selected()]??{};
  $("toggle-dhcp").textContent=dhcp.config.dhcpEnabled?"Arrêter le serveur DHCP":"Démarrer le serveur DHCP";
