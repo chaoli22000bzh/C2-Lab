@@ -16,6 +16,38 @@ function refresh(){
  if(as.some(a=>a.id===oldA))id("assets").value=oldA;
  renderFields();renderAsset();
 }
+function renderPortGroups(){
+ const p=selectedProfile(),host=id("port-groups");host.replaceChildren();
+ if(!p)return;
+ for(const g of p.portGroups||[]){
+  const row=document.createElement("div");row.className="item";
+  const label=document.createElement("span");
+  label.textContent=g.prefix+String(g.start).padStart(g.digits,"0")+
+    " à "+g.prefix+String(g.start+g.count-1).padStart(g.digits,"0")+
+    " ("+g.count+", "+g.type+")";
+  const remove=document.createElement("button");remove.type="button";remove.className="subtle";remove.textContent="Retirer du profil";
+  remove.onclick=()=>{status("profile-status",engine.removePortGroup(p.id,g.id));refresh()};
+  row.append(label,remove);host.append(row);
+ }
+}
+function renderAssetPorts(){
+ const a=selectedAsset(),host=id("asset-ports");host.replaceChildren();
+ if(!a){host.textContent="Crée un actif pour afficher ses ports.";return}
+ if(!a.ports.length){host.textContent="Aucun port ni interface.";return}
+ const extensions=new Map();
+ for(const p of a.ports){
+  const row=document.createElement("div");row.className="item";
+  const caption=document.createElement("span");
+  caption.textContent=p.name+" : "+p.type+(p.origin==="integrated"?" (intégré)":" (extension)");
+  row.append(caption);host.append(row);
+  if(p.origin==="extension")extensions.set(p.groupId,true);
+ }
+ for(const extId of extensions.keys()){
+  const button=document.createElement("button");button.className="subtle";button.textContent="Retirer l’extension "+extId;
+  button.onclick=()=>{status("asset-status",engine.removeExtension(a.id,extId));refresh()};
+  host.append(button);
+ }
+}
 function renderFieldEditor(){
  const p=selectedProfile(),fieldSelect=id("edit-field-key"),previous=fieldSelect.value;
  fieldSelect.replaceChildren(...(p?.fields||[]).map(f=>opt(f.label,f.key)));
@@ -31,8 +63,8 @@ function renderFieldEditor(){
 function renderFields(){
  const p=selectedProfile(),host=id("fields");host.replaceChildren();
  id("profile-rename").elements.name.value=p?.name||"";
- if(!p){host.textContent="Crée un profil pour commencer.";renderFieldEditor();return}
- if(!p.fields.length){host.textContent="Aucun champ personnalisé.";renderFieldEditor();return}
+ if(!p){host.textContent="Crée un profil pour commencer.";renderFieldEditor();renderPortGroups();return}
+ if(!p.fields.length){host.textContent="Aucun champ personnalisé.";renderFieldEditor();renderPortGroups();return}
  p.fields.forEach((f,i)=>{
   const wrap=document.createElement("div");wrap.className="item";
   const label=document.createElement("span");label.textContent=f.label+" ("+f.type+(f.unit?", "+f.unit:"")+")";
@@ -42,11 +74,13 @@ function renderFields(){
   }
   wrap.append(label,controls);host.append(wrap);
  });
- renderFieldEditor();
+ renderFieldEditor();renderPortGroups();
 }
 function renderAsset(){
  const a=selectedAsset(),host=id("asset-values"),form=id("asset-edit");host.replaceChildren();
  form.querySelectorAll("input,select,button").forEach(control=>control.disabled=!a);
+ id("extension-create").querySelectorAll("input,select,button").forEach(control=>control.disabled=!a);
+ renderAssetPorts();
  if(a){
   for(const key of ["name","manufacturer","model","serialNumber","status","location"])form.elements[key].value=a[key]??"";
   form.elements.reservable.checked=!!a.reservable;
@@ -75,6 +109,16 @@ function renderAsset(){
 }
 id("profile-create").onsubmit=e=>{e.preventDefault();const r=engine.createProfile(new FormData(e.currentTarget).get("name"));status("profile-status",r);refresh();if(r.success){id("profiles").value=r.profile.id;renderFields()}};
 id("duplicate").onclick=()=>{const p=selectedProfile();if(!p)return;const r=engine.duplicateProfile(p.id,p.name+" (copie)");status("profile-status",r);refresh();if(r.success){id("profiles").value=r.profile.id;renderFields()}};
+id("portgroup-create").onsubmit=e=>{
+ e.preventDefault();const p=selectedProfile();if(!p)return;
+ const raw=Object.fromEntries(new FormData(e.currentTarget));
+ const r=engine.addPortGroup(p.id,raw);status("profile-status",r);refresh();
+};
+id("extension-create").onsubmit=e=>{
+ e.preventDefault();const a=selectedAsset();if(!a)return;
+ const raw=Object.fromEntries(new FormData(e.currentTarget));
+ const r=engine.addExtension(a.id,raw);status("asset-status",r);refresh();
+};
 id("profile-rename").onsubmit=e=>{
  e.preventDefault();
  const p=selectedProfile();if(!p)return;
