@@ -1,7 +1,9 @@
-/* Outlook UI shared component v0.4.3. Display and actions only; no transport or validation rules. */
+/* Outlook UI shared component v0.4.4. Display and actions only; no transport or validation rules. */
 export function mountOutlook(host, options = {}) {
   if (!(host instanceof HTMLElement)) throw new TypeError('Outlook: host missing');
   const callbacks = options.callbacks || {};
+  // When R2D3 owns the mailbox, only update({messages}) may change message lists.
+  const externalMessageStore = options.messageStore === 'external';
   const account = Object.assign({email:'contact@atelier-kerwen.fr',type:'imap',incomingHost:'imap.entreprise.fr',incomingPort:'993',incomingSecurity:'ssl',outgoingHost:'smtp.entreprise.fr',outgoingPort:'587',outgoingSecurity:'starttls',username:'contact@atelier-kerwen.fr',password:''},options.account || {});
   // Legacy username/password remain accepted for existing callers.
   account.incomingUsername ??= account.username;
@@ -90,7 +92,7 @@ export function mountOutlook(host, options = {}) {
     }
     if(e.target.id==='ou-compose-form'){
       e.preventDefault();if(state.sending)return;captureCompose();const message={...state.compose};state.sending=true;state.result={message:'Envoi en cours…'};const seq=++state.sendSeq;render();
-      try{const result=await emit('onSend',{...message,accountId:state.activeId,from:state.account.email});if(seq!==state.sendSeq)return;state.result=result||{success:false,message:'Envoi impossible.'};if(result?.success){if(state.draftId)state.messages=state.messages.filter(m=>m.id!==state.draftId);state.messages.unshift({id:'sent-'+seq,folder:'sent',from:state.account.email,accountId:state.activeId,...message,date:'Aujourd’hui'});
+      try{const result=await emit('onSend',{...message,accountId:state.activeId,from:state.account.email});if(seq!==state.sendSeq)return;state.result=result||{success:false,message:'Envoi impossible.'};if(result?.success){if(state.draftId)state.messages=state.messages.filter(m=>m.id!==state.draftId);if(!externalMessageStore){state.messages.unshift({id:'sent-'+seq,folder:'sent',from:state.account.email,accountId:state.activeId,...message,date:'Aujourd’hui'});
           if(result.delivered===true){
             const recipients=String(message.to||'').split(/[;,]/).map(x=>x.trim().toLowerCase());
             for(const recipient of recipients){
@@ -98,6 +100,7 @@ export function mountOutlook(host, options = {}) {
               if(destination)state.messages.unshift({id:'inbox-'+seq+'-'+destination.id,folder:'inbox',from:state.account.email,to:destination.email,accountId:destination.id,subject:message.subject,body:message.body,date:'Aujourd’hui',read:false});
             }
           }
+          } // Local delivery is disabled when the engine manages messages.
           state.composeOpen=false;state.folder='sent';state.selected=null;state.draftId=null;state.result=null;}}
       catch(err){state.result={success:false,message:'Le message n’a pas pu être envoyé.'};}
       state.sending=false;render();
