@@ -111,3 +111,13 @@
 .ou-app .ou-compose > header{color:#24334a;background:#f8fafd}
 .ou-app .ou-compose > header > b{color:#24334a;opacity:1}
 .ou-app .ou-compose > header > button{color:#182c43}
+
+/* Outlook v0.6.3 : comptes et dossiers visibles simultanément, sans sélecteur. */
+.ou-app .ou-folders{overflow-y:auto;overflow-x:hidden}
+.ou-app .ou-mail-account{margin:0 0 13px;min-width:0}
+.ou-app .ou-mail-account-name{padding:7px 8px 5px;font-size:12px;font-weight:700;color:#21466e;overflow-wrap:anywhere;line-height:1.3}
+.ou-app .ou-mail-account .ou-folder{padding:7px 8px;gap:6px;min-width:0;font-size:12px}
+.ou-app .ou-mail-account .ou-folder-label{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ou-app .ou-mail-account .ou-folder small{flex:none}
+.ou-app .ou-mail-account + .ou-mail-account{border-top:1px solid #dce4ef;padding-top:10px}
+.ou-app .ou-folder-title{margin-top:16px;margin-bottom:6px}
