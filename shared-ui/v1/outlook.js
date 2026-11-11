@@ -72,34 +72,46 @@ export function mountOutlook(host, options = {}) {
   function makeArchive(id){const a=state.accounts.find(x=>x.id===id);if(!a)throw Error('Sélectionnez un compte.');return {format:'c2-outlook-pst-training',version:1,sourceEmail:a.email,exportedAt:new Date().toISOString(),messages:state.messages.filter(m=>belongsTo(m,a)).map(({accountId,...m})=>({...m})),contacts:state.contacts.map(c=>({...c})),calendar:state.calendarItems.map(c=>({...c}))};}
   function downloadArchive(id){const pack=makeArchive(id);const blob=new Blob([JSON.stringify(pack,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download='sauvegarde-outlook-'+pack.sourceEmail.replace(/[^a-z0-9.-]/gi,'_')+'.pst-demo.json';document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);emit('onBackupExport',{accountId:id,sourceEmail:pack.sourceEmail,messageCount:pack.messages.length});return pack.messages.length;}
   function validateArchive(data){if(!data||data.format!=='c2-outlook-pst-training'||data.version!==1||!Array.isArray(data.messages)||!Array.isArray(data.contacts)||!Array.isArray(data.calendar)||data.messages.length>1000||data.contacts.length>1000||data.calendar.length>1000)throw Error('Fichier incompatible avec cette sauvegarde pédagogique.');for(const m of data.messages)if(!m||typeof m!=='object'||typeof m.subject!=='string'||typeof m.body!=='string'||!['inbox','sent','drafts'].includes(m.folder||'inbox'))throw Error('La sauvegarde contient un message invalide.');for(const c of data.contacts)if(!c||typeof c.name!=='string'||typeof c.email!=='string')throw Error('La sauvegarde contient un contact invalide.');for(const c of data.calendar)if(!c||typeof c.title!=='string')throw Error('La sauvegarde contient un rendez-vous invalide.');return data;}
-  function restoreArchive(data,accountId){
+  async function restoreArchive(data,accountId){
     const a=state.accounts.find(x=>x.id===accountId);
     if(!a)throw Error('Sélectionnez un compte de destination.');
     const pack=validateArchive(data);
     if(String(pack.sourceEmail||'').trim().toLowerCase()!==a.email.toLowerCase())
       throw Error('Le compte de destination ne correspond pas à la sauvegarde. Configurez le compte '+String(pack.sourceEmail||'')+' avant la restauration.');
-    // External messages belong to R2D3: never create a divergent local copy of them.
-    if(externalMessageStore)
-      throw Error('Restauration des courriels indisponible ici : les messages sont gérés par R2D3. Utilisez la sauvegarde du moteur.');
-    // Re-importing the same archive must not duplicate messages.
-    const identity=m=>JSON.stringify([m.folder||'inbox',m.from||'',m.to||'',m.subject||'',m.body||'',m.date||'']);
-    const existing=new Set(state.messages.filter(m=>belongsTo(m,a)).map(identity));
-    const fresh=[];
-    const token='restored-'+Date.now()+'-';
-    for(let i=0;i<pack.messages.length;i++){
-      const m=pack.messages[i],key=identity(m);
-      if(existing.has(key))continue;
-      existing.add(key);
-      fresh.push({...m,id:token+i,accountId:a.id,accountEmail:a.email});
+    // The engine must own restored messages when the store is external.
+    let externalReport=null;
+    if(externalMessageStore){
+      if(typeof callbacks.onRestoreArchive!=='function')
+        throw Error('Restauration indisponible : aucun gestionnaire R2D3 raccordé.');
+      externalReport=await callbacks.onRestoreArchive({accountEmail:a.email,archive:pack});
+      if(!externalReport||externalReport.success!==true)
+        throw Error(externalReport?.message||'Restauration refusée par R2D3.');
     }
-    state.messages.push(...fresh);
+    // Re-importing the same archive must not duplicate messages.
+    let fresh=[],skipped=0;
+    if(externalMessageStore){
+      skipped=externalReport.skipped;
+      fresh=Array.from({length:externalReport.restored},()=>null);
+    }else{
+      const identity=m=>JSON.stringify([m.folder||'inbox',m.from||'',m.to||'',m.subject||'',m.body||'',m.date||'']);
+      const existing=new Set(state.messages.filter(m=>belongsTo(m,a)).map(identity));
+      const token='restored-'+Date.now()+'-';
+      for(let i=0;i<pack.messages.length;i++){
+        const m=pack.messages[i],key=identity(m);
+        if(existing.has(key))continue;
+        existing.add(key);
+        fresh.push({...m,id:token+i,accountId:a.id,accountEmail:a.email});
+      }
+      skipped=pack.messages.length-fresh.length;
+      state.messages.push(...fresh);
+    }
     const contactKeys=new Set(state.contacts.map(c=>c.email.toLowerCase()));
     for(const c of pack.contacts)if(!contactKeys.has(c.email.toLowerCase())){state.contacts.push({...c});contactKeys.add(c.email.toLowerCase());}
     const calendarKeys=new Set(state.calendarItems.map(c=>JSON.stringify([c.title,c.day,c.time||c.start])));
     for(const c of pack.calendar){const key=JSON.stringify([c.title,c.day,c.time||c.start]);if(!calendarKeys.has(key)){state.calendarItems.push({...c});calendarKeys.add(key);}}
     state.activeId=accountId;state.account=a;state.selected=null;state.folder='inbox';
-    emit('onBackupRestore',{accountId,sourceEmail:pack.sourceEmail,messageCount:fresh.length,skippedDuplicates:pack.messages.length-fresh.length});
-    return {restored:fresh.length,skipped:pack.messages.length-fresh.length};
+    emit('onBackupRestore',{accountId,sourceEmail:pack.sourceEmail,messageCount:fresh.length,skippedDuplicates:skipped});
+    return {restored:fresh.length,skipped};
   }
   function composeHtml(){const d=state.compose;return `<section class="ou-compose" role="dialog" aria-label="Nouveau courrier"><header><b>Nouveau courrier</b><button data-action="close-compose" aria-label="Fermer">×</button></header><form id="ou-compose-form"><div class="ou-compose-toolbar"><button type="submit" class="ou-primary" ${state.sending?'disabled':''}>➤ &nbsp; ${state.sending?'Envoi…':'Envoyer'}</button><button type="button" data-action="save-draft" class="ou-secondary">Enregistrer le brouillon</button><button type="button" data-action="discard-draft" class="ou-trash" title="Supprimer le brouillon">⌫</button></div><div class="ou-compose-row"><label for="ou-from">De</label><select id="ou-from" name="fromAccountId" aria-label="Compte expéditeur" ${state.sending?'disabled':''}>${state.accounts.map(a=>`<option value="${esc(a.id)}" ${a.id===d.fromAccountId?'selected':''}>${esc(a.email)}</option>`).join('')}</select></div><div class="ou-compose-row"><label for="ou-to">À</label><input id="ou-to" name="to" value="${esc(d.to)}" placeholder="Ajouter un destinataire" required></div><div class="ou-compose-row"><label for="ou-subject">Objet</label><input id="ou-subject" name="subject" value="${esc(d.subject)}" required></div><textarea name="body" aria-label="Corps du message" placeholder="Rédigez votre message…">${esc(d.body)}</textarea><div class="ou-result" role="status">${state.result?esc(state.result.message):''}</div></form></section>`;}
   // Usual ports are suggestions only. Existing custom server ports are preserved.
@@ -137,7 +149,7 @@ export function mountOutlook(host, options = {}) {
     if(action==='cancel-delete'){state.deleteConfirm=false;}
     if(action==='confirm-delete'){const id=state.activeId;const removed=state.accounts.find(a=>a.id===id);if(removed){state.accounts=state.accounts.filter(a=>a.id!==id);if(!externalMessageStore)state.messages=state.messages.filter(m=>!belongsTo(m,removed));state.account=state.accounts[0]||blank();state.activeId=state.accounts[0]?.id||null;state.adding=state.accounts.length===0;state.selected=null;state.folder='inbox';state.testSeq++;state.result={success:true,message:'Compte supprimé de cet Outlook. Les sauvegardes exportées sont conservées.'};emit('onAccountRemoved',{id,email:removed.email});}state.deleteConfirm=false;}
     if(action==='export-backup'){try{const id=root.querySelector('#ou-backup-account')?.value;const n=downloadArchive(id);state.result={success:true,message:n+' courriel(s) sauvegardé(s). Conservez le fichier pour la restauration.'};}catch(err){state.result={success:false,message:err.message||'Export impossible.'};}}
-    if(action==='import-backup'){const file=root.querySelector('#ou-import-file')?.files?.[0];const id=root.querySelector('#ou-restore-account')?.value;if(!file){state.result={success:false,message:'Choisissez un fichier de sauvegarde.'};}else if(file.size>3000000){state.result={success:false,message:'Fichier trop volumineux pour la simulation.'};}else{try{const pack=JSON.parse(await file.text());const report=restoreArchive(pack,id);state.result={success:true,message:report.restored+' courriel(s) restauré(s), '+report.skipped+' doublon(s) ignoré(s). Contacts et rendez-vous fusionnés.'};}catch(err){state.result={success:false,message:err instanceof SyntaxError?'Le fichier de sauvegarde est illisible.':err.message||'Restauration impossible.'};}}}
+    if(action==='import-backup'){const file=root.querySelector('#ou-import-file')?.files?.[0];const id=root.querySelector('#ou-restore-account')?.value;if(!file){state.result={success:false,message:'Choisissez un fichier de sauvegarde.'};}else if(file.size>3000000){state.result={success:false,message:'Fichier trop volumineux pour la simulation.'};}else{try{const pack=JSON.parse(await file.text());const report=await restoreArchive(pack,id);state.result={success:true,message:report.restored+' courriel(s) restauré(s), '+report.skipped+' doublon(s) ignoré(s). Contacts et rendez-vous fusionnés.'};}catch(err){state.result={success:false,message:err instanceof SyntaxError?'Le fichier de sauvegarde est illisible.':err.message||'Restauration impossible.'};}}}
     if(action==='save-draft'){saveDraft();state.composeOpen=false;state.folder='drafts';state.selected=state.draftId;state.result=null;}
     if(action==='discard-draft'){const discardedId=state.draftId;if(discardedId)state.messages=state.messages.filter(m=>m.id!==discardedId);state.composeOpen=false;state.draftId=null;state.selected=null;state.result=null;emit('onDraftDiscard',{id:discardedId,accountId:state.activeId});}
     render();
