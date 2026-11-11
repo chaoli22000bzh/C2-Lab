@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>R2D3 : laboratoire Outlook connecté</title>
+<link rel="stylesheet" href="../shared-ui/v1/outlook.css?v=0.4.5">
+<style>
+*{box-sizing:border-box}body{margin:0;background:#eef2f7;color:#18304a;font:15px "Segoe UI",Arial,sans-serif}
+header{background:#193452;color:white;padding:18px max(16px,calc((100vw - 1220px)/2))}
+h1{font-size:24px;margin:0 0 5px}header p{margin:0;color:#d4e1f0}
+main{max-width:1250px;margin:16px auto;padding:0 15px}
+.lab{background:white;border:1px solid #d3dce7;border-radius:12px;padding:16px;margin-bottom:16px}
+h2{font-size:18px;margin:0 0 10px}
+.controls{display:flex;gap:12px;align-items:end;flex-wrap:wrap}
+.controls label{display:grid;gap:5px;font-size:13px;font-weight:600}
+.controls select,.controls input{padding:9px;border:1px solid #b7c5d5;border-radius:6px;max-width:240px;font:inherit}
+button.lab-button{border:0;padding:10px 15px;border-radius:7px;background:#225d91;color:white;font:inherit;font-weight:600;cursor:pointer}
+button.secondary{background:#e5edf5;color:#245178}
+#lab-status{margin:10px 0 0;font-size:14px;min-height:21px}
+#lab-status.bad{color:#a72c2c}#lab-status.ok{color:#17663c}
+#outlook{min-height:580px}.info{font-size:13px;color:#5a6c81;margin:9px 0}
+details{font-size:13px;margin-top:10px}details p{line-height:1.6}
+code{background:#edf3f8;padding:1px 4px;border-radius:3px}
+@media(max-width:650px){main{padding:0}.lab{border-radius:0}.controls{align-items:stretch}}
+</style></head>
+<body>
+<header><h1>R2D3 : messagerie simulée</h1><p>Laboratoire d'intégration Outlook 0.4.5 et moteur R2D3 V1</p></header>
+<main>
+<section class="lab" aria-labelledby="lab-head"><h2 id="lab-head">Commandes du scénario</h2>
+<div class="controls">
+<button class="lab-button" id="inject" type="button">Recevoir un courriel d'incident</button>
+<label>Panne simulée<select id="failure-type"><option value="smtpDown">Serveur SMTP</option><option value="incomingDown">Serveur entrant</option><option value="m365Down">Microsoft 365</option></select></label>
+<button class="lab-button secondary" id="fail-on" type="button">Provoquer la panne</button>
+<button class="lab-button secondary" id="fail-off" type="button">Rétablir le service</button>
+<button class="lab-button secondary" id="reset" type="button">Recommencer</button>
+</div>
+<p id="lab-status" role="status" aria-live="polite">Laboratoire prêt. Ajoutez votre premier compte depuis les paramètres Outlook.</p>
+<details><summary>Paramètres fictifs pour les essais</summary>
+<p><strong>IMAP :</strong> <code>contact@atelier-kerwen.fr</code> ; serveur entrant <code>imap.entreprise.fr</code> ; port <code>993</code> ; SSL/TLS ; identifiant entrant identique à l'adresse ; mot de passe <code>atelier2026</code> ; SMTP <code>smtp.entreprise.fr</code> ; port <code>587</code> ; STARTTLS ; authentification SMTP séparée <code>smtp-agent</code> / <code>demo-outgoing</code>.</p>
+<p><strong>POP3 :</strong> <code>sav@atelier-kerwen.fr</code> ; serveur <code>pop.entreprise.fr</code> ; port <code>995</code> ; SSL/TLS ; identifiants <code>sav@atelier-kerwen.fr</code> / <code>sav-demo</code> ; SMTP <code>smtp.entreprise.fr</code> ; port <code>587</code> ; STARTTLS ; mêmes identifiants entrants et sortants.</p>
+<p><strong>Microsoft 365 :</strong> <code>bureau@atelier-kerwen.fr</code> ; identifiant identique ; mot de passe <code>m365-demo</code>.</p></details>
+</section>
+<section id="outlook" aria-label="Outlook connecté à R2D3"></section>
+<p class="info">Aucun serveur réel, aucun courriel transmis. Les messages proviennent du moteur R2D3 ; les paramètres de ce laboratoire sont fictifs. Un rechargement recommence l'exercice.</p>
+</main>
+<script type="module" src="./mail-outlook-lab.js"></script>
+</body></html>
