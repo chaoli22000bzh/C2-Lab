@@ -4,10 +4,11 @@
 <body><main class="stage"><div id="outlook"></div><p>Interface Outlook de démonstration, sans connexion à un service de messagerie.</p></main>
 <script type="module">
 import {mountOutlook} from '../shared-ui/v1/outlook.js';
+const relativeDate=(daysAgo,hour,minute)=>{const d=new Date();d.setDate(d.getDate()-daysAgo);d.setHours(hour,minute,0,0);return d.toISOString();};
 const messages=[
-{id:'m1',folder:'inbox',from:'Camille KOENIG',to:'contact@atelier-kerwen.fr',subject:'Réunion de l’équipe',body:'Bonjour,\n\nNotre prochaine réunion se déroulera jeudi à 9 h 30.\n\nBonne journée,\nCamille',date:'09:15',read:false},
-{id:'m2',folder:'inbox',from:'Sophie MARTIN',to:'contact@atelier-kerwen.fr',subject:'Demande de dépannage',body:'Bonjour,\n\nPouvez-vous vérifier la configuration de la messagerie sur mon poste ?\n\nMerci,\nSophie',date:'Hier',read:false},
-{id:'m3',folder:'sent',from:'contact@atelier-kerwen.fr',to:'Camille KOENIG',subject:'Compte rendu',body:'Bonjour,\n\nVoici le compte rendu de notre intervention.',date:'Lundi'}
+{id:'m1',folder:'inbox',from:'Camille KOENIG',to:'contact@atelier-kerwen.fr',subject:'Réunion de l’équipe',body:'Bonjour,\n\nNotre prochaine réunion se déroulera jeudi à 9 h 30.\n\nBonne journée,\nCamille',date:relativeDate(0,9,15),read:false},
+{id:'m2',folder:'inbox',from:'Sophie MARTIN',to:'contact@atelier-kerwen.fr',subject:'Demande de dépannage',body:'Bonjour,\n\nPouvez-vous vérifier la configuration de la messagerie sur mon poste ?\n\nMerci,\nSophie',date:relativeDate(1,16,25),read:false},
+{id:'m3',folder:'sent',from:'contact@atelier-kerwen.fr',to:'Camille KOENIG',subject:'Compte rendu',body:'Bonjour,\n\nVoici le compte rendu de notre intervention.',date:relativeDate(3,11,30)}
 ];
 const reference={incomingHost:'imap.entreprise.fr',incomingPort:'993',incomingSecurity:'ssl',outgoingHost:'smtp.entreprise.fr',outgoingPort:'587',outgoingSecurity:'starttls',username:'contact@atelier-kerwen.fr',password:'atelier2026'};const referenceByType={imap:reference,pop3:{...reference,incomingHost:'pop.entreprise.fr',incomingPort:'995'},m365:{username:'contact@atelier-kerwen.fr',password:'atelier2026'}};
 reference.incomingUsername=reference.username;reference.incomingPassword=reference.password;reference.outgoingUsername='smtp-agent';reference.outgoingPassword='demo-outgoing';referenceByType.pop3={...reference,incomingHost:'pop.entreprise.fr',incomingPort:'995'};
