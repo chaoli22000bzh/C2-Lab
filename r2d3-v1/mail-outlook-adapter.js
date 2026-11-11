@@ -35,7 +35,7 @@ export function connectMailOutlook(host, scenario, options = {}) {
       // Build the next R2D3 state off-line. Never modify the live engine until
       // the entire import has passed validation by restoreMailEngine.
       const before=engine.exportState();
-      const next=structuredClone(before);
+      const next=JSON.parse(JSON.stringify(before));
       const identity=m=>JSON.stringify([m.folder||'inbox',norm(m.from),norm(m.to),m.subject||'',m.body||'',m.date||'']);
       const existing=new Set(next.messages.filter(m=>norm(m.accountEmail)===norm(accountEmail)).map(identity));
       let restored=0,skipped=0;
