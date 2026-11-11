@@ -37,7 +37,7 @@ export function mountOutlook(host, options = {}) {
     if(value==='Brouillon')return value;
     if(typeof value!=='string'&&typeof value!=='number'&&!(value instanceof Date))return '';
     const raw=String(value);
-    if(!/^\\d{4}-\\d{2}-\\d{2}T/.test(raw)&&typeof value==='string')return value;
+    if(!/^\d{4}-\d{2}-\d{2}T/.test(raw)&&typeof value==='string')return value;
     const at=new Date(value);
     if(Number.isNaN(at.getTime()))return raw;
     const now=new Date();
