@@ -10,7 +10,7 @@ const messages=[
 {id:'m3',folder:'sent',from:'contact@atelier-kerwen.fr',to:'Camille KOENIG',subject:'Compte rendu',body:'Bonjour,\n\nVoici le compte rendu de notre intervention.',date:'Lundi'}
 ];
 const reference={incomingHost:'imap.entreprise.fr',incomingPort:'993',incomingSecurity:'ssl',outgoingHost:'smtp.entreprise.fr',outgoingPort:'587',outgoingSecurity:'starttls',username:'contact@atelier-kerwen.fr',password:'atelier2026'};const referenceByType={imap:reference,pop3:{...reference,incomingHost:'pop.entreprise.fr',incomingPort:'995'},m365:{username:'contact@atelier-kerwen.fr',password:'atelier2026'}};
-reference.incomingUsername=reference.username;reference.incomingPassword=reference.password;reference.outgoingUsername='smtp-agent';reference.outgoingPassword='demo-outgoing';
+reference.incomingUsername=reference.username;reference.incomingPassword=reference.password;reference.outgoingUsername='smtp-agent';reference.outgoingPassword='demo-outgoing';referenceByType.pop3={...reference,incomingHost:'pop.entreprise.fr',incomingPort:'995'};
 const outlook=mountOutlook(document.getElementById('outlook'),{
  account:{...reference,type:'imap',smtpAuthMode:'separate',outgoingHost:'smtp.ancien-prestataire.fr',outgoingPort:'465',outgoingSecurity:'ssl'},
  messages,
