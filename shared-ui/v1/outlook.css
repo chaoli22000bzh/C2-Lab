@@ -67,3 +67,7 @@
 .ou-app .ou-message.ou-unread .ou-initial{background:#d5eaff;color:#15568d}
 .ou-app .ou-message.ou-unread.active{background:#e2edf9}
 .ou-app .ou-folder.selected small{font-weight:750;color:#0f6cbd}
+
+/* Icône Paramètres SVG indépendante des polices système. */
+.ou-app .ou-gear svg{display:block;width:28px;height:28px;flex-shrink:0}
+.ou-app .ou-gear{display:grid;place-items:center;line-height:1}
