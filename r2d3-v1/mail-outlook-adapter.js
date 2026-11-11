@@ -1,6 +1,6 @@
 /* Adaptateur autonome R2D3 / Outlook 0.4.8, sans modifier le composant partagé. */
 import {createMailEngine} from "./mail-core.js";
-import {mountOutlook} from "../shared-ui/v1/outlook.js?v=0.4.8";
+import {mountOutlook} from "../shared-ui/v1/outlook.js";
 
 export function connectMailOutlook(host, scenario, options = {}) {
   const engine = createMailEngine(scenario);
