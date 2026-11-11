@@ -6,9 +6,12 @@ const status=(who,r)=>{id(who).textContent=r.message;id(who).className="notice "
 const selectedProfile=()=>engine.getProfile(id("profiles").value);
 const selectedAsset=()=>engine.getAsset(id("assets").value);
 function refresh(){
- const ps=engine.listProfiles(),as=engine.listAssets(),oldP=id("profiles").value,oldA=id("assets").value;
+ const ps=engine.listProfiles(),as=engine.listAssets(),oldP=id("profiles").value,oldCreateP=id("asset-profile").value,oldA=id("assets").value;
  id("profiles").replaceChildren(...ps.map(p=>opt(p.name,p.id)));
  if(ps.some(p=>p.id===oldP))id("profiles").value=oldP;
+ id("asset-profile").replaceChildren(...ps.map(p=>opt(p.name,p.id)));
+ if(ps.some(p=>p.id===oldCreateP))id("asset-profile").value=oldCreateP;
+ else if(ps.some(p=>p.id===oldP))id("asset-profile").value=oldP;
  id("assets").replaceChildren(...as.map(a=>opt(a.name+" ("+(ps.find(p=>p.id===a.profileId)?.name||"?")+")",a.id)));
  if(as.some(a=>a.id===oldA))id("assets").value=oldA;
  renderFields();renderAsset();
@@ -52,7 +55,7 @@ function renderAsset(){
 id("profile-create").onsubmit=e=>{e.preventDefault();const r=engine.createProfile(new FormData(e.currentTarget).get("name"));status("profile-status",r);refresh();if(r.success){id("profiles").value=r.profile.id;renderFields()}};
 id("duplicate").onclick=()=>{const p=selectedProfile();if(!p)return;const r=engine.duplicateProfile(p.id,p.name+" (copie)");status("profile-status",r);refresh();if(r.success){id("profiles").value=r.profile.id;renderFields()}};
 id("field-create").onsubmit=e=>{e.preventDefault();const data=Object.fromEntries(new FormData(e.currentTarget));if(data.type==="select")data.options=data.options.split(",").map(x=>x.trim()).filter(Boolean);const r=engine.addField(id("profiles").value,data);status("profile-status",r);refresh()};
-id("asset-create").onsubmit=e=>{e.preventDefault();const r=engine.createAsset(id("profiles").value,Object.fromEntries(new FormData(e.currentTarget)));status("asset-status",r);refresh();if(r.success){id("assets").value=r.asset.id;renderAsset()}};
+id("asset-create").onsubmit=e=>{e.preventDefault();const data=Object.fromEntries(new FormData(e.currentTarget));const r=engine.createAsset(data.profileId,data);status("asset-status",r);refresh();if(r.success){id("assets").value=r.asset.id;renderAsset()}};
 id("profiles").onchange=renderFields;id("assets").onchange=renderAsset;
 id("reset").onclick=()=>{engine=createAssetRegistry();refresh();id("asset-status").textContent="";id("profile-status").textContent=""};
 window.__assetProfilesLab={snapshot:()=>engine.exportState()};refresh();
