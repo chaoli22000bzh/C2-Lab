@@ -26,7 +26,15 @@ button.subtle{background:#e5edf5;color:#174b75}.check{display:flex;align-items:c
 <label>Type<select name="type"><option value="text">Texte</option><option value="number">Nombre</option><option value="boolean">Oui / Non</option><option value="select">Liste</option><option value="date">Date</option></select></label>
 <label>Unité<input name="unit" placeholder="Facultatif"></label><label>Valeurs si liste<input name="options" placeholder="Fixe, PTZ"></label>
 <button class="subtle">Enregistrer les modifications</button></form>
-<h3>Ajouter un champ</h3>
+<h3>Ports et interfaces du profil</h3>
+<p>Ces ports seront générés sur les futurs équipements. Les ports déjà créés ne changent pas.</p>
+<div id="port-groups"></div>
+<form id="portgroup-create">
+<label>Type de port<select name="type"><option value="ethernet-rj45">Ethernet RJ45</option><option value="ethernet-fibre">Ethernet fibre</option><option value="wifi">Wi-Fi</option><option value="bluetooth">Bluetooth</option><option value="usb-a">USB-A</option><option value="usb-c">USB-C</option><option value="hdmi">HDMI</option></select></label>
+<label>Préfixe<input name="prefix" value="LAN" pattern="[A-Za-z][A-Za-z0-9_-]*" required></label>
+<label>Premier numéro<input name="start" type="number" value="1" min="0" max="9999" required></label>
+<label>Quantité<input name="count" type="number" value="5" min="1" max="128" required></label>
+<button>Ajouter le groupe de ports</button></form><h3>Ajouter un champ</h3>
 <form id="field-create"><label>Clé interne<input name="key" value="resolution" pattern="[a-z][a-z0-9_]*" required></label>
 <label>Libellé<input name="label" value="Résolution" required></label>
 <label>Type<select name="type"><option value="text">Texte</option><option value="number">Nombre</option><option value="boolean">Oui / Non</option><option value="select">Liste</option><option value="date">Date</option></select></label>
@@ -45,7 +53,14 @@ button.subtle{background:#e5edf5;color:#174b75}.check{display:flex;align-items:c
 <label>Localisation<input name="location"></label>
 <label class="check"><input name="reservable" type="checkbox"> Réservable</label>
 <button class="subtle">Enregistrer la fiche</button></form>
+<h3>Ports et interfaces de l'équipement</h3>
+<div id="asset-ports"></div>
+<h3>Ajouter une carte ou interface d'extension</h3>
+<form id="extension-create">
+<label>Type<select name="type"><option value="ethernet-rj45">Ethernet RJ45</option><option value="ethernet-fibre">Ethernet fibre</option><option value="wifi">Wi-Fi</option><option value="bluetooth">Bluetooth</option><option value="usb-a">USB-A</option><option value="usb-c">USB-C</option><option value="hdmi">HDMI</option></select></label>
+<label>Préfixe<input name="prefix" value="SFP" required></label><label>Premier numéro<input name="start" type="number" value="1" min="0" max="9999" required></label>
+<label>Quantité<input name="count" type="number" value="1" min="1" max="128" required></label><button class="subtle">Ajouter l'extension</button></form>
 <h3>Caractéristiques du profil</h3><div id="asset-values"></div>
 <div id="asset-status" class="notice" role="status"></div></section>
-<section class="full"><h2>Périmètre de cette première version</h2><p>Création, duplication et modification des profils, édition des champs descriptifs et des fiches des actifs, protection des valeurs existantes. Les ports physiques, raccordements et comportements réseau seront intégrés ensuite dans les modules communs. Le rechargement réinitialise cet exemple, sans sauvegarde locale.</p><button type="button" id="reset" class="subtle">Recommencer</button></section>
+<section class="full"><h2>Périmètre de cette première version</h2><p>Création, duplication et modification des profils, édition des champs descriptifs et des fiches des actifs, protection des valeurs existantes. La génération des ports intégrés et des extensions est disponible. Les raccordements physiques et comportements réseau viendront dans les modules suivants. Le rechargement réinitialise cet exemple, sans sauvegarde locale.</p><button type="button" id="reset" class="subtle">Recommencer</button></section>
 </div></main><script type="module" src="./asset-profiles-lab.js"></script></body></html>
