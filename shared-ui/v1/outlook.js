@@ -1,4 +1,4 @@
-/* Outlook UI shared component v0.3.0. Display and actions only; no transport or validation rules. */
+/* Outlook UI shared component v0.3.3. Display and actions only; no transport or validation rules. */
 export function mountOutlook(host, options = {}) {
   if (!(host instanceof HTMLElement)) throw new TypeError('Outlook: host missing');
   const callbacks = options.callbacks || {};
@@ -27,9 +27,9 @@ export function mountOutlook(host, options = {}) {
   function mailHtml(){
     const folders=[['inbox','Boîte de réception'],['sent','Éléments envoyés'],['drafts','Brouillons']];
     const shown=state.messages.filter(m=>(m.folder||'inbox')===state.folder&&m.accountId===state.activeId);
-    const selected=shown.find(m=>m.id===state.selected)||shown[0];
-    return `<aside class="ou-folders"><button class="ou-account-switch" data-action="settings">${esc(state.accounts.find(a=>a.id===state.activeId)?.email||'Ajouter un compte')}　⌄</button><button class="ou-new" data-action="compose">✎ &nbsp; Nouveau courrier</button><div class="ou-folder-title">Dossiers</div>${folders.map(f=>`<button class="ou-folder ${state.folder===f[0]?'selected':''}" data-folder="${f[0]}"><span>▤</span> ${f[1]} <small>${state.messages.filter(m=>(m.folder||'inbox')===f[0]&&m.accountId===state.activeId).length||''}</small></button>`).join('')}</aside>
-    <section class="ou-list"><div class="ou-list-title"><b>${esc(folders.find(f=>f[0]===state.folder)?.[1])}</b><small>Filtrer &nbsp;⌄</small></div>${shown.map(m=>`<button class="ou-message ${selected?.id===m.id?'active':''}" data-message="${esc(m.id)}"><span class="ou-initial">${esc((m.from||'?').slice(0,1).toUpperCase())}</span><span><strong>${esc(m.from)}</strong><b>${esc(m.subject)}</b><small>${esc((m.body||'').replace(/\s+/g,' ').slice(0,95))}</small></span><time>${esc(m.date||'')}</time></button>`).join('')||'<p class="ou-empty">Aucun message.</p>'}</section>
+    const selected=shown.find(m=>m.id===state.selected);
+    return `<aside class="ou-folders"><button class="ou-account-switch" data-action="settings">${esc(state.accounts.find(a=>a.id===state.activeId)?.email||'Ajouter un compte')}　⌄</button><button class="ou-new" data-action="compose">✎ &nbsp; Nouveau courrier</button><div class="ou-folder-title">Dossiers</div>${folders.map(f=>`<button class="ou-folder ${state.folder===f[0]?'selected':''}" data-folder="${f[0]}"><span>▤</span> ${f[1]} <small>${f[0]==='inbox'?(state.messages.filter(m=>(m.folder||'inbox')==='inbox'&&m.accountId===state.activeId&&m.read===false).length||''):''}</small></button>`).join('')}</aside>
+    <section class="ou-list"><div class="ou-list-title"><b>${esc(folders.find(f=>f[0]===state.folder)?.[1])}</b><small>Filtrer &nbsp;⌄</small></div>${shown.map(m=>`<button class="ou-message ${selected?.id===m.id?'active':''} ${m.read===false?'ou-unread':''}" data-message="${esc(m.id)}"><span class="ou-initial">${esc((m.from||'?').slice(0,1).toUpperCase())}</span><span class="ou-msg-summary"><strong>${esc(m.from)}</strong><b>${esc(m.subject)}</b><small>${esc((m.body||'').replace(/\s+/g,' ').slice(0,95))}</small></span><time>${esc(m.date||'')}</time></button>`).join('')||'<p class="ou-empty">Aucun message.</p>'}</section>
     <article class="ou-reading">${selected?`<h2>${esc(selected.subject)}</h2><div class="ou-from"><div class="ou-initial">${esc((selected.from||'?').slice(0,1).toUpperCase())}</div><div><b>${esc(selected.from)}</b><small>À : ${esc(selected.to||state.account.email)}</small></div></div><div class="ou-letter">${esc(selected.body||'').replace(/\n/g,'<br>')}</div><div class="ou-reading-actions"><button class="ou-reply" data-action="reply">↶ &nbsp; Répondre</button><button class="ou-reply" data-action="forward">↪ &nbsp; Transférer</button></div>`:'<div class="ou-placeholder">Sélectionnez un élément pour le lire.</div>'}</article>`;
   }
   function calendarHtml(){
@@ -55,7 +55,7 @@ export function mountOutlook(host, options = {}) {
     const view=e.target.closest('[data-view]');if(view){captureAccountFields();state.view=view.dataset.view;state.configOpen=false;state.composeOpen=false;render();return;}
     const folder=e.target.closest('[data-folder]');if(folder){state.folder=folder.dataset.folder;state.selected=null;render();return;}
     const accountChoice=e.target.closest('[data-account]');if(accountChoice){switchAccount(accountChoice.dataset.account);render();return;}
-    const msg=e.target.closest('[data-message]');if(msg){state.selected=msg.dataset.message;if(state.folder==='drafts'){const d=state.messages.find(m=>m.id===state.selected);if(d)openCompose(d);}render();return;}
+    const msg=e.target.closest('[data-message]');if(msg){state.selected=msg.dataset.message;const opened=state.messages.find(m=>m.id===state.selected&&m.accountId===state.activeId);if(opened&&opened.folder!=='drafts'&&opened.read===false){opened.read=true;emit('onMessageRead',{id:opened.id,accountId:opened.accountId,message:{...opened}});}if(state.folder==='drafts'){const d=state.messages.find(m=>m.id===state.selected);if(d)openCompose(d);}render();return;}
     const act=e.target.closest('[data-action]');if(!act)return;
     const action=act.dataset.action;if(action==='close-settings')captureAccountFields();
     if(action==='settings'){state.configOpen=true;state.result=null;}
@@ -85,7 +85,7 @@ export function mountOutlook(host, options = {}) {
             const recipients=String(message.to||'').split(/[;,]/).map(x=>x.trim().toLowerCase());
             for(const recipient of recipients){
               const destination=state.accounts.find(a=>a.email.toLowerCase()===recipient);
-              if(destination)state.messages.unshift({id:'inbox-'+seq+'-'+destination.id,folder:'inbox',from:state.account.email,to:destination.email,accountId:destination.id,subject:message.subject,body:message.body,date:'Aujourd’hui'});
+              if(destination)state.messages.unshift({id:'inbox-'+seq+'-'+destination.id,folder:'inbox',from:state.account.email,to:destination.email,accountId:destination.id,subject:message.subject,body:message.body,date:'Aujourd’hui',read:false});
             }
           }
           state.composeOpen=false;state.folder='sent';state.selected=null;state.draftId=null;state.result=null;}}
@@ -97,5 +97,5 @@ export function mountOutlook(host, options = {}) {
     if(e.target.form?.id==='ou-account'){captureAccountFields();state.testSeq++;state.testing=false;if(e.target.name==='type'||e.target.name==='smtpAuthMode'){state.result=null;render();}else if(state.result){state.result=null;const status=root.querySelector('.ou-result');if(status){status.textContent='';status.className='ou-result';}}}
   });
   function update(patch={}){captureCompose();if(patch.avatar)Object.assign(avatar,patch.avatar);if(patch.account){state.testSeq++;state.testing=false;}if(patch.account)state.account={...state.account,...patch.account};if(patch.messages)state.messages=patch.messages.map(x=>({...x}));if(patch.result)state.result=patch.result;render();}
-  render();return {update,destroy(){root.remove()},getAccount(){return {...state.account}},getAccounts(){return state.accounts.map(a=>({...a}))}};
+  render();return {update,destroy(){root.remove()},getAccount(){return {...state.account}},getAccounts(){return state.accounts.map(a=>({...a}))},getMessages(){return state.messages.map(m=>({...m}))}};
 }
