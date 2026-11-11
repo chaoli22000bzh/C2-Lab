@@ -98,8 +98,8 @@
 .ou-app .ou-account-email{display:block;flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;overflow-wrap:normal}
 .ou-app .ou-account-chevron{display:block;flex:none;width:16px;height:16px}
 
-/* Outlook v0.4.10 : l'horodatage dispose de sa propre ligne, sans recouvrir l'expéditeur. */
+/* Outlook v0.4.11 : horodatage au-dessus de l'expéditeur, sans chevauchement. */
 .ou-app .ou-message{display:grid;grid-template-columns:34px minmax(0,1fr);column-gap:9px;row-gap:3px;align-items:start}
-.ou-app .ou-message>.ou-initial{grid-column:1;grid-row:1 / span 2}
-.ou-app .ou-message>.ou-msg-summary{grid-column:2;grid-row:1;min-width:0}
-.ou-app .ou-message>time{position:static;grid-column:2;grid-row:2;display:block;min-width:0;text-align:right;white-space:nowrap;font-size:10px;line-height:1.35}
+.ou-app .ou-message>.ou-initial{grid-column:1;grid-row:1 / span 2;align-self:center}
+.ou-app .ou-message>.ou-msg-summary{grid-column:2;grid-row:2;min-width:0}
+.ou-app .ou-message>time{position:static;grid-column:2;grid-row:1;display:block;min-width:0;text-align:right;white-space:nowrap;font-size:10px;line-height:1.35}
