@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Outlook V0.8 : banc d'essai sauvegarde</title>
+<link rel="stylesheet" href="../shared-ui/v1/outlook.css">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#edf2f7;color:#22374e;font:14px/1.5 "Segoe UI",Arial,sans-serif}
+main{max-width:1250px;margin:0 auto;padding:18px}
+header.test-head{margin-bottom:15px}
+h1{margin:0 0 5px;font-size:23px}
+p{margin:6px 0}
+.test-panel{padding:14px 17px;margin-bottom:15px;background:#fff;border:1px solid #d3deea;border-radius:9px}
+.test-panel b{font-size:15px}
+.test-panel button{margin:9px 0 0;padding:8px 12px;background:#174f89;color:#fff;border:0;border-radius:5px;font-weight:600;cursor:pointer}
+#status{font-size:13px;color:#52647a}
+#status strong{color:#1b4e82}
+#outlook{min-height:590px}
+@media(max-width:650px){main{padding:8px}.test-panel{padding:12px}}
+</style>
+</head>
+<body>
+<main>
+<header class="test-head">
+<h1>Outlook V0.8 : sauvegarde et restauration</h1>
+<p>Banc d'essai autonome, sans moteur R2D3 et sans serveur réel. Les deux comptes ci-dessous sont déjà configurés.</p>
+</header>
+<section class="test-panel">
+<b>Jeu d'essai contrôlé</b>
+<p><strong>technicien@atelier-kerwen.fr</strong> : 4 courriels (2 reçus, 2 envoyés).</p>
+<p><strong>sav@atelier-kerwen.fr</strong> : 2 courriels (1 reçu non lu, 1 envoyé).</p>
+<p>Dans Paramètres → Importer / Exporter, sélectionnez SAV et importez le fichier <code>sauvegarde-outlook-sav_atelier-kerwen.fr.pst-demo.json</code> déjà exporté. Le résultat attendu est <strong>0 ajouté, 2 doublons ignorés</strong>.</p>
+<button type="button" id="reset">Réinitialiser uniquement ce banc d'essai</button>
+<p id="status" role="status" aria-live="polite"></p>
+</section>
+<section id="outlook" aria-label="Outlook : jeu d'essai contrôlé"></section>
+</main>
+<script type="module">
+import {mountOutlook} from "../shared-ui/v1/outlook.js";
+const tech="technicien@atelier-kerwen.fr";
+const sav="sav@atelier-kerwen.fr";
+const initial=[
+{id:"mail-1",folder:"sent",accountEmail:tech,from:tech,to:tech,subject:"v0.7",body:"v0.7",read:true,date:"2026-11-11T12:56:35.128Z"},
+{id:"mail-2",folder:"inbox",accountEmail:tech,from:tech,to:tech,subject:"v0.7",body:"v0.7",read:false,date:"2026-11-11T12:56:35.128Z"},
+{id:"mail-3",folder:"sent",accountEmail:sav,from:sav,to:tech,subject:"v007",body:"v007",read:true,date:"2026-11-11T12:57:46.638Z"},
+{id:"mail-4",folder:"inbox",accountEmail:tech,from:sav,to:tech,subject:"v007",body:"v007",read:true,date:"2026-11-11T12:57:46.638Z"},
+{id:"mail-5",folder:"sent",accountEmail:tech,from:tech,to:sav,subject:"synchronisation des courriels",body:"synchronisation des courriels",read:true,date:"2026-11-11T13:01:14.405Z"},
+{id:"mail-6",folder:"inbox",accountEmail:sav,from:tech,to:sav,subject:"synchronisation des courriels",body:"synchronisation des courriels",read:false,date:"2026-11-11T13:01:14.405Z"}
+];
+let outlook;
+const status=document.querySelector("#status");
+function showCount(){
+  const messages=outlook.getMessages();
+  const size=email=>messages.filter(m=>m.accountEmail===email).length;
+  status.innerHTML="État : <strong>"+size(tech)+" courriels technicien</strong> et <strong>"+size(sav)+" courriels SAV</strong> (total "+messages.length+").";
+}
+function start(){
+  if(outlook)outlook.destroy();
+  outlook=mountOutlook(document.querySelector("#outlook"),{
+    accounts:[{id:"tech",email:tech,type:"imap"},{id:"sav",email:sav,type:"imap"}],
+    messages:initial.map(m=>({...m})),
+    callbacks:{
+      onSend:async()=>({success:false,message:"Envoi indisponible dans le banc d'essai d'archives."}),
+      onBackupRestore(){queueMicrotask(showCount)}
+    }
+  });
+  showCount();
+}
+document.querySelector("#reset").addEventListener("click",start);
+start();
+</script>
+</body>
+</html>
