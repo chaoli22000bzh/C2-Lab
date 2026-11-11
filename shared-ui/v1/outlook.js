@@ -1,4 +1,4 @@
-/* Outlook UI shared component v0.8.0. Display and actions only; no transport or validation rules. */
+/* Outlook UI shared component v0.8.1. Display and actions only; no transport or validation rules. */
 export function mountOutlook(host, options = {}) {
   if (!(host instanceof HTMLElement)) throw new TypeError('Outlook: host missing');
   const callbacks = options.callbacks || {};
@@ -82,7 +82,7 @@ export function mountOutlook(host, options = {}) {
     if(externalMessageStore)
       throw Error('Restauration des courriels indisponible ici : les messages sont gérés par R2D3. Utilisez la sauvegarde du moteur.');
     // Re-importing the same archive must not duplicate messages.
-    const identity=m=>JSON.stringify([m.folder||'inbox',m.from||'',m.to||'',m.subject||'',m.body||'',m.date||'',m.read===false?false:true]);
+    const identity=m=>JSON.stringify([m.folder||'inbox',m.from||'',m.to||'',m.subject||'',m.body||'',m.date||'']);
     const existing=new Set(state.messages.filter(m=>belongsTo(m,a)).map(identity));
     const fresh=[];
     const token='restored-'+Date.now()+'-';
