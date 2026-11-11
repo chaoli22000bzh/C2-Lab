@@ -140,7 +140,7 @@ export function mountOutlook(host, options = {}) {
       try{const response=await emit('onTestAccount',snapshot);if(sequence!==state.testSeq)return;state.result=response&&typeof response.success==='boolean'?response:{success:false,message:'La connexion n’a pas pu être vérifiée.'};}
       catch(err){if(sequence!==state.testSeq)return;state.result={success:false,message:'La connexion n’a pas pu être établie.'};}
       if(state.adding&&state.result?.success){const created={...state.account,id:'acct-'+(Date.now())};state.accounts.push(created);state.activeId=created.id;state.account=created;state.adding=false;state.folder='inbox';emit('onAccountAdded',{...created});}
-      state.testing=false;renderSettingsAtCurrentPosition(state.result?.success===false);
+      state.testing=false;renderSettingsAtCurrentPosition(true);
     }
     if(e.target.id==='ou-compose-form'){
       e.preventDefault();if(state.sending)return;captureCompose();const message={...state.compose};state.sending=true;state.result={message:'Envoi en cours…'};const seq=++state.sendSeq;render();
