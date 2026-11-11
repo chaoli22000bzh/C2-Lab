@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>R2D3 : serveur de messagerie et Outlook</title>
+<link rel="stylesheet" href="../shared-ui/v1/outlook.css">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#eef2f7;color:#20354d;font:15px "Segoe UI",Arial,sans-serif}
+header{background:#193452;color:white;padding:20px max(16px,calc((100vw - 1220px)/2))}
+header h1{font-size:23px;margin:0 0 5px}header p{margin:0;color:#cfdfec}
+main{max-width:1240px;margin:20px auto;padding:0 15px}
+.panel{background:#fff;border:1px solid #d3dce7;border-radius:12px;padding:18px;margin:0 0 18px}
+h2{font-size:19px;margin:0 0 8px}.sub{color:#61728a;font-size:13px;margin:0 0 14px}
+.field-row{display:flex;gap:14px;align-items:end;flex-wrap:wrap}
+.field-row label{display:grid;gap:5px;font-weight:600;font-size:13px}
+.field-row input,.field-row select{font:inherit;padding:9px;border-radius:6px;border:1px solid #b2c0d0;min-width:175px;max-width:240px}
+button{font:inherit;cursor:pointer}
+.lab-btn{background:#235d91;color:#fff;border:0;border-radius:7px;padding:10px 15px;font-weight:600}
+.lab-btn.secondary{background:#e7eef7;color:#23486d}
+#admin-status{min-height:22px;margin:12px 0 0;font-size:14px}
+#admin-status.bad{color:#ad3131}#admin-status.ok{color:#15693b}
+table{border-collapse:collapse;width:100%;margin-top:14px}th,td{border-bottom:1px solid #e1e7ed;padding:9px;text-align:left;font-size:14px}
+#outlook{min-height:580px}
+.notes{font-size:13px;color:#607084;margin:8px 0 15px}
+@media(max-width:650px){main{padding:0}.panel{border-radius:0}}
+</style></head><body>
+<header><h1>R2D3 : administration d'un serveur de messagerie</h1>
+<p>Créer des boîtes fictives, puis les configurer dans Outlook</p></header>
+<main>
+<section class="panel" aria-labelledby="server-heading">
+<h2 id="server-heading">1. Serveur de messagerie simulé</h2>
+<p class="sub">Domaine <strong>atelier-kerwen.fr</strong> : services IMAP, POP3 et SMTP disponibles. Aucun serveur réel.</p>
+<form id="mailbox-form" class="field-row">
+<label>Adresse de la nouvelle boîte<input name="email" type="email" value="technicien@atelier-kerwen.fr" required></label>
+<label>Mot de passe fictif<input name="password" type="text" value="demo2026" minlength="4" required></label>
+<label>Accès au courrier entrant<select name="type"><option value="imap">IMAP</option><option value="pop3">POP3</option></select></label>
+<button class="lab-btn" type="submit">Créer la boîte</button>
+</form>
+<div id="admin-status" role="status" aria-live="polite">Aucune boîte créée. Commencez par créer un compte.</div>
+<table><thead><tr><th>Boîtes créées</th><th>Accès entrant</th></tr></thead><tbody id="mailboxes"><tr><td colspan="2">Aucune boîte</td></tr></tbody></table>
+<details><summary>Voir les paramètres du serveur à utiliser dans Outlook</summary>
+<table><thead><tr><th>Service</th><th>Serveur</th><th>Port</th><th>Sécurité</th></tr></thead><tbody>
+<tr><td>IMAP</td><td>imap.entreprise.fr</td><td>993</td><td>SSL/TLS</td></tr>
+<tr><td>POP3</td><td>pop.entreprise.fr</td><td>995</td><td>SSL/TLS</td></tr>
+<tr><td>SMTP</td><td>smtp.entreprise.fr</td><td>587</td><td>STARTTLS</td></tr>
+</tbody></table><p>Dans Outlook, choisir « Utiliser les identifiants du serveur entrant » pour SMTP.</p>
+</details>
+</section>
+<section class="panel" aria-labelledby="outlook-heading">
+<h2 id="outlook-heading">2. Client Outlook</h2>
+<p class="sub">Ouvre Paramètres puis « Ajouter un compte ». Le serveur simulé vérifie les paramètres et le mot de passe que tu viens de définir.</p>
+<div class="field-row">
+<button id="inject" class="lab-btn secondary" type="button">Recevoir un message de test</button>
+<button id="reset" class="lab-btn secondary" type="button">Recommencer</button>
+</div>
+<p class="notes" id="lab-status" role="status">Les messages proviennent exclusivement du moteur R2D3.</p>
+</section>
+<section id="outlook" aria-label="Outlook connecté au serveur simulé"></section>
+<p class="notes">Laboratoire pédagogique autonome : le rechargement efface les comptes et les messages créés. N'utilise jamais un vrai mot de passe.</p>
+</main><script type="module" src="./mail-server-lab.js"></script>
+</body></html>

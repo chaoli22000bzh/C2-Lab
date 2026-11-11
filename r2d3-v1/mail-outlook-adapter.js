@@ -3,7 +3,7 @@ import {createMailEngine} from "./mail-core.js";
 import {mountOutlook} from "../shared-ui/v1/outlook.js";
 
 export function connectMailOutlook(host, scenario, options = {}) {
-  const engine = createMailEngine(scenario);
+  const engine = options.engine || createMailEngine(scenario);
   let outlook;
   // Sans conversion accountId : Outlook 0.4.8 sait lire accountEmail.
   const messages = () => engine.getSnapshot().messages.map(mail=>({
