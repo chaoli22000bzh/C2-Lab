@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Outlook</title><link rel="stylesheet" href="../shared-ui/v1/outlook.css?v=0.1.0">
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Outlook</title><link rel="stylesheet" href="../shared-ui/v1/outlook.css?v=0.2.0">
 <style>body{margin:0;background:#e8edf3;font:14px "Segoe UI",Arial,sans-serif}.stage{max-width:1230px;margin:30px auto;padding:0 15px}.stage>p{font-size:12px;color:#64748b}#outlook{min-height:590px}@media(max-width:650px){.stage{padding:0;margin:0}.stage>p{padding:10px}}</style></head>
 <body><main class="stage"><div id="outlook"></div><p>Interface Outlook de démonstration, sans connexion à un service de messagerie.</p></main>
 <script type="module">
-import {mountOutlook} from '../shared-ui/v1/outlook.js?v=0.1.0';
+import {mountOutlook} from '../shared-ui/v1/outlook.js?v=0.2.0';
 const messages=[
 {id:'m1',folder:'inbox',from:'Camille KOENIG',to:'contact@atelier-kerwen.fr',subject:'Réunion de l’équipe',body:'Bonjour,\n\nNotre prochaine réunion se déroulera jeudi à 9 h 30.\n\nBonne journée,\nCamille',date:'09:15'},
 {id:'m2',folder:'inbox',from:'Sophie MARTIN',to:'contact@atelier-kerwen.fr',subject:'Demande de dépannage',body:'Bonjour,\n\nPouvez-vous vérifier la configuration de la messagerie sur mon poste ?\n\nMerci,\nSophie',date:'Hier'},
@@ -17,7 +17,19 @@ const outlook=mountOutlook(document.getElementById('outlook'),{
   onTestAccount:async a=>{
    const expected=referenceByType[a.type]||reference;const check=a.type==='m365'?['username','password']:['incomingHost','incomingPort','incomingSecurity','outgoingHost','outgoingPort','outgoingSecurity','username','password'];
    const wrong=check.find(k=>String(a[k]||'').trim().toLowerCase()!==String(expected[k]||'').toLowerCase());
-   if(wrong)return {success:false,message:'Impossible de configurer le compte. Vérifiez les paramètres du serveur et les informations de connexion.'};
+   if(wrong){
+    const details={
+      incomingHost:'Nous n’avons pas pu nous connecter au serveur de courrier entrant.',
+      incomingPort:'Impossible de se connecter au serveur de courrier entrant.',
+      incomingSecurity:'La connexion sécurisée au serveur entrant a échoué.',
+      outgoingHost:'Nous n’avons pas pu nous connecter au serveur de courrier sortant (SMTP).',
+      outgoingPort:'Impossible de se connecter au serveur SMTP.',
+      outgoingSecurity:'La connexion sécurisée au serveur sortant a échoué.',
+      username:'Le nom d’utilisateur n’a pas été reconnu.',
+      password:'Le nom d’utilisateur ou le mot de passe est incorrect.'
+    };
+    return {success:false,message:details[wrong]||'Nous n’avons pas pu configurer ce compte.'};
+   }
    return {success:true,message:'La configuration du compte a réussi.'};
   },
   onSend:async message=>{
