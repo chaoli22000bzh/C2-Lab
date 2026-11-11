@@ -92,3 +92,8 @@
 /* v0.4.2 : suppression visible immédiatement sous le compte sélectionné */
 .ou-app .ou-account-management{margin:5px 0 16px;display:flex;justify-content:flex-start}
 .ou-app .ou-account-management:empty{display:none}
+
+/* v0.4.3 : adresse et chevron sur une seule ligne, sans retour parasite */
+.ou-app .ou-account-switch{display:flex;align-items:center;justify-content:space-between;gap:6px;min-width:0;text-align:left;overflow:hidden}
+.ou-app .ou-account-email{display:block;flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;overflow-wrap:normal}
+.ou-app .ou-account-chevron{display:block;flex:none;width:16px;height:16px}
