@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Outlook connecté à R2D3 | Validation</title>
+<link rel="stylesheet" href="../shared-ui/v1/outlook.css">
+<style>
+*{box-sizing:border-box}body{margin:0;background:#edf2f8;font:14px/1.5 "Segoe UI",Arial,sans-serif;color:#21344c}
+main{max-width:1280px;margin:0 auto;padding:16px}h1{font-size:23px;margin:0 0 6px}
+.info{padding:15px 18px;border:1px solid #d5dfea;background:white;border-radius:9px;margin-bottom:15px}
+.info p{margin:7px 0}summary{cursor:pointer;font-weight:600}
+details{margin:12px 0}#status{color:#295174;font-size:13px}
+#reset{background:white;color:#1b5689;border:1px solid #bed0df;border-radius:5px;padding:8px 12px;cursor:pointer}
+#outlook{min-height:590px}@media(max-width:650px){main{padding:7px}.info{padding:12px}}
+</style></head><body><main>
+<section class="info"><h1>Outlook connecté au moteur R2D3</h1>
+<p>Page de validation distincte du laboratoire de développement, utilisant le <strong>véritable moteur R2D3</strong>, son adaptateur et l'Outlook partagé. Aucun courriel fictif n'est injecté par cette page.</p>
+<p>Test V0.8 : configurez un compte, exportez les données puis essayez de réimporter le fichier. Le moteur possédant les messages, Outlook doit refuser la restauration locale plutôt que créer des doublons.</p>
+<details><summary>Paramètres des comptes du scénario R2D3 existant</summary>
+<p><b>contact@atelier-kerwen.fr (IMAP)</b> : imap.entreprise.fr, 993, SSL/TLS, identifiant contact@atelier-kerwen.fr, mot de passe atelier2026. SMTP smtp.entreprise.fr, 587, STARTTLS, authentification séparée smtp-agent / demo-outgoing.</p>
+<p><b>sav@atelier-kerwen.fr (POP3)</b> : pop.entreprise.fr, 995, SSL/TLS, identifiant sav@atelier-kerwen.fr, mot de passe sav-demo. SMTP smtp.entreprise.fr, 587, STARTTLS, mêmes identifiants.</p>
+<p><b>bureau@atelier-kerwen.fr (Microsoft 365 simulé)</b> : mot de passe m365-demo.</p>
+<p>Ce scénario existant ne contient pas le compte technicien. Aucun serveur réel n'est contacté.</p>
+</details>
+<button type="button" id="reset">Réinitialiser cet essai</button>
+<p id="status" role="status" aria-live="polite">Chargement…</p>
+</section><section id="outlook" aria-label="Outlook relié au moteur R2D3"></section></main>
+<script type="module">
+import {connectMailOutlook} from "../r2d3-v1/mail-outlook-adapter.js";
+const status=document.getElementById("status");
+const host=document.getElementById("outlook");
+let bridge;
+try {
+  const response=await fetch("../r2d3-v1/mail-outlook-scenario.json",{cache:"no-store"});
+  if(!response.ok)throw Error("Scénario R2D3 introuvable");
+  const scenario=await response.json();
+  function start(){
+    if(bridge)bridge.destroy();
+    bridge=connectMailOutlook(host,scenario);
+    status.textContent="Intégration active : "+bridge.getSnapshot().messages.length+" message(s) dans R2D3. F5 réinitialise cet essai.";
+  }
+  document.getElementById("reset").addEventListener("click",start);
+  start();
+} catch(err) {status.textContent="Erreur de chargement : "+(err.message||err);}
+</script></body></html>
