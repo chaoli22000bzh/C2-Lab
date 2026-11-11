@@ -1,9 +1,9 @@
-/* Outlook UI shared component v0.1.0. Display and actions only; no transport or validation rules. */
+/* Outlook UI shared component v0.2.0. Display and actions only; no transport or validation rules. */
 export function mountOutlook(host, options = {}) {
   if (!(host instanceof HTMLElement)) throw new TypeError('Outlook: host missing');
   const callbacks = options.callbacks || {};
   const account = Object.assign({email:'contact@atelier-kerwen.fr',type:'imap',incomingHost:'imap.entreprise.fr',incomingPort:'993',incomingSecurity:'ssl',outgoingHost:'smtp.entreprise.fr',outgoingPort:'587',outgoingSecurity:'starttls',username:'contact@atelier-kerwen.fr',password:''},options.account || {});
-  const state = {view:'mail',folder:'inbox',configOpen:false,composeOpen:false,account, messages:(options.messages||[]).map(x=>({...x})),selected:null,result:null};
+  const state = {view:'mail',folder:'inbox',configOpen:false,composeOpen:false,account, messages:(options.messages||[]).map(x=>({...x})),selected:null,result:null,testing:false,testSeq:0};
   const root=document.createElement('div');root.className='ou-app';host.replaceChildren(root);
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const emit=(name,data)=>{if(typeof callbacks[name]==='function') return callbacks[name](data);};
@@ -25,14 +25,21 @@ export function mountOutlook(host, options = {}) {
     return `<aside class="ou-folders"><div class="ou-folder-title">Calendriers</div><label class="ou-check"><input type="checkbox" checked disabled> Mon calendrier</label><label class="ou-check"><input type="checkbox" checked disabled> Équipe SAV</label></aside><section class="ou-other"><div class="ou-headline"><h2>Calendrier</h2><span>Semaine</span></div><div class="ou-cal"><div>lun.</div><div>mar.</div><div>mer.</div><div>jeu.</div><div>ven.</div><section>9 h<br><br>11 h<br><br>14 h</section><section><span>Réunion équipe<br>09:30</span></section><section></section><section><span class="shared">Suivi SAV<br>14:00</span></section><section></section></div></section>`;
   }
   function peopleHtml(){return `<aside class="ou-folders"><div class="ou-folder-title">Contacts</div><div class="ou-folder selected">Vos contacts</div><div class="ou-folder">Annuaire</div></aside><section class="ou-other"><div class="ou-headline"><h2>Personnes</h2></div><div class="ou-person"><div class="ou-initial">C</div><div><b>Camille KOENIG</b><small>camille.koenig@entreprise.fr</small></div></div><div class="ou-person"><div class="ou-initial">S</div><div><b>Sophie MARTIN</b><small>sophie.martin@entreprise.fr</small></div></div></section>`;}
-  function settingsHtml(){let a=state.account;const field=(label,name,value,type='text')=>`<label>${label}<input name="${name}" type="${type}" value="${esc(value)}" autocomplete="off"></label>`;const select=(label,name,value,items)=>`<label>${label}<select name="${name}">${items.map(([v,t])=>`<option value="${v}" ${v===value?'selected':''}>${t}</option>`).join('')}</select></label>`;return `<div class="ou-shade" data-action="close-settings"></div><section class="ou-settings" role="dialog" aria-label="Paramètres" aria-modal="true"><header><h2>Paramètres</h2><button data-action="close-settings" aria-label="Fermer">×</button></header><div class="ou-setting-body"><h3>Comptes &gt; Vos comptes</h3><p>${esc(a.email)}</p><form id="ou-account"><h4>Paramètres du compte</h4>${select('Type de compte','type',a.type,[['pop3','POP3'],['imap','IMAP'],['m365','Microsoft 365']])}<div data-protocol="standard">${field('Serveur entrant','incomingHost',a.incomingHost)}<div class="ou-fields">${field('Port entrant','incomingPort',a.incomingPort)}${select('Sécurité entrante','incomingSecurity',a.incomingSecurity,[['none','Aucune'],['ssl','SSL/TLS'],['starttls','STARTTLS']])}</div>${field('Serveur sortant (SMTP)','outgoingHost',a.outgoingHost)}<div class="ou-fields">${field('Port sortant','outgoingPort',a.outgoingPort)}${select('Sécurité sortante','outgoingSecurity',a.outgoingSecurity,[['none','Aucune'],['ssl','SSL/TLS'],['starttls','STARTTLS']])}</div></div>${field('Nom d’utilisateur','username',a.username)}${field('Mot de passe','password',a.password,'password')}<div class="ou-actions"><button class="ou-primary" type="submit">Tester la configuration</button></div></form><div class="ou-result" role="status" aria-live="polite">${state.result?esc(state.result.message):''}</div></div></section>`;}
+  function settingsHtml(){
+ const a=state.account,m365=a.type==='m365';
+ const field=(label,name,type='text')=>`<label class="ou-field">${label}<input name="${name}" type="${type}" value="${esc(a[name])}" autocomplete="off"></label>`;
+ const select=(label,name,items)=>`<label class="ou-field">${label}<select name="${name}">${items.map(([v,t])=>`<option value="${v}" ${a[name]===v?'selected':''}>${t}</option>`).join('')}</select></label>`;
+ const security=[['none','Aucune'],['ssl','SSL/TLS'],['starttls','STARTTLS']];
+ return `<div class="ou-shade" data-action="close-settings"></div><section class="ou-settings" role="dialog" aria-label="Paramètres Outlook" aria-modal="true"><header><h2>Paramètres</h2><button type="button" data-action="close-settings" aria-label="Fermer les paramètres">×</button></header><div class="ou-settings-frame"><nav class="ou-settings-nav" aria-label="Paramètres"><div class="ou-settings-nav-section">Comptes</div><div class="ou-settings-nav-active">Vos comptes</div></nav><div class="ou-setting-body"><h3>Vos comptes</h3><div class="ou-account-identity"><span class="ou-account-symbol">✉</span><div><b>${esc(a.email)}</b><small>${m365?'Microsoft 365':a.type==='pop3'?'POP3':'IMAP'}</small></div></div><form id="ou-account"><h4>Paramètres du compte</h4>${select('Type de compte','type',[['pop3','POP3'],['imap','IMAP'],['m365','Microsoft 365']])}${m365?`<div class="ou-info">Se connecter à un compte professionnel ou scolaire</div>`:`<h4 class="ou-subheading">Courrier entrant (${a.type==='pop3'?'POP3':'IMAP'})</h4>${field('Serveur','incomingHost')}<div class="ou-fields">${field('Port','incomingPort')}${select('Méthode de chiffrement','incomingSecurity',security)}</div><h4 class="ou-subheading">Courrier sortant (SMTP)</h4>${field('Serveur','outgoingHost')}<div class="ou-fields">${field('Port','outgoingPort')}${select('Méthode de chiffrement','outgoingSecurity',security)}</div>`}<h4 class="ou-subheading">Informations de connexion</h4>${field('Nom d’utilisateur','username')}${field('Mot de passe','password','password')}<div class="ou-actions"><button class="ou-primary" type="submit" ${state.testing?'disabled':''}>${state.testing?'Connexion…':'Continuer'}</button></div></form><div class="ou-result ${state.result?.success===true?'ou-result-success':state.result?.success===false?'ou-result-error':''}" role="status" aria-live="polite">${state.result?esc(state.result.message):''}</div></div></div></section>`;
+}
   function composeHtml(){return `<section class="ou-compose" role="dialog" aria-label="Nouveau courrier"><header><b>Nouveau courrier</b><button data-action="close-compose" aria-label="Fermer">×</button></header><form id="ou-compose-form"><div class="ou-compose-toolbar"><button type="submit" class="ou-primary">➤ &nbsp; Envoyer</button></div><label>À <input name="to" placeholder="Ajouter un destinataire" required></label><label>Objet <input name="subject" required></label><textarea name="body" aria-label="Corps du message"></textarea><div class="ou-result" role="status">${state.result?esc(state.result.message):''}</div></form></section>`;}
+  function captureAccountFields(){const form=root.querySelector('#ou-account');if(form)state.account={...state.account,...Object.fromEntries(new FormData(form))};}
   root.addEventListener('click',async e=>{
-    const view=e.target.closest('[data-view]');if(view){state.view=view.dataset.view;state.configOpen=false;state.composeOpen=false;render();return;}
+    const view=e.target.closest('[data-view]');if(view){captureAccountFields();state.view=view.dataset.view;state.configOpen=false;state.composeOpen=false;render();return;}
     const folder=e.target.closest('[data-folder]');if(folder){state.folder=folder.dataset.folder;state.selected=null;render();return;}
     const msg=e.target.closest('[data-message]');if(msg){state.selected=msg.dataset.message;render();return;}
     const act=e.target.closest('[data-action]');if(!act)return;
-    const action=act.dataset.action;
+    const action=act.dataset.action;if(action==='close-settings')captureAccountFields();
     if(action==='settings'){state.configOpen=true;state.result=null;}
     if(action==='close-settings'){state.configOpen=false;state.result=null;}
     if(action==='compose'){state.composeOpen=true;state.result=null;}
@@ -42,10 +49,12 @@ export function mountOutlook(host, options = {}) {
   });
   root.addEventListener('submit',async e=>{
     if(e.target.id==='ou-account'){
-      e.preventDefault();const data=Object.fromEntries(new FormData(e.target));state.account={...state.account,...data};state.result={message:'Vérification en cours...'};render();
-      try {const r=await emit('onTestAccount',{...state.account});state.result=r||{message:'Test effectué.'};}
-      catch(err){state.result={message:'Impossible de terminer le test.'};}
-      render();
+      e.preventDefault();if(state.testing)return;
+      captureAccountFields();state.testing=true;state.result={message:'Connexion en cours…'};const sequence=++state.testSeq;
+      const snapshot={...state.account};render();
+      try{const response=await emit('onTestAccount',snapshot);if(sequence!==state.testSeq)return;state.result=response&&typeof response.success==='boolean'?response:{success:false,message:'La connexion n’a pas pu être vérifiée.'};}
+      catch(err){if(sequence!==state.testSeq)return;state.result={success:false,message:'La connexion n’a pas pu être établie.'};}
+      state.testing=false;render();
     }
     if(e.target.id==='ou-compose-form'){
       e.preventDefault();const message=Object.fromEntries(new FormData(e.target));state.result={message:'Envoi en cours...'};render();
@@ -55,8 +64,8 @@ export function mountOutlook(host, options = {}) {
     }
   });
   root.addEventListener('change',e=>{
-    if(e.target.name==='type'){const form=e.target.form;const standard=form.querySelector('[data-protocol="standard"]');if(standard)standard.hidden=e.target.value==='m365';}
+    if(e.target.form?.id==='ou-account'){captureAccountFields();state.testSeq++;state.testing=false;if(e.target.name==='type'){state.result=null;render();}else if(state.result){state.result=null;const status=root.querySelector('.ou-result');if(status){status.textContent='';status.className='ou-result';}}}
   });
-  function update(patch={}){if(patch.account)state.account={...state.account,...patch.account};if(patch.messages)state.messages=patch.messages.map(x=>({...x}));if(patch.result)state.result=patch.result;render();}
+  function update(patch={}){if(patch.account){state.testSeq++;state.testing=false;}if(patch.account)state.account={...state.account,...patch.account};if(patch.messages)state.messages=patch.messages.map(x=>({...x}));if(patch.result)state.result=patch.result;render();}
   render();return {update,destroy(){root.remove()},getAccount(){return {...state.account}}};
 }
