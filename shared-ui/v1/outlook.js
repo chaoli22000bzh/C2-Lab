@@ -101,7 +101,7 @@ export function mountOutlook(host, options = {}) {
     if(action==='close-settings'){state.configOpen=false;state.result=null;}
     if(action==='compose'){openCompose();}
     if(action==='close-compose'){saveDraft();state.composeOpen=false;state.result=null;state.sending=false;state.sendSeq++;}
-    if(action==='reply'||action==='forward'){const m=state.messages.find(x=>x.id===state.selected&&belongsTo(x,activeAccount()))||state.messages.find(x=>x.folder===state.folder&&belongsTo(x,activeAccount()));if(m){const prefix=action==='reply'?'RE: ':'TR: ';const original=m.subject||'';const subject=original.toLowerCase().startsWith(prefix.toLowerCase())?original:prefix+original;openCompose({to:action==='reply'?(m.replyTo||m.email||m.from||''):'',subject,body:'\\n\\nDe : '+(m.from||'')+'\\nObjet : '+original+'\\n\\n'+(m.body||'')});}}
+    if(action==='reply'||action==='forward'){const m=state.messages.find(x=>x.id===state.selected&&belongsTo(x,activeAccount()))||state.messages.find(x=>x.folder===state.folder&&belongsTo(x,activeAccount()));if(m){const prefix=action==='reply'?'RE: ':'TR: ';const original=m.subject||'';const subject=original.toLowerCase().startsWith(prefix.toLowerCase())?original:prefix+original;openCompose({to:action==='reply'?(m.replyTo||m.email||m.from||''):'',subject,body:'\n\nDe : '+(m.from||'')+'\nObjet : '+original+'\n\n'+(m.body||'')});}}
     if(action==='add-account')startAccount();
     if(action==='delete-account'){captureAccountFields();state.deleteConfirm=true;}
     if(action==='cancel-delete'){state.deleteConfirm=false;}
