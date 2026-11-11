@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Outlook</title><link rel="stylesheet" href="../shared-ui/v1/outlook.css?v=0.2.1">
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Outlook</title><link rel="stylesheet" href="../shared-ui/v1/outlook.css?v=0.3.0">
 <style>body{margin:0;background:#e8edf3;font:14px "Segoe UI",Arial,sans-serif}.stage{max-width:1230px;margin:30px auto;padding:0 15px}.stage>p{font-size:12px;color:#64748b}#outlook{min-height:590px}@media(max-width:650px){.stage{padding:0;margin:0}.stage>p{padding:10px}}</style></head>
 <body><main class="stage"><div id="outlook"></div><p>Interface Outlook de démonstration, sans connexion à un service de messagerie.</p></main>
 <script type="module">
-import {mountOutlook} from '../shared-ui/v1/outlook.js?v=0.2.1';
+import {mountOutlook} from '../shared-ui/v1/outlook.js?v=0.3.0';
 const messages=[
 {id:'m1',folder:'inbox',from:'Camille KOENIG',to:'contact@atelier-kerwen.fr',subject:'Réunion de l’équipe',body:'Bonjour,\n\nNotre prochaine réunion se déroulera jeudi à 9 h 30.\n\nBonne journée,\nCamille',date:'09:15'},
 {id:'m2',folder:'inbox',from:'Sophie MARTIN',to:'contact@atelier-kerwen.fr',subject:'Demande de dépannage',body:'Bonjour,\n\nPouvez-vous vérifier la configuration de la messagerie sur mon poste ?\n\nMerci,\nSophie',date:'Hier'},
@@ -11,19 +11,23 @@ const messages=[
 ];
 const reference={incomingHost:'imap.entreprise.fr',incomingPort:'993',incomingSecurity:'ssl',outgoingHost:'smtp.entreprise.fr',outgoingPort:'587',outgoingSecurity:'starttls',username:'contact@atelier-kerwen.fr',password:'atelier2026'};const referenceByType={imap:reference,pop3:{...reference,incomingHost:'pop.entreprise.fr',incomingPort:'995'},m365:{username:'contact@atelier-kerwen.fr',password:'atelier2026'}};
 reference.incomingUsername=reference.username;reference.incomingPassword=reference.password;reference.outgoingUsername='smtp-agent';reference.outgoingPassword='demo-outgoing';referenceByType.pop3={...reference,incomingHost:'pop.entreprise.fr',incomingPort:'995'};
+const secondReference={email:'sav@atelier-kerwen.fr',incomingHost:'imap.entreprise.fr',incomingPort:'993',incomingSecurity:'ssl',incomingUsername:'sav@atelier-kerwen.fr',incomingPassword:'sav-demo',outgoingHost:'smtp.entreprise.fr',outgoingPort:'587',outgoingSecurity:'starttls',smtpAuthMode:'same'};
 const outlook=mountOutlook(document.getElementById('outlook'),{
  account:{...reference,type:'imap',smtpAuthMode:'separate',outgoingHost:'smtp.ancien-prestataire.fr',outgoingPort:'465',outgoingSecurity:'ssl'},
  messages,
  callbacks:{
   onTestAccount:async a=>{
-   const expected=referenceByType[a.type]||reference;const check=a.type==='m365'?['username','password']:['incomingHost','incomingPort','incomingSecurity','incomingUsername','incomingPassword','outgoingHost','outgoingPort','outgoingSecurity'];
+   const expected=a.email===secondReference.email?secondReference:referenceByType[a.type]||reference;const check=a.type==='m365'?['username','password']:['incomingHost','incomingPort','incomingSecurity','incomingUsername','incomingPassword','outgoingHost','outgoingPort','outgoingSecurity'];
    const wrong=check.find(k=>String(a[k]||'').trim().toLowerCase()!==String(expected[k]||'').toLowerCase());
-   if(!wrong&&a.type!=='m365'){
+   if(!wrong&&a.type!=='m365'&&a.email!==secondReference.email){
       const smtpUser=a.smtpAuthMode==='separate'?a.outgoingUsername:a.incomingUsername;
       const smtpPass=a.smtpAuthMode==='separate'?a.outgoingPassword:a.incomingPassword;
       if(smtpUser!==expected.outgoingUsername)wrong='outgoingUsername';
       else if(smtpPass!==expected.outgoingPassword)wrong='outgoingPassword';
     }
+   if(!wrong&&a.email===secondReference.email){
+     if(a.smtpAuthMode!=='same')wrong='outgoingUsername';
+   }
    if(wrong){
     const details={
       incomingHost:'Nous n’avons pas pu nous connecter au serveur de courrier entrant.',
@@ -37,7 +41,7 @@ const outlook=mountOutlook(document.getElementById('outlook'),{
     };
     return {success:false,message:details[wrong]||'Nous n’avons pas pu configurer ce compte.'};
    }
-   return {success:true,message:'La configuration du compte a réussi.'};
+   return {success:true,message:'Le compte a été configuré.'};
   },
   onSend:async message=>{
    if(!message.to.trim()||!message.subject.trim())return {success:false,message:'Renseignez le destinataire et l’objet du courrier.'};
