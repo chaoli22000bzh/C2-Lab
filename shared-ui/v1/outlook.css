@@ -71,3 +71,20 @@
 /* Icône Paramètres SVG indépendante des polices système. */
 .ou-app .ou-gear svg{display:block;width:28px;height:28px;flex-shrink:0}
 .ou-app .ou-gear{display:grid;place-items:center;line-height:1}
+
+/* v0.4 : ajout et suppression de comptes, sauvegarde pédagogique et restauration */
+.ou-app .ou-settings-nav-item{display:block;width:100%;padding:10px 7px;border:0;border-radius:5px;background:transparent;color:#35465b;text-align:left;font-weight:500}
+.ou-app .ou-settings-nav-item:hover{background:#ebf2fb}
+.ou-app .ou-settings-nav-item.ou-settings-nav-active{background:#e3eefb;color:#0e5ca2;font-weight:700}
+.ou-app .ou-danger{border:1px solid #ce8989;background:#fff4f3;color:#9a2929;border-radius:5px;padding:9px 12px;font-weight:650}
+.ou-app .ou-danger:hover{background:#ffdfdd}
+.ou-app .ou-actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.ou-app .ou-warning{border:1px solid #e1a3a0;background:#fff3f2;border-radius:6px;padding:12px;margin:13px 0;color:#6d2b2b}
+.ou-app .ou-warning p{margin:8px 0}
+.ou-app .ou-backup-section{margin:15px 0;padding:14px 16px;border:1px solid #d7e0ec;background:#fff;border-radius:7px}
+.ou-app .ou-backup-section h4{font-size:15px;margin:0 0 7px}
+.ou-app .ou-backup-section p{color:#566578;line-height:1.5;margin:4px 0 12px}
+.ou-app .ou-backup-section .ou-field{display:block;margin-bottom:12px}
+.ou-app .ou-backup-section select,.ou-app .ou-backup-section input[type=file]{display:block;width:100%;max-width:480px;min-height:38px;margin-top:6px;padding:7px;border:1px solid #aebdcc;border-radius:4px;background:white;color:#263347}
+.ou-app .ou-backup-section .ou-secondary{background:#fff;border:1px solid #aebdcc;border-radius:5px;padding:9px 12px;color:#2c5274}
+@media(max-width:650px){.ou-app .ou-backup-section{padding:10px}.ou-app .ou-settings-nav-item{font-size:12px}}
