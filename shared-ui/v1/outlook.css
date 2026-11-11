@@ -125,3 +125,8 @@
 /* Outlook v0.6.5 : expéditeur sélectionnable lors de la rédaction multicomptes. */
 .ou-app .ou-compose .ou-compose-row select{width:100%;min-width:0;border:0;border-radius:3px;background:#fff;color:#222;padding:8px;font:inherit;cursor:pointer}
 .ou-app .ou-compose .ou-compose-row select:focus-visible{outline:2px solid #0f6cbd;outline-offset:-2px}
+
+/* Outlook v0.6.6 : confirmation de configuration visible sans défiler le formulaire. */
+.ou-app .ou-settings-feedback{position:sticky;top:0;z-index:7;margin:0;padding:12px 18px;border-bottom:1px solid #d1dae4;background:#f3f6fa;color:#225780;font-size:13px;line-height:1.45;overflow-wrap:anywhere}
+.ou-app .ou-settings-feedback.ou-result-success{background:#eef8f0!important;border-color:#a5d1ad!important;color:#17592b}
+.ou-app .ou-settings-feedback.ou-result-error{background:#fff4f2!important;border-color:#e9b1a9!important;color:#8a2f25}
