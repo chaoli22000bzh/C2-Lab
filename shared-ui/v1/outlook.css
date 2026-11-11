@@ -106,3 +106,8 @@
 
 /* Outlook v0.5.0 : aide discrète sur les ports configurables. */
 .ou-app .ou-port-hint{margin:2px 0 13px;font-size:12px;line-height:1.4;color:#596d81}
+
+/* Outlook v0.6.1 : le titre de rédaction ne doit pas hériter du texte blanc des en-têtes de R2D3/C². */
+.ou-app .ou-compose > header{color:#24334a;background:#f8fafd}
+.ou-app .ou-compose > header > b{color:#24334a;opacity:1}
+.ou-app .ou-compose > header > button{color:#182c43}
