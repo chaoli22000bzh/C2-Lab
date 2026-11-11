@@ -28,7 +28,13 @@ table{border-collapse:collapse;width:100%;margin-top:14px}th,td{border-bottom:1p
 <main>
 <section class="panel" aria-labelledby="server-heading">
 <h2 id="server-heading">1. Serveur de messagerie simulé</h2>
-<p class="sub">Domaine <strong>atelier-kerwen.fr</strong> : services IMAP, POP3 et SMTP disponibles. Aucun serveur réel.</p>
+<p class="sub">Crée un domaine pour ton entreprise : les serveurs IMAP, POP3 et SMTP sont automatiquement associés à ce domaine. Aucun serveur réel.</p>
+<form id="domain-form" class="field-row">
+<label>Nom de domaine<input name="domain" type="text" value="cybernet.fr" autocomplete="off" spellcheck="false" required></label>
+<button class="lab-btn" type="submit">Ajouter le domaine</button>
+</form>
+<p id="domain-status" role="status" aria-live="polite"></p>
+<div class="field-row"><label>Domaine actif<select id="domain-select" aria-label="Domaine actif"></select></label></div>
 <form id="mailbox-form" class="field-row">
 <label>Adresse de la nouvelle boîte<input name="email" type="email" value="technicien@atelier-kerwen.fr" required></label>
 <label>Mot de passe fictif<input name="password" type="text" value="demo2026" minlength="4" required></label>
@@ -37,12 +43,12 @@ table{border-collapse:collapse;width:100%;margin-top:14px}th,td{border-bottom:1p
 </form>
 <div id="admin-status" role="status" aria-live="polite">Aucune boîte créée. Commencez par créer un compte.</div>
 <table><thead><tr><th>Boîtes créées</th><th>Accès entrant</th></tr></thead><tbody id="mailboxes"><tr><td colspan="2">Aucune boîte</td></tr></tbody></table>
-<details><summary>Voir les paramètres du serveur à utiliser dans Outlook</summary>
+<details open><summary>Paramètres du domaine actif à utiliser dans Outlook</summary>
 <table><thead><tr><th>Service</th><th>Serveur</th><th>Port</th><th>Sécurité</th></tr></thead><tbody>
-<tr><td>IMAP</td><td>imap.entreprise.fr</td><td>993</td><td>SSL/TLS</td></tr>
-<tr><td>POP3</td><td>pop.entreprise.fr</td><td>995</td><td>SSL/TLS</td></tr>
-<tr><td>SMTP</td><td>smtp.entreprise.fr</td><td>587</td><td>STARTTLS</td></tr>
-</tbody></table><p>Dans Outlook, choisir « Utiliser les identifiants du serveur entrant » pour SMTP.</p>
+<tr><td>IMAP</td><td><span id="imap-host">imap.atelier-kerwen.fr</span></td><td>993</td><td>SSL/TLS</td></tr>
+<tr><td>POP3</td><td><span id="pop-host">pop.atelier-kerwen.fr</span></td><td>995</td><td>SSL/TLS</td></tr>
+<tr><td>SMTP</td><td><span id="smtp-host">smtp.atelier-kerwen.fr</span></td><td>587</td><td>STARTTLS</td></tr>
+</tbody></table><p>Dans Outlook, choisir « Utiliser les identifiants du serveur entrant » pour SMTP. Les boîtes des autres domaines restent disponibles.</p>
 </details>
 </section>
 <section class="panel" aria-labelledby="outlook-heading">
