@@ -13,7 +13,7 @@ details{margin:12px 0}#status{color:#295174;font-size:13px}
 </style></head><body><main>
 <section class="info"><h1>Outlook connecté au moteur R2D3</h1>
 <p>Page de validation distincte du laboratoire de développement, utilisant le <strong>véritable moteur R2D3</strong>, son adaptateur et l'Outlook partagé. Aucun courriel fictif n'est injecté par cette page.</p>
-<p>Test V0.8 : les comptes du scénario sont déjà configurés dans le moteur R2D3. Exportez les données puis essayez de réimporter le fichier. Le moteur possédant les messages, Outlook doit refuser la restauration locale plutôt que créer des doublons.</p>
+<p>Test V0.8 : les comptes du scénario sont déjà configurés dans le moteur R2D3. Exportez les données puis essayez de réimporter le fichier. La restauration passe désormais par le moteur R2D3 : un premier import peut ajouter les courriels absents, et le second doit ignorer les doublons.</p>
 <details><summary>Paramètres des comptes du scénario R2D3 existant</summary>
 <p><b>contact@atelier-kerwen.fr (IMAP)</b> : imap.entreprise.fr, 993, SSL/TLS, identifiant contact@atelier-kerwen.fr, mot de passe atelier2026. SMTP smtp.entreprise.fr, 587, STARTTLS, authentification séparée smtp-agent / demo-outgoing.</p>
 <p><b>sav@atelier-kerwen.fr (POP3)</b> : pop.entreprise.fr, 995, SSL/TLS, identifiant sav@atelier-kerwen.fr, mot de passe sav-demo. SMTP smtp.entreprise.fr, 587, STARTTLS, mêmes identifiants.</p>
