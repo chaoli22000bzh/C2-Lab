@@ -27,7 +27,7 @@ button.subtle{background:#e5edf5;color:#174b75}.item{border:1px solid #e1e6ed;bo
 <label>Unité<input name="unit" placeholder="pouces, Go…"></label>
 <label>Valeurs si liste<input name="options" placeholder="Fixe, PTZ"></label><button>Ajouter</button></form><div id="profile-status" class="notice" role="status"></div></section>
 <section><h2>2. Actifs</h2><p>Un actif est un équipement réel ou fictif avec ses valeurs propres.</p>
-<form id="asset-create"><label>Nom<input name="name" value="CAM-01" required></label>
+<form id="asset-create"><label>Profil de l’actif<select id="asset-profile" name="profileId" required></select></label><label>Nom<input name="name" value="CAM-01" required></label>
 <label>Fabricant<input name="manufacturer" value="Netcam"></label>
 <label>Modèle<input name="model"></label><label>Localisation<input name="location"></label>
 <button>Créer l'actif</button></form>
