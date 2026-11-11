@@ -1,4 +1,4 @@
-/* Outlook UI shared component v0.4.5. Display and actions only; no transport or validation rules. */
+/* Outlook UI shared component v0.4.6. Display and actions only; no transport or validation rules. */
 export function mountOutlook(host, options = {}) {
   if (!(host instanceof HTMLElement)) throw new TypeError('Outlook: host missing');
   const callbacks = options.callbacks || {};
@@ -15,7 +15,7 @@ export function mountOutlook(host, options = {}) {
   const accounts=(Array.isArray(options.accounts)?options.accounts:options.account?[options.account]:[account]).map(normalize);
   const blank=()=>({id:null,email:'',type:'imap',incomingHost:'',incomingPort:'993',incomingSecurity:'ssl',outgoingHost:'',outgoingPort:'587',outgoingSecurity:'starttls',incomingUsername:'',incomingPassword:'',outgoingUsername:'',outgoingPassword:'',smtpAuthMode:'same',username:'',password:''});
   const state = {view:'mail',folder:'inbox',configOpen:false,composeOpen:false,accounts,activeId:accounts[0]?.id||null,account:accounts[0]||blank(),adding:accounts.length===0,messages:(options.messages||[]).map(x=>({...x,accountId:x.accountId||accounts[0]?.id||'acct-1'})),selected:null,result:null,testing:false,testSeq:0,sending:false,sendSeq:0,compose:{to:'',subject:'',body:''},draftId:null,settingsTab:'accounts',deleteConfirm:false,contacts:(options.contacts||[{name:'Camille KOENIG',email:'camille.koenig@entreprise.fr'},{name:'Sophie MARTIN',email:'sophie.martin@entreprise.fr'}]).map(x=>({...x})),calendarItems:(options.calendarItems||[{title:'Réunion équipe',day:1,time:'09:30'},{title:'Suivi SAV',day:3,time:'14:00',shared:true}]).map(x=>({...x}))};
-  const avatar={photoUrl:options.avatar?.photoUrl||'',initials:options.avatar?.initials||'',fallbackUrl:options.avatar?.fallbackUrl||'',alt:options.avatar?.alt||'Photo du compte'};
+  const avatar={photoUrl:options.avatar?.photoUrl||'',initials:options.avatar?.initials||'',fallbackUrl:options.avatar?.fallbackUrl??'https://cscybersecurite.github.io/ressources/ipv4/assets/pepette.webp',alt:options.avatar?.alt||'Pépette'};
   function avatarHtml(){const src=avatar.photoUrl||(!avatar.initials?avatar.fallbackUrl:'');return src?`<img class="ou-avatar-photo" src="${esc(src)}" alt="${esc(avatar.alt)}">`:esc(avatar.initials||'');}
   // R2D3 identifies mailboxes with accountEmail; legacy UI callers may use accountId.
   const normEmail=v=>String(v||'').trim().toLowerCase();
