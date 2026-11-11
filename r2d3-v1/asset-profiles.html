@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>R2D3 : profils matériels personnalisés</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f0f3f7;color:#1c3852;font:15px/1.45 "Segoe UI",Arial,sans-serif}
+header{background:#193e60;color:white;padding:22px max(16px,calc((100vw - 1100px)/2))}
+h1{font-size:24px;margin:0 0 6px}header p{margin:0;color:#d5e2ee}main{max-width:1130px;margin:auto;padding:16px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}section{background:white;border:1px solid #d5dde9;border-radius:10px;padding:18px}
+h2{font-size:19px;margin:0 0 8px}h3{font-size:16px;margin:18px 0 8px}p{font-size:13px;color:#5a6c7f}
+form,.fields{display:flex;flex-wrap:wrap;gap:10px;align-items:end}label{display:grid;gap:4px;font-size:13px;font-weight:600;flex:1;min-width:135px}
+input,select{border:1px solid #adbdce;border-radius:6px;font:inherit;padding:9px;width:100%;min-width:0}
+button{border:0;border-radius:7px;background:#1867a3;color:white;padding:10px 13px;font:inherit;font-weight:600;cursor:pointer}
+button.subtle{background:#e5edf5;color:#174b75}.item{border:1px solid #e1e6ed;border-radius:7px;padding:9px;margin:8px 0;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.item button{padding:5px 8px}.notice{font-size:13px;font-weight:600;min-height:22px;margin-top:10px}.bad{color:#ae283a}.good{color:#17703e}.full{grid-column:1/-1}
+@media(max-width:750px){.grid{grid-template-columns:1fr}section{border-radius:0}}
+</style></head><body>
+<header><h1>R2D3 : constructeur de profils matériels</h1><p>Créer un profil, ajouter des caractéristiques et inventorier des équipements</p></header>
+<main><div class="grid">
+<section><h2>1. Profils</h2><p>Un profil décrit les champs d'un type d'équipement, sans imposer un modèle commercial.</p>
+<form id="profile-create"><label>Nom du profil<input name="name" value="Caméra réseau" required></label><button>Créer le profil</button></form>
+<h3>Modifier le profil</h3><div class="fields"><label>Profil<select id="profiles"></select></label><button id="duplicate" type="button" class="subtle">Dupliquer</button></div>
+<div id="fields"></div>
+<h3>Ajouter un champ</h3>
+<form id="field-create"><label>Clé interne<input name="key" value="resolution" pattern="[a-z][a-z0-9_]*" required></label>
+<label>Libellé<input name="label" value="Résolution" required></label>
+<label>Type<select name="type"><option value="text">Texte</option><option value="number">Nombre</option><option value="boolean">Oui / Non</option><option value="select">Liste</option><option value="date">Date</option></select></label>
+<label>Unité<input name="unit" placeholder="pouces, Go…"></label>
+<label>Valeurs si liste<input name="options" placeholder="Fixe, PTZ"></label><button>Ajouter</button></form><div id="profile-status" class="notice" role="status"></div></section>
+<section><h2>2. Actifs</h2><p>Un actif est un équipement réel ou fictif avec ses valeurs propres.</p>
+<form id="asset-create"><label>Nom<input name="name" value="CAM-01" required></label>
+<label>Fabricant<input name="manufacturer" value="Netcam"></label>
+<label>Modèle<input name="model"></label><label>Localisation<input name="location"></label>
+<button>Créer l'actif</button></form>
+<h3>Fiche de l'équipement</h3><label>Équipement<select id="assets"></select></label><div id="asset-values"></div>
+<div id="asset-status" class="notice" role="status"></div></section>
+<section class="full"><h2>Périmètre de cette première version</h2><p>Gestion des champs descriptifs, duplication des profils, création des actifs et protection des valeurs existantes. Les ports physiques, raccordements et comportements réseau seront intégrés ensuite dans les modules communs. Le rechargement réinitialise cet exemple, sans sauvegarde locale.</p><button type="button" id="reset" class="subtle">Recommencer</button></section>
+</div></main><script type="module" src="./asset-profiles-lab.js"></script></body></html>
