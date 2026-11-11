@@ -88,3 +88,7 @@
 .ou-app .ou-backup-section select,.ou-app .ou-backup-section input[type=file]{display:block;width:100%;max-width:480px;min-height:38px;margin-top:6px;padding:7px;border:1px solid #aebdcc;border-radius:4px;background:white;color:#263347}
 .ou-app .ou-backup-section .ou-secondary{background:#fff;border:1px solid #aebdcc;border-radius:5px;padding:9px 12px;color:#2c5274}
 @media(max-width:650px){.ou-app .ou-backup-section{padding:10px}.ou-app .ou-settings-nav-item{font-size:12px}}
+
+/* v0.4.2 : suppression visible immédiatement sous le compte sélectionné */
+.ou-app .ou-account-management{margin:5px 0 16px;display:flex;justify-content:flex-start}
+.ou-app .ou-account-management:empty{display:none}
