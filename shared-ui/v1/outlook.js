@@ -1,4 +1,4 @@
-/* Outlook UI shared component v0.4.8. Display and actions only; no transport or validation rules. */
+/* Outlook UI shared component v0.4.9. Display and actions only; no transport or validation rules. */
 export function mountOutlook(host, options = {}) {
   if (!(host instanceof HTMLElement)) throw new TypeError('Outlook: host missing');
   const callbacks = options.callbacks || {};
@@ -30,12 +30,31 @@ export function mountOutlook(host, options = {}) {
     ${state.view==='mail'?mailHtml():state.view==='calendar'?calendarHtml():peopleHtml()}</div>
     ${state.configOpen?settingsHtml():''}${state.composeOpen?composeHtml():''}`;
   }
+  // Format a stored timestamp using the student's computer clock and local timezone.
+  // Legacy pedagogical labels remain readable until their scenarios are migrated.
+  function displayMailDate(value){
+    if(!value)return '';
+    if(value==='Brouillon')return value;
+    if(typeof value!=='string'&&typeof value!=='number'&&!(value instanceof Date))return '';
+    const raw=String(value);
+    if(!/^\\d{4}-\\d{2}-\\d{2}T/.test(raw)&&typeof value==='string')return value;
+    const at=new Date(value);
+    if(Number.isNaN(at.getTime()))return raw;
+    const now=new Date();
+    const midnight=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+    const yesterday=new Date(now.getFullYear(),now.getMonth(),now.getDate()-1);
+    const mailDay=new Date(at.getFullYear(),at.getMonth(),at.getDate());
+    const time=at.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+    if(mailDay.getTime()===midnight.getTime())return 'Aujourd’hui à '+time;
+    if(mailDay.getTime()===yesterday.getTime())return 'Hier à '+time;
+    return at.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'})+' à '+time;
+  }
   function mailHtml(){
     const folders=[['inbox','Boîte de réception'],['sent','Éléments envoyés'],['drafts','Brouillons']];
     const shown=state.messages.filter(m=>(m.folder||'inbox')===state.folder&&belongsTo(m,activeAccount()));
     const selected=shown.find(m=>m.id===state.selected);
     return `<aside class="ou-folders"><button class="ou-account-switch" data-action="settings" title="Gérer les comptes"><span class="ou-account-email">${esc(state.accounts.find(a=>a.id===state.activeId)?.email||'Ajouter un compte')}</span><svg class="ou-account-chevron" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button><button class="ou-new" data-action="compose">✎ &nbsp; Nouveau courrier</button><div class="ou-folder-title">Dossiers</div>${folders.map(f=>`<button class="ou-folder ${state.folder===f[0]?'selected':''}" data-folder="${f[0]}"><span>▤</span> ${f[1]} <small>${f[0]==='inbox'?(state.messages.filter(m=>(m.folder||'inbox')==='inbox'&&belongsTo(m,activeAccount())&&m.read===false).length||''):''}</small></button>`).join('')}</aside>
-    <section class="ou-list"><div class="ou-list-title"><b>${esc(folders.find(f=>f[0]===state.folder)?.[1])}</b><small>Filtrer &nbsp;⌄</small></div>${shown.map(m=>`<button class="ou-message ${selected?.id===m.id?'active':''} ${m.read===false?'ou-unread':''}" data-message="${esc(m.id)}"><span class="ou-initial">${esc((m.from||'?').slice(0,1).toUpperCase())}</span><span class="ou-msg-summary"><strong>${esc(m.from)}</strong><b>${esc(m.subject)}</b><small>${esc((m.body||'').replace(/\s+/g,' ').slice(0,95))}</small></span><time>${esc(m.date||'')}</time></button>`).join('')||'<p class="ou-empty">Aucun message.</p>'}</section>
+    <section class="ou-list"><div class="ou-list-title"><b>${esc(folders.find(f=>f[0]===state.folder)?.[1])}</b><small>Filtrer &nbsp;⌄</small></div>${shown.map(m=>`<button class="ou-message ${selected?.id===m.id?'active':''} ${m.read===false?'ou-unread':''}" data-message="${esc(m.id)}"><span class="ou-initial">${esc((m.from||'?').slice(0,1).toUpperCase())}</span><span class="ou-msg-summary"><strong>${esc(m.from)}</strong><b>${esc(m.subject)}</b><small>${esc((m.body||'').replace(/\s+/g,' ').slice(0,95))}</small></span><time>${esc(displayMailDate(m.date))}</time></button>`).join('')||'<p class="ou-empty">Aucun message.</p>'}</section>
     <article class="ou-reading">${selected?`<h2>${esc(selected.subject)}</h2><div class="ou-from"><div class="ou-initial">${esc((selected.from||'?').slice(0,1).toUpperCase())}</div><div><b>${esc(selected.from)}</b><small>À : ${esc(selected.to||state.account.email)}</small></div></div><div class="ou-letter">${esc(selected.body||'').replace(/\n/g,'<br>')}</div><div class="ou-reading-actions"><button class="ou-reply" data-action="reply">↶ &nbsp; Répondre</button><button class="ou-reply" data-action="forward">↪ &nbsp; Transférer</button></div>`:'<div class="ou-placeholder">Sélectionnez un élément pour le lire.</div>'}</article>`;
   }
   function calendarHtml(){const days=['lun.','mar.','mer.','jeu.','ven.'];return `<aside class="ou-folders"><div class="ou-folder-title">Calendriers</div><label class="ou-check"><input type="checkbox" checked disabled> Mon calendrier</label><label class="ou-check"><input type="checkbox" checked disabled> Équipe SAV</label></aside><section class="ou-other"><div class="ou-headline"><h2>Calendrier</h2><span>Semaine</span></div><div class="ou-cal">${days.map(d=>`<div>${d}</div>`).join('')}${days.map((_,day)=>`<section>${state.calendarItems.filter(x=>Number(x.day)===day).map(x=>`<span class="${x.shared?'shared':''}">${esc(x.title)}<br>${esc(x.time||x.start||'')}</span>`).join('')}</section>`).join('')}</div></section>`;}
@@ -113,12 +132,12 @@ export function mountOutlook(host, options = {}) {
     }
     if(e.target.id==='ou-compose-form'){
       e.preventDefault();if(state.sending)return;captureCompose();const message={...state.compose};state.sending=true;state.result={message:'Envoi en cours…'};const seq=++state.sendSeq;render();
-      try{const result=await emit('onSend',{...message,accountId:state.activeId,accountEmail:state.account.email,from:state.account.email});if(seq!==state.sendSeq)return;state.result=result||{success:false,message:'Envoi impossible.'};if(result?.success){if(state.draftId)state.messages=state.messages.filter(m=>m.id!==state.draftId);if(!externalMessageStore){state.messages.unshift({id:'sent-'+seq,folder:'sent',from:state.account.email,accountId:state.activeId,...message,date:'Aujourd’hui'});
+      try{const result=await emit('onSend',{...message,accountId:state.activeId,accountEmail:state.account.email,from:state.account.email});if(seq!==state.sendSeq)return;state.result=result||{success:false,message:'Envoi impossible.'};if(result?.success){if(state.draftId)state.messages=state.messages.filter(m=>m.id!==state.draftId);if(!externalMessageStore){state.messages.unshift({id:'sent-'+seq,folder:'sent',from:state.account.email,accountId:state.activeId,...message,date:new Date().toISOString()});
           if(result.delivered===true){
             const recipients=String(message.to||'').split(/[;,]/).map(x=>x.trim().toLowerCase());
             for(const recipient of recipients){
               const destination=state.accounts.find(a=>a.email.toLowerCase()===recipient);
-              if(destination)state.messages.unshift({id:'inbox-'+seq+'-'+destination.id,folder:'inbox',from:state.account.email,to:destination.email,accountId:destination.id,subject:message.subject,body:message.body,date:'Aujourd’hui',read:false});
+              if(destination)state.messages.unshift({id:'inbox-'+seq+'-'+destination.id,folder:'inbox',from:state.account.email,to:destination.email,accountId:destination.id,subject:message.subject,body:message.body,date:new Date().toISOString(),read:false});
             }
           }
           } // Local delivery is disabled when the engine manages messages.
