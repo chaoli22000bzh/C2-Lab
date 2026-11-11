@@ -10,7 +10,7 @@ h2{font-size:19px;margin:0 0 8px}h3{font-size:16px;margin:18px 0 8px}p{font-size
 form,.fields{display:flex;flex-wrap:wrap;gap:10px;align-items:end}label{display:grid;gap:4px;font-size:13px;font-weight:600;flex:1;min-width:135px}
 input,select{border:1px solid #adbdce;border-radius:6px;font:inherit;padding:9px;width:100%;min-width:0}
 button{border:0;border-radius:7px;background:#1867a3;color:white;padding:10px 13px;font:inherit;font-weight:600;cursor:pointer}
-button.subtle{background:#e5edf5;color:#174b75}.item{border:1px solid #e1e6ed;border-radius:7px;padding:9px;margin:8px 0;display:flex;align-items:center;justify-content:space-between;gap:10px}
+button.subtle{background:#e5edf5;color:#174b75}.check{display:flex;align-items:center;gap:8px}.check input{width:auto}.item span:last-child{display:flex;gap:4px}#asset-values label{margin-top:10px}.item{border:1px solid #e1e6ed;border-radius:7px;padding:9px;margin:8px 0;display:flex;align-items:center;justify-content:space-between;gap:10px}
 .item button{padding:5px 8px}.notice{font-size:13px;font-weight:600;min-height:22px;margin-top:10px}.bad{color:#ae283a}.good{color:#17703e}.full{grid-column:1/-1}
 @media(max-width:750px){.grid{grid-template-columns:1fr}section{border-radius:0}}
 </style></head><body>
@@ -19,7 +19,13 @@ button.subtle{background:#e5edf5;color:#174b75}.item{border:1px solid #e1e6ed;bo
 <section><h2>1. Profils</h2><p>Un profil décrit les champs d'un type d'équipement, sans imposer un modèle commercial.</p>
 <form id="profile-create"><label>Nom du profil<input name="name" value="Caméra réseau" required></label><button>Créer le profil</button></form>
 <h3>Modifier le profil</h3><div class="fields"><label>Profil<select id="profiles"></select></label><button id="duplicate" type="button" class="subtle">Dupliquer</button></div>
+<form id="profile-rename"><label>Nouveau nom du profil<input name="name" required></label><button class="subtle">Renommer</button></form>
 <div id="fields"></div>
+<h3>Modifier un champ existant</h3>
+<form id="field-edit"><label>Champ<select id="edit-field-key" required></select></label><label>Libellé<input name="label" required></label>
+<label>Type<select name="type"><option value="text">Texte</option><option value="number">Nombre</option><option value="boolean">Oui / Non</option><option value="select">Liste</option><option value="date">Date</option></select></label>
+<label>Unité<input name="unit" placeholder="Facultatif"></label><label>Valeurs si liste<input name="options" placeholder="Fixe, PTZ"></label>
+<button class="subtle">Enregistrer les modifications</button></form>
 <h3>Ajouter un champ</h3>
 <form id="field-create"><label>Clé interne<input name="key" value="resolution" pattern="[a-z][a-z0-9_]*" required></label>
 <label>Libellé<input name="label" value="Résolution" required></label>
@@ -31,7 +37,15 @@ button.subtle{background:#e5edf5;color:#174b75}.item{border:1px solid #e1e6ed;bo
 <label>Fabricant<input name="manufacturer" value="Netcam"></label>
 <label>Modèle<input name="model"></label><label>Localisation<input name="location"></label>
 <button>Créer l'actif</button></form>
-<h3>Fiche de l'équipement</h3><label>Équipement<select id="assets"></select></label><div id="asset-values"></div>
+<h3>Fiche de l'équipement</h3><label>Équipement<select id="assets"></select></label>
+<form id="asset-edit">
+<label>Nom<input name="name" required></label><label>Fabricant<input name="manufacturer"></label>
+<label>Modèle<input name="model"></label><label>Numéro de série<input name="serialNumber"></label>
+<label>Statut<select name="status"><option>En service</option><option>Hors service</option><option>En stock</option></select></label>
+<label>Localisation<input name="location"></label>
+<label class="check"><input name="reservable" type="checkbox"> Réservable</label>
+<button class="subtle">Enregistrer la fiche</button></form>
+<h3>Caractéristiques du profil</h3><div id="asset-values"></div>
 <div id="asset-status" class="notice" role="status"></div></section>
-<section class="full"><h2>Périmètre de cette première version</h2><p>Gestion des champs descriptifs, duplication des profils, création des actifs et protection des valeurs existantes. Les ports physiques, raccordements et comportements réseau seront intégrés ensuite dans les modules communs. Le rechargement réinitialise cet exemple, sans sauvegarde locale.</p><button type="button" id="reset" class="subtle">Recommencer</button></section>
+<section class="full"><h2>Périmètre de cette première version</h2><p>Création, duplication et modification des profils, édition des champs descriptifs et des fiches des actifs, protection des valeurs existantes. Les ports physiques, raccordements et comportements réseau seront intégrés ensuite dans les modules communs. Le rechargement réinitialise cet exemple, sans sauvegarde locale.</p><button type="button" id="reset" class="subtle">Recommencer</button></section>
 </div></main><script type="module" src="./asset-profiles-lab.js"></script></body></html>

@@ -16,10 +16,23 @@ function refresh(){
  if(as.some(a=>a.id===oldA))id("assets").value=oldA;
  renderFields();renderAsset();
 }
+function renderFieldEditor(){
+ const p=selectedProfile(),fieldSelect=id("edit-field-key"),previous=fieldSelect.value;
+ fieldSelect.replaceChildren(...(p?.fields||[]).map(f=>opt(f.label,f.key)));
+ if(p?.fields.some(f=>f.key===previous))fieldSelect.value=previous;
+ const f=p?.fields.find(x=>x.key===fieldSelect.value);
+ const form=id("field-edit");
+ form.querySelectorAll("input,select,button").forEach(control=>{if(control!==fieldSelect)control.disabled=!f});
+ form.elements.label.value=f?.label||"";
+ form.elements.type.value=f?.type||"text";
+ form.elements.unit.value=f?.unit||"";
+ form.elements.options.value=f?.options?.join(", ")||"";
+}
 function renderFields(){
  const p=selectedProfile(),host=id("fields");host.replaceChildren();
- if(!p){host.textContent="Crée un profil pour commencer.";return}
- if(!p.fields.length){host.textContent="Aucun champ personnalisé.";return}
+ id("profile-rename").elements.name.value=p?.name||"";
+ if(!p){host.textContent="Crée un profil pour commencer.";renderFieldEditor();return}
+ if(!p.fields.length){host.textContent="Aucun champ personnalisé.";renderFieldEditor();return}
  p.fields.forEach((f,i)=>{
   const wrap=document.createElement("div");wrap.className="item";
   const label=document.createElement("span");label.textContent=f.label+" ("+f.type+(f.unit?", "+f.unit:"")+")";
@@ -29,9 +42,17 @@ function renderFields(){
   }
   wrap.append(label,controls);host.append(wrap);
  });
+ renderFieldEditor();
 }
 function renderAsset(){
- const a=selectedAsset(),host=id("asset-values");host.replaceChildren();
+ const a=selectedAsset(),host=id("asset-values"),form=id("asset-edit");host.replaceChildren();
+ form.querySelectorAll("input,select,button").forEach(control=>control.disabled=!a);
+ if(a){
+  for(const key of ["name","manufacturer","model","serialNumber","status","location"])form.elements[key].value=a[key]??"";
+  form.elements.reservable.checked=!!a.reservable;
+ }else{
+  form.reset();
+ }
  if(!a){host.textContent="Crée un actif.";return}
  const p=engine.getProfile(a.profileId);
  for(const f of p.fields){
@@ -54,8 +75,31 @@ function renderAsset(){
 }
 id("profile-create").onsubmit=e=>{e.preventDefault();const r=engine.createProfile(new FormData(e.currentTarget).get("name"));status("profile-status",r);refresh();if(r.success){id("profiles").value=r.profile.id;renderFields()}};
 id("duplicate").onclick=()=>{const p=selectedProfile();if(!p)return;const r=engine.duplicateProfile(p.id,p.name+" (copie)");status("profile-status",r);refresh();if(r.success){id("profiles").value=r.profile.id;renderFields()}};
+id("profile-rename").onsubmit=e=>{
+ e.preventDefault();
+ const p=selectedProfile();if(!p)return;
+ const r=engine.renameProfile(p.id,e.currentTarget.elements.name.value);
+ status("profile-status",r);refresh();
+};
+id("edit-field-key").onchange=renderFieldEditor;
+id("field-edit").onsubmit=e=>{
+ e.preventDefault();
+ const p=selectedProfile();if(!p)return;
+ const data=Object.fromEntries(new FormData(e.currentTarget));
+ if(data.type==="select")data.options=data.options.split(",").map(x=>x.trim()).filter(Boolean);
+ const r=engine.editField(p.id,id("edit-field-key").value,data);
+ status("profile-status",r);refresh();
+};
 id("field-create").onsubmit=e=>{e.preventDefault();const data=Object.fromEntries(new FormData(e.currentTarget));if(data.type==="select")data.options=data.options.split(",").map(x=>x.trim()).filter(Boolean);const r=engine.addField(id("profiles").value,data);status("profile-status",r);refresh()};
 id("asset-create").onsubmit=e=>{e.preventDefault();const data=Object.fromEntries(new FormData(e.currentTarget));const r=engine.createAsset(data.profileId,data);status("asset-status",r);refresh();if(r.success){id("assets").value=r.asset.id;renderAsset()}};
+id("asset-edit").onsubmit=e=>{
+ e.preventDefault();
+ const a=selectedAsset();if(!a)return;
+ const data=Object.fromEntries(new FormData(e.currentTarget));
+ data.reservable=e.currentTarget.elements.reservable.checked;
+ const r=engine.updateAsset(a.id,data);
+ status("asset-status",r);refresh();
+};
 id("profiles").onchange=renderFields;id("assets").onchange=renderAsset;
 id("reset").onclick=()=>{engine=createAssetRegistry();refresh();id("asset-status").textContent="";id("profile-status").textContent=""};
 window.__assetProfilesLab={snapshot:()=>engine.exportState()};refresh();
