@@ -103,3 +103,6 @@
 .ou-app .ou-message>.ou-initial{grid-column:1;grid-row:1 / span 2;align-self:center}
 .ou-app .ou-message>.ou-msg-summary{grid-column:2;grid-row:2;min-width:0}
 .ou-app .ou-message>time{position:static;grid-column:2;grid-row:1;display:block;min-width:0;text-align:right;white-space:nowrap;font-size:10px;line-height:1.35}
+
+/* Outlook v0.5.0 : aide discrète sur les ports configurables. */
+.ou-app .ou-port-hint{margin:2px 0 13px;font-size:12px;line-height:1.4;color:#596d81}
