@@ -130,3 +130,46 @@
 .ou-app .ou-settings-feedback{position:sticky;top:0;z-index:7;margin:0;padding:12px 18px;border-bottom:1px solid #d1dae4;background:#f3f6fa;color:#225780;font-size:13px;line-height:1.45;overflow-wrap:anywhere}
 .ou-app .ou-settings-feedback.ou-result-success{background:#eef8f0!important;border-color:#a5d1ad!important;color:#17592b}
 .ou-app .ou-settings-feedback.ou-result-error{background:#fff4f2!important;border-color:#e9b1a9!important;color:#8a2f25}
+
+/* Outlook V0.8.2 : navigation mobile réelle, sans modifier les vues PC. */
+.ou-app .ou-mobile-folders-toggle,.ou-app .ou-mobile-back,.ou-app .ou-mobile-current{display:none}
+@media(max-width:640px){
+  .ou-app{width:100%;min-width:0;min-height:600px;overflow:hidden}
+  .ou-app .ou-top{gap:10px;padding:9px 12px}
+  .ou-app .ou-shell{min-height:550px;position:relative}
+  .ou-app .ou-rail{width:42px;flex:none}
+  .ou-app .ou-folders{display:none;width:calc(100% - 42px);min-width:0;max-width:none;flex:1;padding:12px 14px;overflow-y:auto;max-height:75vh}
+  .ou-app.ou-mobile-folders-open .ou-folders{display:block}
+  .ou-app.ou-mobile-folders-open .ou-list,.ou-app.ou-mobile-folders-open .ou-reading{display:none}
+  .ou-app .ou-new{font-size:14px;padding:12px 14px}
+  .ou-app .ou-mail-account-name{font-size:14px}
+  .ou-app .ou-mail-account .ou-folder{font-size:14px;min-height:38px}
+  .ou-app .ou-mail-account .ou-folder-label{overflow:visible;text-overflow:clip}
+  .ou-app .ou-list{display:block;flex:1;width:auto;min-width:0;border-right:0}
+  .ou-app .ou-list-title{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px;border-bottom:1px solid var(--ou-border)}
+  .ou-app .ou-list-title .ou-mobile-folders-toggle{display:inline-flex;align-items:center;background:#e3edf9;color:#17548b;border:1px solid #bad0e7;border-radius:5px;padding:8px 10px;white-space:nowrap;font-size:13px}
+  .ou-app .ou-list-heading{min-width:0;flex:1}
+  .ou-app .ou-list-title b{display:block;font-size:17px;line-height:1.25}
+  .ou-app .ou-mobile-current{display:block;font-size:11px;color:#5a6b7f;overflow-wrap:anywhere;margin-top:3px}
+  .ou-app .ou-desktop-filter{display:none}
+  .ou-app .ou-message{padding:12px 10px;grid-template-columns:34px minmax(0,1fr)}
+  .ou-app .ou-reading{display:none}
+  .ou-app.ou-mobile-reading-open .ou-list{display:none}
+  .ou-app.ou-mobile-reading-open .ou-reading{display:block;width:calc(100% - 42px);flex:1;min-width:0;padding:16px;overflow-wrap:anywhere}
+  .ou-app .ou-mobile-back{display:inline-block;background:#e3edf9;border:0;border-radius:5px;color:#15558c;padding:9px 13px;margin-bottom:17px;font-size:14px}
+  .ou-app .ou-reading h2{font-size:19px;overflow-wrap:anywhere}
+  .ou-app .ou-from{min-width:0}
+  .ou-app .ou-from>div:last-child{min-width:0;overflow-wrap:anywhere}
+  .ou-app .ou-from b,.ou-app .ou-from small{overflow-wrap:anywhere}
+  .ou-app .ou-settings{width:100%;max-width:none;left:0;right:0;top:49px;overflow-y:auto}
+  .ou-app .ou-settings-frame{display:flex;flex-direction:column;min-height:0}
+  .ou-app .ou-settings-nav{display:flex;flex-wrap:wrap;gap:5px;width:100%;border-right:0;border-bottom:1px solid var(--ou-border);padding:9px 12px}
+  .ou-app .ou-settings-nav-section{display:none}
+  .ou-app .ou-settings-nav-item{width:auto;flex:1 1 auto;text-align:center;padding:10px 9px;min-width:120px;font-size:13px}
+  .ou-app .ou-settings .ou-setting-body{padding:15px 14px;min-width:0}
+  .ou-app .ou-account-identity{overflow-wrap:anywhere}
+  .ou-app .ou-settings .ou-setting-body .ou-field input,
+  .ou-app .ou-settings .ou-setting-body .ou-field select{max-width:100%}
+  .ou-app .ou-compose{left:3px;right:3px;width:calc(100% - 6px);height:min(540px,calc(100% - 54px));max-width:none}
+  .ou-app .ou-compose .ou-compose-toolbar{flex-wrap:wrap}
+}
