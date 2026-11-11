@@ -31,7 +31,7 @@ export function connectMailOutlook(host, scenario, options = {}) {
     ...(options.callbacks||{})
   };
   outlook=mountOutlook(host,{
-    accounts:[],
+    accounts:options.accounts||[],
     messages:messages(),
     messageStore:"external",
     avatar:options.avatar,
