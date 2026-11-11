@@ -50,7 +50,7 @@ export function mountOutlook(host, options = {}) {
   function captureCompose(){const form=root.querySelector('#ou-compose-form');if(form)state.compose={...state.compose,...Object.fromEntries(new FormData(form))};}
   function openCompose(d=null){state.compose=d?{to:d.to||'',subject:d.subject||'',body:d.body||''}:{to:'',subject:'',body:''};state.draftId=d?.id||null;state.composeOpen=true;state.result=null;}
   function saveDraft(){captureCompose();const d=state.compose;if(!d.to.trim()&&!d.subject.trim()&&!d.body.trim())return;let item=state.messages.find(m=>m.id===state.draftId&&m.folder==='drafts');if(!item){item={id:'draft-'+(++state.sendSeq),folder:'drafts',from:state.account.email,accountId:state.activeId};state.messages.unshift(item);state.draftId=item.id;}Object.assign(item,d,{date:'Brouillon'});emit('onDraftSave',{...d,id:item.id,accountId:state.activeId});}
-  root.addEventListener('error',e=>{if(e.target.matches('.ou-avatar-photo')){e.target.replaceWith(document.createTextNode(avatar.initials||''));}},true);
+  root.addEventListener('error',e=>{if(!e.target.matches('.ou-avatar-photo'))return;const img=e.target;if(avatar.initials){img.replaceWith(document.createTextNode(avatar.initials));return;}if(avatar.fallbackUrl&&img.getAttribute('src')!==avatar.fallbackUrl){img.src=avatar.fallbackUrl;return;}img.replaceWith(document.createTextNode(''));},true);
   root.addEventListener('click',async e=>{
     const view=e.target.closest('[data-view]');if(view){captureAccountFields();state.view=view.dataset.view;state.configOpen=false;state.composeOpen=false;render();return;}
     const folder=e.target.closest('[data-folder]');if(folder){state.folder=folder.dataset.folder;state.selected=null;render();return;}
