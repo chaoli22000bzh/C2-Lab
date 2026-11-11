@@ -121,3 +121,7 @@
 .ou-app .ou-mail-account .ou-folder small{flex:none}
 .ou-app .ou-mail-account + .ou-mail-account{border-top:1px solid #dce4ef;padding-top:10px}
 .ou-app .ou-folder-title{margin-top:16px;margin-bottom:6px}
+
+/* Outlook v0.6.5 : expéditeur sélectionnable lors de la rédaction multicomptes. */
+.ou-app .ou-compose .ou-compose-row select{width:100%;min-width:0;border:0;border-radius:3px;background:#fff;color:#222;padding:8px;font:inherit;cursor:pointer}
+.ou-app .ou-compose .ou-compose-row select:focus-visible{outline:2px solid #0f6cbd;outline-offset:-2px}
