@@ -80,7 +80,15 @@ export function mountOutlook(host, options = {}) {
     }
     if(e.target.id==='ou-compose-form'){
       e.preventDefault();if(state.sending)return;captureCompose();const message={...state.compose};state.sending=true;state.result={message:'Envoi en cours…'};const seq=++state.sendSeq;render();
-      try{const result=await emit('onSend',{...message,accountId:state.activeId,from:state.account.email});if(seq!==state.sendSeq)return;state.result=result||{success:false,message:'Envoi impossible.'};if(result?.success){if(state.draftId)state.messages=state.messages.filter(m=>m.id!==state.draftId);state.messages.unshift({id:'sent-'+seq,folder:'sent',from:state.account.email,accountId:state.activeId,...message,date:'Aujourd’hui'});state.composeOpen=false;state.folder='sent';state.selected=null;state.draftId=null;state.result=null;}}
+      try{const result=await emit('onSend',{...message,accountId:state.activeId,from:state.account.email});if(seq!==state.sendSeq)return;state.result=result||{success:false,message:'Envoi impossible.'};if(result?.success){if(state.draftId)state.messages=state.messages.filter(m=>m.id!==state.draftId);state.messages.unshift({id:'sent-'+seq,folder:'sent',from:state.account.email,accountId:state.activeId,...message,date:'Aujourd’hui'});
+          if(result.delivered===true){
+            const recipients=String(message.to||'').split(/[;,]/).map(x=>x.trim().toLowerCase());
+            for(const recipient of recipients){
+              const destination=state.accounts.find(a=>a.email.toLowerCase()===recipient);
+              if(destination)state.messages.unshift({id:'inbox-'+seq+'-'+destination.id,folder:'inbox',from:state.account.email,to:destination.email,accountId:destination.id,subject:message.subject,body:message.body,date:'Aujourd’hui'});
+            }
+          }
+          state.composeOpen=false;state.folder='sent';state.selected=null;state.draftId=null;state.result=null;}}
       catch(err){state.result={success:false,message:'Le message n’a pas pu être envoyé.'};}
       state.sending=false;render();
     }
