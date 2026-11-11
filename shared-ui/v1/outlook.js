@@ -1,4 +1,4 @@
-/* Outlook UI shared component v0.6.2. Display and actions only; no transport or validation rules. */
+/* Outlook UI shared component v0.6.4. Display and actions only; no transport or validation rules. */
 export function mountOutlook(host, options = {}) {
   if (!(host instanceof HTMLElement)) throw new TypeError('Outlook: host missing');
   const callbacks = options.callbacks || {};
