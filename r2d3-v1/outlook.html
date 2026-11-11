@@ -11,7 +11,7 @@ const messages=[
 ];
 const reference={incomingHost:'imap.entreprise.fr',incomingPort:'993',incomingSecurity:'ssl',outgoingHost:'smtp.entreprise.fr',outgoingPort:'587',outgoingSecurity:'starttls',username:'contact@atelier-kerwen.fr',password:'atelier2026'};const referenceByType={imap:reference,pop3:{...reference,incomingHost:'pop.entreprise.fr',incomingPort:'995'},m365:{username:'contact@atelier-kerwen.fr',password:'atelier2026'}};
 const outlook=mountOutlook(document.getElementById('outlook'),{
- account:{...reference,type:'imap',password:'',outgoingHost:'smtp.ancien-prestataire.fr',outgoingPort:'465',outgoingSecurity:'ssl'},
+ account:{...reference,type:'imap',outgoingHost:'smtp.ancien-prestataire.fr',outgoingPort:'465',outgoingSecurity:'ssl'},
  messages,
  callbacks:{
   onTestAccount:async a=>{
