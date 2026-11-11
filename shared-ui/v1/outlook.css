@@ -58,3 +58,12 @@
 /* Avatar commun : photo C² ou initiales, image du cours en dernier recours. */
 .ou-app .ou-avatar{overflow:hidden;flex-shrink:0;display:grid;place-items:center;width:35px;height:35px;font-size:12px}
 .ou-app .ou-avatar-photo{display:block;width:100%;height:100%;object-fit:cover;border-radius:50%}
+
+/* v0.3.3 : messages non lus */
+.ou-app .ou-message.ou-unread{background:#f2f7fd;border-left:3px solid #0f6cbd;padding-left:calc(12px - 3px)}
+.ou-app .ou-message.ou-unread .ou-msg-summary strong,
+.ou-app .ou-message.ou-unread .ou-msg-summary b{font-weight:750;color:#142c48}
+.ou-app .ou-message.ou-unread time{color:#0f6cbd;font-weight:700}
+.ou-app .ou-message.ou-unread .ou-initial{background:#d5eaff;color:#15568d}
+.ou-app .ou-message.ou-unread.active{background:#e2edf9}
+.ou-app .ou-folder.selected small{font-weight:750;color:#0f6cbd}
