@@ -1,4 +1,4 @@
-/* Shared Outlook-like UI v0.2.0. All rules scoped to .ou-app. */
+/* Shared Outlook-like UI v0.3.0. All rules scoped to .ou-app. */
 .ou-app{--ou-blue:#0f6cbd;--ou-bg:#f4f6fb;--ou-border:#e2e6ed;--ou-text:#242834;font:14px/1.45 "Segoe UI",Arial,sans-serif;color:var(--ou-text);background:white;border:1px solid #d2dae6;border-radius:9px;overflow:hidden;min-height:590px;position:relative;box-shadow:0 6px 24px #0c27451a}
 .ou-app *{box-sizing:border-box}.ou-app button,.ou-app input,.ou-app select,.ou-app textarea{font:inherit}.ou-app button{cursor:pointer}.ou-app button:focus-visible,.ou-app input:focus-visible,.ou-app select:focus-visible,.ou-app textarea:focus-visible{outline:2px solid #ff9d00;outline-offset:1px}
 .ou-top{background:#0f6cbd;color:white;display:flex;align-items:center;gap:18px;padding:8px 14px;min-height:49px}.ou-waffle{font-size:23px}.ou-top strong{font-size:16px;font-weight:600}.ou-search{margin-left:auto;margin-right:auto;background:#ffffff26;border-radius:5px;padding:7px 14px;width:min(420px,36%);color:white}.ou-gear{color:white;background:none;border:0;font-size:24px}.ou-avatar{background:#d9e2ee;color:#163d6d;border-radius:50%;width:29px;height:29px;display:grid;place-items:center;font-size:11px;font-weight:bold}
@@ -33,3 +33,24 @@
 .ou-settings .ou-result-success{background:#eef8f0!important;border-color:#a5d1ad!important;color:#17592b}
 .ou-settings .ou-result-error{background:#fff4f2!important;border-color:#e9b1a9!important;color:#8a2f25}
 @media(max-width:650px){.ou-settings-nav{width:102px;padding:12px 3px;font-size:12px}.ou-settings-nav-section,.ou-settings-nav-active{padding:9px 5px}.ou-settings .ou-setting-body{padding:15px}.ou-settings .ou-fields{grid-template-columns:1fr}.ou-account-identity b{overflow-wrap:anywhere}}
+
+/* v0.3 : comptes multiples, rédaction et courriels */
+.ou-app .ou-gear{font-size:34px;line-height:1;min-width:46px;min-height:42px;display:grid;place-items:center;border-radius:5px}
+.ou-app .ou-gear:hover{background:#ffffff30}
+.ou-account-switch{width:100%;padding:9px 7px;margin-bottom:12px;border:0;border-radius:5px;background:#e7eff9;color:#174675;font-weight:600;font-size:12px;text-align:left;overflow-wrap:anywhere}
+.ou-account-list{display:grid;gap:6px;margin-bottom:20px;border-bottom:1px solid #dde4ec;padding-bottom:17px}
+.ou-account-choice,.ou-account-add{padding:10px 12px;border:1px solid transparent;border-radius:5px;text-align:left;background:#f7f9fc;color:#33445a;overflow-wrap:anywhere}
+.ou-account-choice.selected{background:#e6f0fc;border-color:#98bfdf;color:#145989;font-weight:600}
+.ou-account-add{color:#0f6cbd;background:#fff;border-color:#c6d4e2;font-weight:600}
+.ou-reading-actions{display:flex;gap:9px;flex-wrap:wrap}
+.ou-compose{width:min(670px,calc(100% - 30px));height:min(530px,calc(100% - 70px))}
+.ou-compose .ou-compose-toolbar{display:flex;align-items:center;gap:10px}
+.ou-compose .ou-secondary{background:#fff;border:1px solid #b7c9da;color:#26537a;border-radius:5px;padding:8px 10px}
+.ou-compose .ou-trash{background:transparent;border:0;color:#66788b;margin-left:auto;font-size:23px}
+.ou-compose .ou-compose-row{display:grid;grid-template-columns:52px minmax(0,1fr);align-items:center;border-bottom:1px solid #e2e5eb;padding:4px 6px}
+.ou-compose .ou-compose-row label{border:0;padding:8px;color:#647184}
+.ou-compose .ou-compose-row input{border:0;width:100%;padding:8px;color:#222}
+.ou-compose .ou-compose-row input:focus{outline:0;border-bottom:1px solid #0f6cbd}
+.ou-compose form textarea{font:14px/1.6 "Segoe UI",Arial,sans-serif}
+.ou-compose .ou-result{margin:4px 0 10px}
+@media(max-width:640px){.ou-account-switch{font-size:11px;padding:7px 4px}.ou-compose{width:calc(100% - 6px);height:min(530px,calc(100% - 56px));right:3px}.ou-compose .ou-compose-toolbar{gap:5px}.ou-compose .ou-secondary{font-size:11px;padding:7px}.ou-app .ou-gear{font-size:32px;min-width:40px}}
