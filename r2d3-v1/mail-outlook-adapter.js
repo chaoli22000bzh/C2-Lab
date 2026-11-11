@@ -1,11 +1,11 @@
-/* Adaptateur autonome R2D3 / Outlook 0.4.6, sans modifier le composant partagé. */
+/* Adaptateur autonome R2D3 / Outlook 0.4.8, sans modifier le composant partagé. */
 import {createMailEngine} from "./mail-core.js";
-import {mountOutlook} from "../shared-ui/v1/outlook.js?v=0.4.6";
+import {mountOutlook} from "../shared-ui/v1/outlook.js?v=0.4.8";
 
 export function connectMailOutlook(host, scenario, options = {}) {
   const engine = createMailEngine(scenario);
   let outlook;
-  // Sans conversion accountId : Outlook 0.4.6 sait lire accountEmail.
+  // Sans conversion accountId : Outlook 0.4.8 sait lire accountEmail.
   const messages = () => engine.getSnapshot().messages.map(mail=>({
     ...mail, date: mail.date || "Aujourd’hui"
   }));
