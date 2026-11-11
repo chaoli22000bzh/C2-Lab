@@ -1,4 +1,4 @@
-/* Outlook UI shared component v0.4.6. Display and actions only; no transport or validation rules. */
+/* Outlook UI shared component v0.4.7. Display and actions only; no transport or validation rules. */
 export function mountOutlook(host, options = {}) {
   if (!(host instanceof HTMLElement)) throw new TypeError('Outlook: host missing');
   const callbacks = options.callbacks || {};
@@ -84,15 +84,32 @@ export function mountOutlook(host, options = {}) {
     if(action==='discard-draft'){if(state.draftId)state.messages=state.messages.filter(m=>m.id!==state.draftId);state.composeOpen=false;state.draftId=null;state.result=null;emit('onDraftDiscard');}
     render();
   });
+  // Preserve the settings panel scroll position while rebuilding its form.
+  function renderSettingsAtCurrentPosition(showResult=false){
+    const panel=root.querySelector('.ou-settings');
+    const previousTop=panel?.scrollTop??0;
+    render();
+    const next=root.querySelector('.ou-settings');
+    if(!next)return;
+    next.scrollTop=previousTop;
+    if(showResult){
+      const result=next.querySelector('.ou-result');
+      if(result){
+        const bottom=result.getBoundingClientRect().bottom;
+        const visibleBottom=next.getBoundingClientRect().bottom;
+        if(bottom>visibleBottom)next.scrollTop+=bottom-visibleBottom+12;
+      }
+    }
+  }
   root.addEventListener('submit',async e=>{
     if(e.target.id==='ou-account'){
       e.preventDefault();if(state.testing)return;
-      captureAccountFields();if(state.adding&&state.accounts.some(a=>a.email.toLowerCase()===state.account.email.trim().toLowerCase())){state.result={success:false,message:'Ce compte existe déjà dans Outlook.'};render();return;}if(!state.account.email.trim()){state.result={success:false,message:'Renseignez une adresse e-mail.'};render();return;}state.testing=true;state.result={message:'Connexion en cours…'};const sequence=++state.testSeq;
-      const snapshot={...state.account};render();
+      captureAccountFields();if(state.adding&&state.accounts.some(a=>a.email.toLowerCase()===state.account.email.trim().toLowerCase())){state.result={success:false,message:'Ce compte existe déjà dans Outlook.'};renderSettingsAtCurrentPosition(true);return;}if(!state.account.email.trim()){state.result={success:false,message:'Renseignez une adresse e-mail.'};renderSettingsAtCurrentPosition(true);return;}state.testing=true;state.result={message:'Connexion en cours…'};const sequence=++state.testSeq;
+      const snapshot={...state.account};renderSettingsAtCurrentPosition();
       try{const response=await emit('onTestAccount',snapshot);if(sequence!==state.testSeq)return;state.result=response&&typeof response.success==='boolean'?response:{success:false,message:'La connexion n’a pas pu être vérifiée.'};}
       catch(err){if(sequence!==state.testSeq)return;state.result={success:false,message:'La connexion n’a pas pu être établie.'};}
       if(state.adding&&state.result?.success){const created={...state.account,id:'acct-'+(Date.now())};state.accounts.push(created);state.activeId=created.id;state.account=created;state.adding=false;state.folder='inbox';emit('onAccountAdded',{...created});}
-      state.testing=false;render();
+      state.testing=false;renderSettingsAtCurrentPosition(state.result?.success===false);
     }
     if(e.target.id==='ou-compose-form'){
       e.preventDefault();if(state.sending)return;captureCompose();const message={...state.compose};state.sending=true;state.result={message:'Envoi en cours…'};const seq=++state.sendSeq;render();
@@ -111,7 +128,7 @@ export function mountOutlook(host, options = {}) {
     }
   });
   root.addEventListener('change',e=>{
-    if(e.target.form?.id==='ou-account'){captureAccountFields();state.testSeq++;state.testing=false;if(e.target.name==='type'||e.target.name==='smtpAuthMode'){state.result=null;render();}else if(state.result){state.result=null;const status=root.querySelector('.ou-result');if(status){status.textContent='';status.className='ou-result';}}}
+    if(e.target.form?.id==='ou-account'){captureAccountFields();state.testSeq++;state.testing=false;if(e.target.name==='type'||e.target.name==='smtpAuthMode'){state.result=null;renderSettingsAtCurrentPosition();}else if(state.result){state.result=null;const status=root.querySelector('.ou-result');if(status){status.textContent='';status.className='ou-result';}}}
   });
   function update(patch={}){captureCompose();if(patch.avatar)Object.assign(avatar,patch.avatar);if(patch.account){state.testSeq++;state.testing=false;}if(patch.account)state.account={...state.account,...patch.account};if(patch.messages)state.messages=patch.messages.map(x=>({...x}));if(patch.result)state.result=patch.result;render();}
   render();return {update,destroy(){root.remove()},getAccount(){return {...state.account}},getAccounts(){return state.accounts.map(a=>({...a}))},getMessages(){return state.messages.map(m=>({...m}))},getContacts(){return state.contacts.map(c=>({...c}))},getCalendarItems(){return state.calendarItems.map(c=>({...c}))}};
