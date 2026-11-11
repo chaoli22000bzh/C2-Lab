@@ -1,4 +1,4 @@
-/* Outlook UI shared component v0.4.7. Display and actions only; no transport or validation rules. */
+/* Outlook UI shared component v0.4.8. Display and actions only; no transport or validation rules. */
 export function mountOutlook(host, options = {}) {
   if (!(host instanceof HTMLElement)) throw new TypeError('Outlook: host missing');
   const callbacks = options.callbacks || {};
@@ -128,7 +128,7 @@ export function mountOutlook(host, options = {}) {
     }
   });
   root.addEventListener('change',e=>{
-    if(e.target.form?.id==='ou-account'){captureAccountFields();state.testSeq++;state.testing=false;if(e.target.name==='type'||e.target.name==='smtpAuthMode'){state.result=null;renderSettingsAtCurrentPosition();}else if(state.result){state.result=null;const status=root.querySelector('.ou-result');if(status){status.textContent='';status.className='ou-result';}}}
+    if(e.target.form?.id==='ou-account'){captureAccountFields();state.testSeq++;state.testing=false;if(e.target.name==='type'||e.target.name==='smtpAuthMode'){if(e.target.name==='type'&&(state.account.type==='pop3'||state.account.type==='imap')){state.account.incomingPort=state.account.type==='pop3'?(state.account.incomingSecurity==='ssl'?'995':'110'):(state.account.incomingSecurity==='ssl'?'993':'143');}state.result=null;renderSettingsAtCurrentPosition();}else if(state.result){state.result=null;const status=root.querySelector('.ou-result');if(status){status.textContent='';status.className='ou-result';}}}
   });
   function update(patch={}){captureCompose();if(patch.avatar)Object.assign(avatar,patch.avatar);if(patch.account){state.testSeq++;state.testing=false;}if(patch.account)state.account={...state.account,...patch.account};if(patch.messages)state.messages=patch.messages.map(x=>({...x}));if(patch.result)state.result=patch.result;render();}
   render();return {update,destroy(){root.remove()},getAccount(){return {...state.account}},getAccounts(){return state.accounts.map(a=>({...a}))},getMessages(){return state.messages.map(m=>({...m}))},getContacts(){return state.contacts.map(c=>({...c}))},getCalendarItems(){return state.calendarItems.map(c=>({...c}))}};
