@@ -1,4 +1,4 @@
-/* Shared Outlook-like UI v0.1.0. All rules scoped to .ou-app. */
+/* Shared Outlook-like UI v0.2.0. All rules scoped to .ou-app. */
 .ou-app{--ou-blue:#0f6cbd;--ou-bg:#f4f6fb;--ou-border:#e2e6ed;--ou-text:#242834;font:14px/1.45 "Segoe UI",Arial,sans-serif;color:var(--ou-text);background:white;border:1px solid #d2dae6;border-radius:9px;overflow:hidden;min-height:590px;position:relative;box-shadow:0 6px 24px #0c27451a}
 .ou-app *{box-sizing:border-box}.ou-app button,.ou-app input,.ou-app select,.ou-app textarea{font:inherit}.ou-app button{cursor:pointer}.ou-app button:focus-visible,.ou-app input:focus-visible,.ou-app select:focus-visible,.ou-app textarea:focus-visible{outline:2px solid #ff9d00;outline-offset:1px}
 .ou-top{background:#0f6cbd;color:white;display:flex;align-items:center;gap:18px;padding:8px 14px;min-height:49px}.ou-waffle{font-size:23px}.ou-top strong{font-size:16px;font-weight:600}.ou-search{margin-left:auto;margin-right:auto;background:#ffffff26;border-radius:5px;padding:7px 14px;width:min(420px,36%);color:white}.ou-gear{color:white;background:none;border:0;font-size:24px}.ou-avatar{background:#d9e2ee;color:#163d6d;border-radius:50%;width:29px;height:29px;display:grid;place-items:center;font-size:11px;font-weight:bold}
@@ -9,3 +9,27 @@
 .ou-shade{position:absolute;inset:49px 0 0;background:#25314365;z-index:4}.ou-settings{position:absolute;right:0;top:49px;bottom:0;width:min(510px,100%);z-index:5;background:white;box-shadow:-6px 0 20px #0002;overflow:auto}.ou-settings header,.ou-compose header{display:flex;align-items:center;justify-content:space-between;background:#f8fafd;border-bottom:1px solid var(--ou-border);padding:12px 20px}.ou-settings header h2{font-size:19px;margin:0}.ou-settings header button,.ou-compose header button{border:0;background:none;font-size:25px}.ou-setting-body{padding:17px 25px}.ou-setting-body h3{font-size:18px}.ou-setting-body h4{margin-bottom:12px}.ou-setting-body form label{display:block;font-size:13px;margin-bottom:13px}.ou-setting-body form input,.ou-setting-body form select{display:block;width:100%;margin-top:5px;border:1px solid #9eaec0;border-radius:4px;padding:8px;background:#fff;color:#222}.ou-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}.ou-actions{text-align:right}.ou-result{margin:12px 0;color:#225780;font-size:13px;min-height:18px}.ou-compose{position:absolute;right:15px;bottom:0;width:min(560px,calc(100% - 30px));height:440px;z-index:3;background:#fff;border:1px solid #c1cad4;box-shadow:0 0 25px #0003;display:flex;flex-direction:column}.ou-compose form{padding:0 15px;display:flex;flex-direction:column;flex:1}.ou-compose-toolbar{padding:10px 0}.ou-compose form label{display:flex;align-items:center;gap:10px;border-bottom:1px solid #e2e5eb;padding:8px}.ou-compose form input{border:0;outline:none;flex:1;min-width:0}.ou-compose form textarea{resize:none;border:0;outline:0;flex:1;padding:15px 5px}
 .ou-app [hidden]{display:none!important}
 @media(max-width:840px){.ou-folders{width:175px}.ou-list{width:245px}.ou-reading{padding:15px}.ou-search{width:28%}}@media(max-width:640px){.ou-app{min-height:490px}.ou-shell{min-height:440px}.ou-rail{width:42px}.ou-folders{width:130px;padding:8px 4px}.ou-new{font-size:12px;padding:8px}.ou-list{width:calc(100% - 172px)}.ou-reading{display:none}.ou-top{gap:9px}.ou-search{display:none}.ou-gear{margin-left:auto}.ou-fields{grid-template-columns:1fr}.ou-settings{top:49px}.ou-compose{width:calc(100% - 8px);right:4px}.ou-cal{font-size:9px}}
+
+/* Outlook account settings v0.2.0 */
+.ou-settings{width:min(690px,100%)}
+.ou-settings-frame{display:flex;min-height:calc(100% - 53px)}
+.ou-settings-nav{width:165px;flex-shrink:0;background:#f4f6fb;border-right:1px solid var(--ou-border);padding:19px 8px}
+.ou-settings-nav-section{font-weight:650;padding:8px 12px}
+.ou-settings-nav-active{background:#e3edf9;border-left:3px solid var(--ou-blue);padding:9px 12px;border-radius:3px;font-weight:600}
+.ou-settings .ou-setting-body{min-width:0;flex:1;padding:18px 27px}
+.ou-settings .ou-setting-body h3{font-size:21px;margin:2px 0 17px;font-weight:600}
+.ou-account-identity{display:flex;align-items:center;gap:12px;padding:13px;border:1px solid var(--ou-border);border-radius:7px;background:#fafcff;margin-bottom:19px}
+.ou-account-identity b,.ou-account-identity small{display:block}.ou-account-identity small{color:#6b788a;margin-top:3px}
+.ou-account-symbol{width:39px;height:39px;background:#dcebf9;color:#175996;border-radius:50%;display:grid;place-items:center;font-size:20px}
+.ou-settings .ou-setting-body h4{font-size:15px;font-weight:600;margin:18px 0 12px}
+.ou-settings .ou-setting-body .ou-subheading{border-bottom:1px solid #e6eaf0;padding:0 0 7px;margin-top:25px}
+.ou-settings .ou-setting-body .ou-field{display:block;font-size:13px;color:#34435a;font-weight:500;margin-bottom:13px}
+.ou-settings .ou-setting-body .ou-field input,.ou-settings .ou-setting-body .ou-field select{display:block;width:100%;margin-top:5px;border:1px solid #adb9c8;border-radius:4px;padding:9px 10px;background:white;color:#263347;min-height:38px}
+.ou-settings .ou-setting-body .ou-field input:focus,.ou-settings .ou-setting-body .ou-field select:focus{border-color:var(--ou-blue)}
+.ou-settings .ou-setting-body .ou-primary:disabled{opacity:.65;cursor:default}
+.ou-settings .ou-info{padding:12px 14px;border-radius:5px;background:#f3f6fa;color:#45556b;margin:15px 0}
+.ou-settings .ou-result{min-height:0;margin-top:17px;line-height:1.5}
+.ou-settings .ou-result:not(:empty){padding:11px 13px;border:1px solid #d1dae4;border-radius:4px;background:#f3f6fa}
+.ou-settings .ou-result-success{background:#eef8f0!important;border-color:#a5d1ad!important;color:#17592b}
+.ou-settings .ou-result-error{background:#fff4f2!important;border-color:#e9b1a9!important;color:#8a2f25}
+@media(max-width:650px){.ou-settings-nav{width:102px;padding:12px 3px;font-size:12px}.ou-settings-nav-section,.ou-settings-nav-active{padding:9px 5px}.ou-settings .ou-setting-body{padding:15px}.ou-settings .ou-fields{grid-template-columns:1fr}.ou-account-identity b{overflow-wrap:anywhere}}
