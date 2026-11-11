@@ -13,11 +13,13 @@ export function mountOutlook(host, options = {}) {
   const accounts=(Array.isArray(options.accounts)?options.accounts:options.account?[options.account]:[account]).map(normalize);
   const blank=()=>({id:null,email:'',type:'imap',incomingHost:'',incomingPort:'993',incomingSecurity:'ssl',outgoingHost:'',outgoingPort:'587',outgoingSecurity:'starttls',incomingUsername:'',incomingPassword:'',outgoingUsername:'',outgoingPassword:'',smtpAuthMode:'same',username:'',password:''});
   const state = {view:'mail',folder:'inbox',configOpen:false,composeOpen:false,accounts,activeId:accounts[0]?.id||null,account:accounts[0]||blank(),adding:accounts.length===0,messages:(options.messages||[]).map(x=>({...x,accountId:x.accountId||accounts[0]?.id||'acct-1'})),selected:null,result:null,testing:false,testSeq:0,sending:false,sendSeq:0,compose:{to:'',subject:'',body:''},draftId:null};
+  const avatar={photoUrl:options.avatar?.photoUrl||'',initials:options.avatar?.initials||'',fallbackUrl:options.avatar?.fallbackUrl||'',alt:options.avatar?.alt||'Photo du compte'};
+  function avatarHtml(){const src=avatar.photoUrl||(!avatar.initials?avatar.fallbackUrl:'');return src?`<img class="ou-avatar-photo" src="${esc(src)}" alt="${esc(avatar.alt)}" onerror="this.hidden=true;this.parentNode.textContent='${esc(avatar.initials||'')}'">`:esc(avatar.initials||'');}
   const root=document.createElement('div');root.className='ou-app';host.replaceChildren(root);
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const emit=(name,data)=>{if(typeof callbacks[name]==='function') return callbacks[name](data);};
   function render(){
-    root.innerHTML=`<div class="ou-top"><div class="ou-waffle" aria-hidden="true">▦</div><strong>Outlook</strong><div class="ou-search" aria-label="Rechercher">⌕ &nbsp; Rechercher</div><button class="ou-gear" data-action="settings" title="Paramètres" aria-label="Paramètres">⚙</button><div class="ou-avatar" title="Compte">AK</div></div>
+    root.innerHTML=`<div class="ou-top"><div class="ou-waffle" aria-hidden="true">▦</div><strong>Outlook</strong><div class="ou-search" aria-label="Rechercher">⌕ &nbsp; Rechercher</div><button class="ou-gear" data-action="settings" title="Paramètres" aria-label="Paramètres">⚙</button><div class="ou-avatar" title="Compte">${avatarHtml()}</div></div>
     <div class="ou-shell"><nav class="ou-rail" aria-label="Applications"><button data-view="mail" class="${state.view==='mail'?'current':''}" title="Courrier" aria-label="Courrier">✉</button><button data-view="calendar" class="${state.view==='calendar'?'current':''}" title="Calendrier" aria-label="Calendrier">▦</button><button data-view="people" class="${state.view==='people'?'current':''}" title="Personnes" aria-label="Personnes">♙</button></nav>
     ${state.view==='mail'?mailHtml():state.view==='calendar'?calendarHtml():peopleHtml()}</div>
     ${state.configOpen?settingsHtml():''}${state.composeOpen?composeHtml():''}`;
@@ -85,6 +87,6 @@ export function mountOutlook(host, options = {}) {
   root.addEventListener('change',e=>{
     if(e.target.form?.id==='ou-account'){captureAccountFields();state.testSeq++;state.testing=false;if(e.target.name==='type'||e.target.name==='smtpAuthMode'){state.result=null;render();}else if(state.result){state.result=null;const status=root.querySelector('.ou-result');if(status){status.textContent='';status.className='ou-result';}}}
   });
-  function update(patch={}){captureCompose();if(patch.account){state.testSeq++;state.testing=false;}if(patch.account)state.account={...state.account,...patch.account};if(patch.messages)state.messages=patch.messages.map(x=>({...x}));if(patch.result)state.result=patch.result;render();}
+  function update(patch={}){captureCompose();if(patch.avatar)Object.assign(avatar,patch.avatar);if(patch.account){state.testSeq++;state.testing=false;}if(patch.account)state.account={...state.account,...patch.account};if(patch.messages)state.messages=patch.messages.map(x=>({...x}));if(patch.result)state.result=patch.result;render();}
   render();return {update,destroy(){root.remove()},getAccount(){return {...state.account}},getAccounts(){return state.accounts.map(a=>({...a}))}};
 }
