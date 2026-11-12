@@ -46,6 +46,8 @@ button.subtle{background:#e5edf5;color:#174b75}.check{display:flex;align-items:c
 <label>Modèle<input name="model"></label><label>Localisation<input name="location"></label>
 <button>Créer l'actif</button></form>
 <h3>Fiche de l'équipement</h3><label>Équipement<select id="assets"></select></label>
+<p>Pour remplacer un équipement, débranche d'abord ses câbles, puis supprime sa fiche. Les câbles restent inventoriés et pourront être raccordés au nouvel équipement.</p>
+<button id="asset-remove" type="button" class="subtle">Supprimer l'équipement</button>
 <form id="asset-edit">
 <label>Nom<input name="name" required></label><label>Fabricant<input name="manufacturer"></label>
 <label>Modèle<input name="model"></label><label>Numéro de série<input name="serialNumber"></label>
