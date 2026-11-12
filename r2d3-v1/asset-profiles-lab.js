@@ -53,9 +53,6 @@ function renderInfrastructure(){
  for(const rack of racks){
   const p=document.createElement("p");p.textContent="Baie "+rack.name+" ("+rack.location+") : panneau de "+rack.ports.length+" port(s), avant / arrière";
   host.append(p);
-  const contents=engine.listAssets().filter(a=>a.rackId===rack.id).map(a=>a.name);
-  const installed=document.createElement("p");installed.textContent="Équipements installés : "+(contents.join(", ")||"aucun");
-  host.append(installed);
  }
 }
 function renderPathChoices(){
@@ -172,11 +169,6 @@ function renderAsset(){
  id("asset-remove").disabled=!a;
  id("extension-create").querySelectorAll("input,select,button").forEach(control=>control.disabled=!a);
  renderAssetPorts();renderPlaces();
- const rackSelect=id("asset-rack"),racks=engine.listRacks();
- rackSelect.replaceChildren(opt("Hors baie",""),...racks.map(r=>opt(r.name+" ("+r.location+")",r.id)));
- rackSelect.value=a?.rackId||"";
- id("asset-rack-change").querySelectorAll("select,button").forEach(control=>control.disabled=!a);
- id("asset-current-rack").textContent=a?"Baie actuelle : "+(racks.find(r=>r.id===a.rackId)?.name||"aucune"):"";
  if(a){
   for(const key of ["name","manufacturer","model","serialNumber","status","location"])form.elements[key].value=a[key]??"";
   form.elements.reservable.checked=!!a.reservable;
@@ -221,11 +213,6 @@ id("place-create").onsubmit=e=>{
 id("asset-place-change").onsubmit=e=>{
  e.preventDefault();const a=selectedAsset();if(!a)return;
  const r=engine.moveAssetToPlace(a.id,e.currentTarget.elements.placeId.value||null);
- status("asset-status",r);refresh();
-};
-id("asset-rack-change").onsubmit=e=>{
- e.preventDefault();const a=selectedAsset();if(!a)return;
- const r=engine.placeAssetInRack(a.id,e.currentTarget.elements.rackId.value||null);
  status("asset-status",r);refresh();
 };
 id("rack-create").onsubmit=e=>{
