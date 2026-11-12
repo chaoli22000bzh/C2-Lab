@@ -143,7 +143,6 @@ function renderAsset(){
  const a=selectedAsset(),host=id("asset-values"),form=id("asset-edit");host.replaceChildren();
  form.querySelectorAll("input,select,button").forEach(control=>control.disabled=!a);
  id("asset-remove").disabled=!a;
- id("asset-remove").disabled=!a;
  id("extension-create").querySelectorAll("input,select,button").forEach(control=>control.disabled=!a);
  renderAssetPorts();
  if(a){
@@ -249,10 +248,6 @@ id("asset-remove").onclick=()=>{
  const a=selectedAsset();if(!a)return;
  const r=engine.removeAsset(a.id);
  status("asset-status",r);refresh();
-};
-id("asset-remove").onclick=()=>{
- const a=selectedAsset();if(!a)return;
- const r=engine.removeAsset(a.id);status("asset-status",r);refresh();
 };
 id("asset-edit").onsubmit=e=>{
  e.preventDefault();
