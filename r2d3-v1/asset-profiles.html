@@ -100,5 +100,13 @@ button.subtle{background:#e5edf5;color:#174b75}.check{display:flex;align-items:c
 <button>Rechercher le chemin</button></form>
 <div id="path-result" class="notice" role="status"></div>
 </section>
+<section class="full"><h2>4. Chemin physique</h2>
+<p>Recherche de la continuité des câbles enregistrés. Le moteur traverse les deux faces d'une même prise ou d'un port de panneau, mais ne suppose jamais une liaison entre les ports d'un switch.</p>
+<form id="physical-path-form">
+<label>Départ<select name="from"></select></label>
+<label>Arrivée<select name="to"></select></label>
+<button>Rechercher le chemin</button></form>
+<div id="physical-path-result" class="notice" role="status"></div>
+</section>
 <section class="full"><h2>Périmètre de cette première version</h2><p>Création, duplication et modification des profils, édition des champs descriptifs et des fiches des actifs, protection des valeurs existantes. La génération des ports intégrés et des extensions est disponible. Le premier moteur de câbles à deux extrémités est disponible pour recette sur RJ45. Prises et panneaux de brassage disposent maintenant de points avant et arrière. Les vues graphiques, les autres connecteurs ne sont pas encore opérationnels ; la recherche de chemin physique est disponible en mode textuel ; les comportements réseau viendront ensuite. Le rechargement réinitialise cet exemple, sans sauvegarde locale.</p><button type="button" id="reset" class="subtle">Recommencer</button></section>
 </div></main><script type="module" src="./asset-profiles-lab.js"></script></body></html>
