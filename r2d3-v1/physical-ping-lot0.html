@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>R2D3 | Lot 0 : câble et diagnostic</title>
+<style>
+:root{color-scheme:light dark;font-family:Arial,sans-serif}
+body{max-width:760px;margin:32px auto;padding:0 16px;line-height:1.55}
+section{border:1px solid #a1a1aa;border-radius:10px;padding:18px;margin:16px 0}
+button{font:inherit;padding:10px 18px;border-radius:8px;border:1px solid #8b8b8b;margin-right:8px;cursor:pointer}
+button:disabled{opacity:.55;cursor:default}
+pre{white-space:pre-wrap;word-break:break-word;font-size:14px;padding:14px;border:1px solid #a1a1aa;border-radius:8px}
+small{opacity:.75}
+h1{font-size:1.45rem}
+</style>
+</head>
+<body>
+<h1>R2D3 : recette du lot 0</h1>
+<p>Ce banc vérifie uniquement qu'un diagnostic IPv4 suit le câblage du registre R2, sans second inventaire de câbles. Il ne simule ni VLAN, ni STP, ni routage.</p>
+<section>
+<h2>Raccordement physique</h2>
+<p id="wire">Initialisation du scénario...</p>
+<button id="disconnect" disabled>Débrancher le câble</button>
+<button id="connect" disabled>Rebrancher le câble</button>
+</section>
+<section>
+<h2>Diagnostic réseau</h2>
+<p>PC : 192.168.10.20/24</p>
+<p>Imprimante : 192.168.10.50/24</p>
+<button id="ping" disabled>Tester le ping</button>
+<pre id="result" aria-live="polite">Initialisation...</pre>
+</section>
+<small>Prototype de recette, aucune sauvegarde durable sur cette page. Recharger pour réinitialiser.</small>
+<script type="module" src="./physical-ping-lot0-lab.js"></script>
+</body>
+</html>
