@@ -62,5 +62,20 @@ button.subtle{background:#e5edf5;color:#174b75}.check{display:flex;align-items:c
 <label>Quantité<input name="count" type="number" value="1" min="1" max="128" required></label><button class="subtle">Ajouter l'extension</button></form>
 <h3>Caractéristiques du profil</h3><div id="asset-values"></div>
 <div id="asset-status" class="notice" role="status"></div></section>
-<section class="full"><h2>Périmètre de cette première version</h2><p>Création, duplication et modification des profils, édition des champs descriptifs et des fiches des actifs, protection des valeurs existantes. La génération des ports intégrés et des extensions est disponible. Les raccordements physiques et comportements réseau viendront dans les modules suivants. Le rechargement réinitialise cet exemple, sans sauvegarde locale.</p><button type="button" id="reset" class="subtle">Recommencer</button></section>
+<section class="full"><h2>3. Câbles et raccordements (première recette)</h2>
+<p>Un câble reste dans l'inventaire même si une extrémité est débranchée. Pour cette première recette, seuls les ports Ethernet RJ45 ont un raccordement physique défini. Wi-Fi et Bluetooth ne sont pas des prises.</p>
+<form id="cable-create">
+<label>Connecteur A<select name="a"><option value="rj45-male">RJ45 mâle</option><option value="rj45-female">RJ45 femelle</option><option value="db9-female">DB9 femelle</option></select></label>
+<label>Connecteur B<select name="b"><option value="rj45-male">RJ45 mâle</option><option value="rj45-female">RJ45 femelle</option><option value="db9-female">DB9 femelle</option></select></label>
+<button>Créer un câble</button></form>
+<label>Câble<select id="cables"></select></label>
+<form id="cable-end-a"><label>Extrémité A : port à raccorder<select name="port"></select></label>
+<button type="submit">Raccorder A</button><button id="cable-disconnect-a" type="button" class="subtle">Débrancher A</button></form>
+<form id="cable-end-b"><label>Extrémité B : port à raccorder<select name="port"></select></label>
+<button type="submit">Raccorder B</button><button id="cable-disconnect-b" type="button" class="subtle">Débrancher B</button></form>
+<div id="cable-info"></div>
+<button type="button" id="cable-delete" class="subtle">Supprimer le câble</button>
+<div id="cable-status" class="notice" role="status"></div>
+</section>
+<section class="full"><h2>Périmètre de cette première version</h2><p>Création, duplication et modification des profils, édition des champs descriptifs et des fiches des actifs, protection des valeurs existantes. La génération des ports intégrés et des extensions est disponible. Le premier moteur de câbles à deux extrémités est disponible pour recette sur RJ45. Prises, panneaux de brassage, baies et autres connecteurs ne sont pas encore opérationnels ; les comportements réseau viendront ensuite. Le rechargement réinitialise cet exemple, sans sauvegarde locale.</p><button type="button" id="reset" class="subtle">Recommencer</button></section>
 </div></main><script type="module" src="./asset-profiles-lab.js"></script></body></html>

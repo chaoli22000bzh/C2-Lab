@@ -14,7 +14,30 @@ function refresh(){
  else if(ps.some(p=>p.id===oldP))id("asset-profile").value=oldP;
  id("assets").replaceChildren(...as.map(a=>opt(a.name+" ("+(ps.find(p=>p.id===a.profileId)?.name||"?")+")",a.id)));
  if(as.some(a=>a.id===oldA))id("assets").value=oldA;
- renderFields();renderAsset();
+ renderFields();renderAsset();renderCables();
+}
+function renderCables(){
+ const all=engine.listCables(),select=id("cables"),was=select.value;
+ select.replaceChildren(...all.map(c=>opt(c.id,c.id)));
+ if(all.some(c=>c.id===was))select.value=was;
+ const cable=engine.getCable(select.value);
+ const ports=engine.listCablePoints();
+ for(let i=0;i<2;i++){
+  const form=id(i?"cable-end-b":"cable-end-a"),choice=form.elements.port,prior=choice.value;
+  choice.replaceChildren(...ports.map(p=>opt(p.assetName+" / "+p.portName+(p.occupied?" (occupé)":""),p.portId)));
+  if(ports.some(p=>p.portId===prior))choice.value=prior;
+  const disabled=!cable;form.querySelectorAll("select,button").forEach(e=>e.disabled=disabled);
+ }
+ id("cable-delete").disabled=!cable;
+ id("cable-info").textContent=cable
+  ?"Câble "+cable.id+" : A ("+cable.connectors[0]+") → "+describePoint(cable.ends[0],ports)
+   +" ; B ("+cable.connectors[1]+") → "+describePoint(cable.ends[1],ports)
+  :"Aucun câble.";
+}
+function describePoint(end,ports){
+ if(!end)return "libre";
+ const p=ports.find(x=>x.portId===end.portId);
+ return p?p.assetName+" / "+p.portName:"port absent";
 }
 function renderPortGroups(){
  const p=selectedProfile(),host=id("port-groups");host.replaceChildren();
@@ -107,6 +130,29 @@ function renderAsset(){
   label.append(input);host.append(label);
  }
 }
+id("cable-create").onsubmit=e=>{
+ e.preventDefault();const data=Object.fromEntries(new FormData(e.currentTarget));
+ const r=engine.createCable({connectors:[data.a,data.b]});
+ status("cable-status",r);refresh();
+ if(r.success){id("cables").value=r.cable.id;renderCables()}
+};
+for(const [i,suffix] of [[0,"a"],[1,"b"]]){
+ const form=id("cable-end-"+suffix);
+ form.onsubmit=e=>{
+  e.preventDefault();const c=engine.getCable(id("cables").value);
+  if(!c)return;
+  status("cable-status",engine.connectCableEnd(c.id,i,form.elements.port.value));refresh();
+ };
+ id("cable-disconnect-"+suffix).onclick=()=>{
+  const c=engine.getCable(id("cables").value);if(!c)return;
+  status("cable-status",engine.disconnectCableEnd(c.id,i));refresh();
+ };
+}
+id("cables").onchange=renderCables;
+id("cable-delete").onclick=()=>{
+ const c=engine.getCable(id("cables").value);if(!c)return;
+ status("cable-status",engine.deleteCable(c.id));refresh();
+};
 id("profile-create").onsubmit=e=>{e.preventDefault();const r=engine.createProfile(new FormData(e.currentTarget).get("name"));status("profile-status",r);refresh();if(r.success){id("profiles").value=r.profile.id;renderFields()}};
 id("duplicate").onclick=()=>{const p=selectedProfile();if(!p)return;const r=engine.duplicateProfile(p.id,p.name+" (copie)");status("profile-status",r);refresh();if(r.success){id("profiles").value=r.profile.id;renderFields()}};
 id("portgroup-create").onsubmit=e=>{
@@ -145,5 +191,5 @@ id("asset-edit").onsubmit=e=>{
  status("asset-status",r);refresh();
 };
 id("profiles").onchange=renderFields;id("assets").onchange=renderAsset;
-id("reset").onclick=()=>{engine=createAssetRegistry();refresh();id("asset-status").textContent="";id("profile-status").textContent=""};
+id("reset").onclick=()=>{engine=createAssetRegistry();refresh();id("asset-status").textContent="";id("profile-status").textContent="";id("cable-status").textContent=""};
 window.__assetProfilesLab={snapshot:()=>engine.exportState()};refresh();
