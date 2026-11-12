@@ -14,7 +14,31 @@ function refresh(){
  else if(ps.some(p=>p.id===oldP))id("asset-profile").value=oldP;
  id("assets").replaceChildren(...as.map(a=>opt(a.name+" ("+(ps.find(p=>p.id===a.profileId)?.name||"?")+")",a.id)));
  if(as.some(a=>a.id===oldA))id("assets").value=oldA;
- renderInfrastructure();renderCables();renderPathChoices();renderFields();renderAsset();
+ renderPlaces();renderInfrastructure();renderCables();renderPathChoices();renderFields();renderAsset();
+}
+function placeLabel(place,all){
+ const names=[place.name];let current=place,seen=new Set([place.id]);
+ while(current.parentId){
+  current=all.find(x=>x.id===current.parentId);
+  if(!current||seen.has(current.id))break;
+  seen.add(current.id);names.unshift(current.name);
+ }
+ return names.join(" / ");
+}
+function renderPlaces(){
+ const all=engine.listPlaces(),parent=id("place-parent"),old=parent.value;
+ parent.replaceChildren(opt("Aucun (racine)",""),...all.map(p=>opt(placeLabel(p,all),p.id)));
+ if(old===""||all.some(p=>p.id===old))parent.value=old;
+ const host=id("place-list");host.replaceChildren();
+ const summary=document.createElement("p");summary.textContent=all.length+" lieu(x) disponible(s).";host.append(summary);
+ for(const place of all){
+  const p=document.createElement("p");p.textContent=placeLabel(place,all);host.append(p);
+ }
+ const select=id("asset-place"),a=selectedAsset();
+ select.replaceChildren(opt("Aucun lieu",""),...all.map(p=>opt(placeLabel(p,all),p.id)));
+ select.value=a?.placeId||"";
+ id("asset-place-change").querySelectorAll("select,button").forEach(control=>control.disabled=!a);
+ id("asset-current-place").textContent=a?"Lieu actuel : "+(all.find(p=>p.id===a.placeId)?placeLabel(all.find(p=>p.id===a.placeId),all):"Aucun lieu"):"";
 }
 function renderInfrastructure(){
  const host=id("infrastructure-list");host.replaceChildren();
@@ -144,7 +168,7 @@ function renderAsset(){
  form.querySelectorAll("input,select,button").forEach(control=>control.disabled=!a);
  id("asset-remove").disabled=!a;
  id("extension-create").querySelectorAll("input,select,button").forEach(control=>control.disabled=!a);
- renderAssetPorts();
+ renderAssetPorts();renderPlaces();
  if(a){
   for(const key of ["name","manufacturer","model","serialNumber","status","location"])form.elements[key].value=a[key]??"";
   form.elements.reservable.checked=!!a.reservable;
@@ -179,6 +203,17 @@ id("outlet-create").onsubmit=e=>{
  e.preventDefault();
  const r=engine.createWallOutlet(Object.fromEntries(new FormData(e.currentTarget)));
  status("infrastructure-status",r);refresh();
+};
+id("place-create").onsubmit=e=>{
+ e.preventDefault();const data=Object.fromEntries(new FormData(e.currentTarget));
+ const r=engine.createPlace({name:data.name,parentId:data.parentId||null});
+ status("place-status",r);refresh();
+ if(r.success)e.currentTarget.elements.name.value="";
+};
+id("asset-place-change").onsubmit=e=>{
+ e.preventDefault();const a=selectedAsset();if(!a)return;
+ const r=engine.moveAssetToPlace(a.id,e.currentTarget.elements.placeId.value||null);
+ status("asset-status",r);refresh();
 };
 id("rack-create").onsubmit=e=>{
  e.preventDefault();
@@ -258,5 +293,5 @@ id("asset-edit").onsubmit=e=>{
  status("asset-status",r);refresh();
 };
 id("profiles").onchange=renderFields;id("assets").onchange=renderAsset;
-id("reset").onclick=()=>{engine=createAssetRegistry();refresh();id("asset-status").textContent="";id("profile-status").textContent="";id("cable-status").textContent="";id("infrastructure-status").textContent="";id("path-result").textContent=""};
+id("reset").onclick=()=>{engine=createAssetRegistry();refresh();id("asset-status").textContent="";id("profile-status").textContent="";id("cable-status").textContent="";id("infrastructure-status").textContent="";id("place-status").textContent="";id("path-result").textContent=""};
 window.__assetProfilesLab={snapshot:()=>engine.exportState()};refresh();
