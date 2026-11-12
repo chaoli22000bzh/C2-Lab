@@ -14,7 +14,7 @@ function refresh(){
  else if(ps.some(p=>p.id===oldP))id("asset-profile").value=oldP;
  id("assets").replaceChildren(...as.map(a=>opt(a.name+" ("+(ps.find(p=>p.id===a.profileId)?.name||"?")+")",a.id)));
  if(as.some(a=>a.id===oldA))id("assets").value=oldA;
- renderInfrastructure();renderCables();renderFields();renderAsset();
+ renderInfrastructure();renderCables();renderPathChoices();renderFields();renderAsset();
 }
 function renderInfrastructure(){
  const host=id("infrastructure-list");host.replaceChildren();
@@ -29,6 +29,31 @@ function renderInfrastructure(){
  for(const rack of racks){
   const p=document.createElement("p");p.textContent="Baie "+rack.name+" ("+rack.location+") : panneau de "+rack.ports.length+" port(s), avant / arrière";
   host.append(p);
+ }
+}
+function renderPathChoices(){
+ const form=id("path-search"),points=engine.listCablePoints();
+ for(const key of ["from","to"]){
+  const select=form.elements[key],old=select.value;
+  select.replaceChildren(...points.map(p=>opt(p.assetName+" / "+p.portName,p.portId)));
+  if(points.some(p=>p.portId===old))select.value=old;
+ }
+}
+function pathLabel(p){
+ return p.assetName+" / "+p.portName;
+}
+function showPathResult(r){
+ const host=id("path-result");
+ if(!r.success){status("path-result",r);return}
+ host.className="notice "+(r.connected?"good":"bad");
+ if(r.connected){
+  host.textContent=r.message+" "+r.path.map(pathLabel).join(" → ")+
+   " ; câbles : "+r.segments.filter(x=>x.kind==="cable").map(x=>x.id).join(", ");
+ }else{
+  host.textContent=r.message+
+   " Depuis le départ : "+r.fromReachable.map(pathLabel).join(" → ")+
+   " ; depuis l'arrivée : "+r.toReachable.map(pathLabel).join(" → ")+
+   ". Aucun tronçon manquant n'est proposé automatiquement.";
  }
 }
 function renderCables(){
@@ -145,6 +170,10 @@ function renderAsset(){
   label.append(input);host.append(label);
  }
 }
+id("path-search").onsubmit=e=>{
+ e.preventDefault();const {from,to}=e.currentTarget.elements;
+ showPathResult(engine.explorePhysicalPath(from.value,to.value));
+};
 id("outlet-create").onsubmit=e=>{
  e.preventDefault();
  const r=engine.createWallOutlet(Object.fromEntries(new FormData(e.currentTarget)));
@@ -223,5 +252,5 @@ id("asset-edit").onsubmit=e=>{
  status("asset-status",r);refresh();
 };
 id("profiles").onchange=renderFields;id("assets").onchange=renderAsset;
-id("reset").onclick=()=>{engine=createAssetRegistry();refresh();id("asset-status").textContent="";id("profile-status").textContent="";id("cable-status").textContent="";id("infrastructure-status").textContent=""};
+id("reset").onclick=()=>{engine=createAssetRegistry();refresh();id("asset-status").textContent="";id("profile-status").textContent="";id("cable-status").textContent="";id("infrastructure-status").textContent="";id("path-result").textContent=""};
 window.__assetProfilesLab={snapshot:()=>engine.exportState()};refresh();
