@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>R2D3 - Lot 0, câblage et diagnostic</title>
+<style>
+:root{font-family:Arial,sans-serif;color-scheme:light dark}
+body{max-width:790px;margin:28px auto;padding:0 18px;line-height:1.5}
+h1{font-size:1.55rem}h2{font-size:1.1rem}
+section{border:1px solid #9996;border-radius:12px;padding:18px;margin:20px 0}
+button{font:inherit;padding:10px 14px;border:1px solid #889;border-radius:8px;cursor:pointer;margin:3px}
+button:disabled{opacity:.45;cursor:not-allowed}
+#wire{padding:20px 10px;font-weight:bold;text-align:center;border:2px solid;border-radius:8px;white-space:pre-wrap}
+.connected{border-color:#17945a!important}.disconnected{border-color:#c84b45!important}
+.good{color:#14844c;font-weight:bold}.bad{color:#bd4640;font-weight:bold}
+small{opacity:.8}
+</style>
+</head>
+<body>
+<p><a href="./">Retour au laboratoire R2D3</a></p>
+<h1>Lot 0 : câblage R2 et diagnostic réseau</h1>
+<p>Cette démonstration utilise les câbles et les ports du <strong>registre matériel R2</strong>. Le diagnostic IPv4 est calculé à partir de ce raccordement, sans câble supplémentaire dans le moteur réseau.</p>
+<section>
+<h2>Parc et raccordement</h2>
+<div id="wire" class="connected"></div>
+<p id="cable-state"></p>
+<button id="disconnect">Débrancher l'extrémité B</button>
+<button id="reconnect">Rebrancher l'extrémité B</button>
+<button id="reset">Recommencer</button>
+<p><small>Révision du registre matériel : <span id="revision"></span></small></p>
+</section>
+<section>
+<h2>Observation du réseau</h2>
+<p>PC1 : 192.168.10.20 /24</p>
+<p>Imprimante : 192.168.10.50 /24</p>
+<p id="ping"></p>
+</section>
+<p><small>Prototype du lot 0 : liaison directe entre deux interfaces Ethernet RJ45, sans VLAN, switch, routage, DHCP ou interface professionnelle finale. Aucun stockage permanent.</small></p>
+<script type="module" src="./lot0.js"></script>
+</body>
+</html>
