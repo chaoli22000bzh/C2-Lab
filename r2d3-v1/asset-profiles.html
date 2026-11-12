@@ -55,6 +55,11 @@ button.subtle{background:#e5edf5;color:#174b75}.check{display:flex;align-items:c
 <label>Localisation<input name="location"></label>
 <label class="check"><input name="reservable" type="checkbox"> Réservable</label>
 <button class="subtle">Enregistrer la fiche</button></form>
+<h3>Emplacement dans l'arborescence</h3>
+<p>Un équipement raccordé doit être débranché avant tout changement de lieu. Ses câbles restent inventoriés.</p>
+<form id="asset-place-change"><label>Lieu de l'équipement<select id="asset-place" name="placeId"></select></label>
+<button class="subtle">Déplacer vers ce lieu</button></form>
+<div id="asset-current-place"></div>
 <h3>Ports et interfaces de l'équipement</h3>
 <div id="asset-ports"></div>
 <h3>Ajouter une carte ou interface d'extension</h3>
@@ -64,6 +69,13 @@ button.subtle{background:#e5edf5;color:#174b75}.check{display:flex;align-items:c
 <label>Quantité<input name="count" type="number" value="1" min="1" max="128" required></label><button class="subtle">Ajouter l'extension</button></form>
 <h3>Caractéristiques du profil</h3><div id="asset-values"></div>
 <div id="asset-status" class="notice" role="status"></div></section>
+<section class="full"><h2>Lieux (recette R2D3)</h2>
+<p>Un lieu peut contenir des sous-lieux. Aucun lieu n'est obligatoire pour créer un équipement.</p>
+<form id="place-create"><label>Nom du lieu<input name="name" placeholder="France, Rennes, Internet…" required></label>
+<label>Dans le lieu (facultatif)<select name="parentId" id="place-parent"></select></label>
+<button>Créer le lieu</button></form>
+<div id="place-list"></div><div id="place-status" class="notice" role="status"></div>
+</section>
 <section class="full"><h2>Infrastructure : prises et baies</h2>
 <p>Chaque prise murale et chaque port du panneau de baie possède deux terminaisons indépendantes : avant et arrière. Ces terminaisons sont sélectionnables dans les raccordements ci-dessous.</p>
 <form id="outlet-create">
