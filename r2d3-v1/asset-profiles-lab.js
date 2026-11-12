@@ -14,7 +14,7 @@ function refresh(){
  else if(ps.some(p=>p.id===oldP))id("asset-profile").value=oldP;
  id("assets").replaceChildren(...as.map(a=>opt(a.name+" ("+(ps.find(p=>p.id===a.profileId)?.name||"?")+")",a.id)));
  if(as.some(a=>a.id===oldA))id("assets").value=oldA;
- renderFields();renderAsset();renderCables();
+ renderCables();renderFields();renderAsset();
 }
 function renderCables(){
  const all=engine.listCables(),select=id("cables"),was=select.value;
@@ -151,7 +151,14 @@ for(const [i,suffix] of [[0,"a"],[1,"b"]]){
 id("cables").onchange=renderCables;
 id("cable-delete").onclick=()=>{
  const c=engine.getCable(id("cables").value);if(!c)return;
- status("cable-status",engine.deleteCable(c.id));refresh();
+ const r=engine.deleteCable(c.id);
+ status("cable-status",r);
+ if(r.success){
+  // Mettre à jour immédiatement la liste et l’occupation des ports,
+  // indépendamment des formulaires profils et actifs.
+  renderCables();
+  refresh();
+ }
 };
 id("profile-create").onsubmit=e=>{e.preventDefault();const r=engine.createProfile(new FormData(e.currentTarget).get("name"));status("profile-status",r);refresh();if(r.success){id("profiles").value=r.profile.id;renderFields()}};
 id("duplicate").onclick=()=>{const p=selectedProfile();if(!p)return;const r=engine.duplicateProfile(p.id,p.name+" (copie)");status("profile-status",r);refresh();if(r.success){id("profiles").value=r.profile.id;renderFields()}};
