@@ -14,7 +14,22 @@ function refresh(){
  else if(ps.some(p=>p.id===oldP))id("asset-profile").value=oldP;
  id("assets").replaceChildren(...as.map(a=>opt(a.name+" ("+(ps.find(p=>p.id===a.profileId)?.name||"?")+")",a.id)));
  if(as.some(a=>a.id===oldA))id("assets").value=oldA;
- renderCables();renderFields();renderAsset();
+ renderInfrastructure();renderCables();renderFields();renderAsset();
+}
+function renderInfrastructure(){
+ const host=id("infrastructure-list");host.replaceChildren();
+ const outlets=engine.listWallOutlets(),racks=engine.listRacks();
+ const summary=document.createElement("p");
+ summary.textContent=outlets.length+" prise(s), "+racks.length+" baie(s).";
+ host.append(summary);
+ for(const outlet of outlets){
+  const p=document.createElement("p");p.textContent="Prise "+outlet.name+" ("+outlet.location+") : avant / arrière";
+  host.append(p);
+ }
+ for(const rack of racks){
+  const p=document.createElement("p");p.textContent="Baie "+rack.name+" ("+rack.location+") : panneau de "+rack.ports.length+" port(s), avant / arrière";
+  host.append(p);
+ }
 }
 function renderCables(){
  const all=engine.listCables(),select=id("cables"),was=select.value;
@@ -130,6 +145,16 @@ function renderAsset(){
   label.append(input);host.append(label);
  }
 }
+id("outlet-create").onsubmit=e=>{
+ e.preventDefault();
+ const r=engine.createWallOutlet(Object.fromEntries(new FormData(e.currentTarget)));
+ status("infrastructure-status",r);refresh();
+};
+id("rack-create").onsubmit=e=>{
+ e.preventDefault();
+ const r=engine.createRack(Object.fromEntries(new FormData(e.currentTarget)));
+ status("infrastructure-status",r);refresh();
+};
 id("cable-create").onsubmit=e=>{
  e.preventDefault();const data=Object.fromEntries(new FormData(e.currentTarget));
  const r=engine.createCable({connectors:[data.a,data.b]});
@@ -198,5 +223,5 @@ id("asset-edit").onsubmit=e=>{
  status("asset-status",r);refresh();
 };
 id("profiles").onchange=renderFields;id("assets").onchange=renderAsset;
-id("reset").onclick=()=>{engine=createAssetRegistry();refresh();id("asset-status").textContent="";id("profile-status").textContent="";id("cable-status").textContent=""};
+id("reset").onclick=()=>{engine=createAssetRegistry();refresh();id("asset-status").textContent="";id("profile-status").textContent="";id("cable-status").textContent="";id("infrastructure-status").textContent=""};
 window.__assetProfilesLab={snapshot:()=>engine.exportState()};refresh();
