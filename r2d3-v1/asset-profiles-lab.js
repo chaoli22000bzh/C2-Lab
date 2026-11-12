@@ -142,6 +142,7 @@ function renderFields(){
 function renderAsset(){
  const a=selectedAsset(),host=id("asset-values"),form=id("asset-edit");host.replaceChildren();
  form.querySelectorAll("input,select,button").forEach(control=>control.disabled=!a);
+ id("asset-remove").disabled=!a;
  id("extension-create").querySelectorAll("input,select,button").forEach(control=>control.disabled=!a);
  renderAssetPorts();
  if(a){
@@ -243,6 +244,11 @@ id("field-edit").onsubmit=e=>{
 };
 id("field-create").onsubmit=e=>{e.preventDefault();const data=Object.fromEntries(new FormData(e.currentTarget));if(data.type==="select")data.options=data.options.split(",").map(x=>x.trim()).filter(Boolean);const r=engine.addField(id("profiles").value,data);status("profile-status",r);refresh()};
 id("asset-create").onsubmit=e=>{e.preventDefault();const data=Object.fromEntries(new FormData(e.currentTarget));const r=engine.createAsset(data.profileId,data);status("asset-status",r);refresh();if(r.success){id("assets").value=r.asset.id;renderAsset()}};
+id("asset-remove").onclick=()=>{
+ const a=selectedAsset();if(!a)return;
+ const r=engine.removeAsset(a.id);
+ status("asset-status",r);refresh();
+};
 id("asset-edit").onsubmit=e=>{
  e.preventDefault();
  const a=selectedAsset();if(!a)return;
