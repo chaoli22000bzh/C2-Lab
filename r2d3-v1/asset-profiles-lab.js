@@ -34,6 +34,10 @@ function renderPlaces(){
  for(const place of all){
   const p=document.createElement("p");p.textContent=placeLabel(place,all);host.append(p);
  }
+ const panelPlace=id("panel-place"),previousPanelPlace=panelPlace.value;
+ panelPlace.replaceChildren(...all.map(p=>opt(placeLabel(p,all),p.id)));
+ if(all.some(p=>p.id===previousPanelPlace))panelPlace.value=previousPanelPlace;
+ id("panel-create").querySelector("button").disabled=!all.length;
  const select=id("asset-place"),a=selectedAsset();
  select.replaceChildren(opt("Aucun lieu",""),...all.map(p=>opt(placeLabel(p,all),p.id)));
  select.value=a?.placeId||"";
@@ -42,19 +46,32 @@ function renderPlaces(){
 }
 function renderInfrastructure(){
  const host=id("infrastructure-list");host.replaceChildren();
- const outlets=engine.listWallOutlets(),racks=engine.listRacks();
+ const outlets=engine.listWallOutlets(),panels=engine.listPanels(),places=engine.listPlaces();
  const summary=document.createElement("p");
- summary.textContent=outlets.length+" prise(s), "+racks.length+" baie(s).";
+ summary.textContent=outlets.length+" prise(s), "+panels.length+" panneau(x) de brassage.";
  host.append(summary);
  for(const outlet of outlets){
   const p=document.createElement("p");p.textContent="Prise "+outlet.name+" ("+outlet.location+") : avant / arrière";
   host.append(p);
  }
- for(const rack of racks){
-  const p=document.createElement("p");p.textContent="Baie "+rack.name+" ("+rack.location+") : panneau de "+rack.ports.length+" port(s), avant / arrière";
+ for(const panel of panels){
+  const place=places.find(p=>p.id===panel.placeId);
+  const p=document.createElement("p");
+  p.textContent="Panneau "+panel.name+" ("+(place?placeLabel(place,places):"lieu inconnu")+") : "+
+   panel.ports.length+" port(s), avant / arrière";
   host.append(p);
  }
+ const selected=id("panels"),old=selected.value;
+ selected.replaceChildren(...panels.map(p=>opt(p.name+" ("+placeLabel(places.find(x=>x.id===p.placeId),places)+")",p.id)));
+ if(panels.some(p=>p.id===old))selected.value=old;
+ const panel=engine.getPanel(selected.value),destination=id("panel-destination"),previous=destination.value;
+ destination.replaceChildren(...places.map(p=>opt(placeLabel(p,places),p.id)));
+ if(panel)destination.value=panel.placeId;
+ else if(places.some(p=>p.id===previous))destination.value=previous;
+ id("panel-move").querySelectorAll("select,button").forEach(control=>control.disabled=!panel);
+ id("panel-delete").disabled=!panel;
 }
+
 function renderPathChoices(){
  const form=id("path-search"),points=engine.listCablePoints();
  for(const key of ["from","to"]){
@@ -215,9 +232,21 @@ id("asset-place-change").onsubmit=e=>{
  const r=engine.moveAssetToPlace(a.id,e.currentTarget.elements.placeId.value||null);
  status("asset-status",r);refresh();
 };
-id("rack-create").onsubmit=e=>{
+id("panel-create").onsubmit=e=>{
  e.preventDefault();
- const r=engine.createRack(Object.fromEntries(new FormData(e.currentTarget)));
+ const r=engine.createPanel(Object.fromEntries(new FormData(e.currentTarget)));
+ status("infrastructure-status",r);refresh();
+ if(r.success)id("panels").value=r.panel.id;
+ renderInfrastructure();
+};
+id("panels").onchange=renderInfrastructure;
+id("panel-move").onsubmit=e=>{
+ e.preventDefault();
+ const r=engine.movePanelToPlace(id("panels").value,id("panel-destination").value);
+ status("infrastructure-status",r);refresh();
+};
+id("panel-delete").onclick=()=>{
+ const r=engine.removePanel(id("panels").value);
  status("infrastructure-status",r);refresh();
 };
 id("cable-create").onsubmit=e=>{
