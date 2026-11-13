@@ -76,18 +76,28 @@ button.subtle{background:#e5edf5;color:#174b75}.check{display:flex;align-items:c
 <button>Créer le lieu</button></form>
 <div id="place-list"></div><div id="place-status" class="notice" role="status"></div>
 </section>
-<section class="full"><h2>Infrastructure : prises et baies</h2>
-<p>Chaque prise murale et chaque port du panneau de baie possède deux terminaisons indépendantes : avant et arrière. Ces terminaisons sont sélectionnables dans les raccordements ci-dessous.</p>
+<section class="full"><h2>Infrastructure : prises et panneaux de brassage</h2>
+<p>Un lieu ordinaire peut contenir plusieurs panneaux indépendants, ou aucun. Chaque port de panneau et chaque prise murale possède une terminaison avant et une terminaison arrière, raccordables séparément.</p>
 <form id="outlet-create">
 <label>Prise murale<input name="name" value="B12" required></label>
-<label>Lieu<input name="location" value="Salle 101" required></label>
+<label>Lieu (texte)<input name="location" value="Salle 101" required></label>
 <button>Créer la prise</button></form>
-<form id="rack-create">
-<label>Baie<input name="name" value="Baie A" required></label>
-<label>Lieu<input name="location" value="Local réseau" required></label>
+<h3>Créer un panneau de brassage</h3>
+<p>Crée d'abord un lieu dans la section précédente, par exemple « Baie 01 », puis choisis-le ici. Aucun panneau n'est créé automatiquement avec un lieu.</p>
+<form id="panel-create">
+<label>Nom du panneau<input name="name" value="P1" required></label>
+<label>Lieu du panneau<select name="placeId" id="panel-place" required></select></label>
 <label>Premier numéro<input name="start" type="number" min="0" max="9999" value="1" required></label>
-<label>Nombre de ports du panneau<input name="count" type="number" min="1" max="512" value="12" required></label>
-<button>Créer la baie et son panneau</button></form>
+<label>Nombre de ports<input name="count" type="number" min="1" max="512" value="12" required></label>
+<label>Préfixe des ports<input name="prefix" value="" placeholder="Facultatif, ex. P"></label>
+<button>Créer le panneau</button></form>
+<h3>Gérer un panneau</h3>
+<label>Panneau<select id="panels"></select></label>
+<form id="panel-move">
+<label>Déplacer vers le lieu<select id="panel-destination" required></select></label>
+<button type="submit" class="subtle">Déplacer le panneau</button></form>
+<p>Pour déplacer ou supprimer un panneau raccordé, débranche d'abord ses câbles. Les câbles restent inventoriés.</p>
+<button id="panel-delete" type="button" class="subtle">Supprimer le panneau</button>
 <div id="infrastructure-list"></div>
 <div id="infrastructure-status" class="notice" role="status"></div>
 </section>
