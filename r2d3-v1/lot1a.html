@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>R2D3 - Lot 1A, diagnostic VLAN Access</title>
+<style>
+:root{font-family:Arial,sans-serif;color-scheme:light dark}body{max-width:750px;margin:28px auto;padding:0 18px;line-height:1.5}
+h1{font-size:1.6rem}h2{font-size:1.1rem}section{border:1px solid #8887;border-radius:12px;padding:17px;margin:18px 0}
+.diagram{display:flex;justify-content:space-between;align-items:center;gap:5px;flex-wrap:wrap}
+.device{border:1px solid #8889;border-radius:8px;text-align:center;padding:13px 8px;min-width:82px}
+.wire{flex:1;min-width:14px;border-top:3px solid #168a62}
+label{display:block;font-weight:600;margin:8px 0}select,button{font:inherit;border:1px solid #888;border-radius:8px;padding:9px;cursor:pointer}
+button{margin:12px 0}.good{color:#15824d;font-weight:700}.bad{color:#c54b3d;font-weight:700}
+small{opacity:.8}.muted{opacity:.85}
+</style>
+</head>
+<body>
+<p><a href="./">Retour au laboratoire R2D3</a></p>
+<h1>Lot 1A : diagnostic VLAN sur un switch L2</h1>
+<p>Deux PC et un switch L2 sont raccordés par les câbles du registre R2. Change le VLAN du port relié à PC2 pour observer l'incident.</p>
+<section>
+<h2>Équipements du parc</h2>
+<div class="diagram">
+  <div class="device"><strong>PC1</strong><div>192.168.10.20</div></div>
+  <div class="wire"></div>
+  <div class="device"><strong>SW01</strong><div>Switch L2</div></div>
+  <div class="wire"></div>
+  <div class="device"><strong>PC2</strong><div id="ip2">192.168.10.30</div></div>
+</div>
+<p><small>Deux câbles distincts, ports Ethernet RJ45 réels du registre R2.</small></p>
+</section>
+<section>
+<h2>Configuration des ports Access</h2>
+<p>Port vers PC1 : VLAN <strong id="vlan1">10</strong> (fixe pour ce test)</p>
+<label for="vlan2">Port vers PC2</label>
+<select id="vlan2">
+  <option value="10">VLAN 10</option>
+  <option value="20">VLAN 20</option>
+</select>
+<p id="diag" class="muted"></p>
+</section>
+<section>
+<h2>Deuxième incident indépendant (test 2)</h2>
+<label><input type="checkbox" id="ip-error"> Donner une mauvaise adresse IPv4 à PC2 (192.168.20.30)</label>
+<p><small>Une correction du VLAN ne doit pas réparer cette erreur d'adressage.</small></p>
+</section>
+<section>
+<h2>Diagnostic réseau</h2>
+<p id="ping" role="status"></p>
+<button id="reset">Recommencer</button>
+</section>
+<p><small>Prototype volontairement limité : un seul switch L2, ports Access uniquement, sans Trunk, STP, routage ni DHCP. Pas de sauvegarde permanente.</small></p>
+<script type="module" src="./lot1a.js"></script>
+</body>
+</html>
