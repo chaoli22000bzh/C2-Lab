@@ -238,7 +238,16 @@ function buildEngine(initial,host){let s=initial;
    case 'ntfs.setPermission':case 'ntfs.removePermission':case 'ntfs.disableInheritance':case 'ntfs.enableInheritance': {
     const f=get('folders',p.folderId);if(!f)return deny('folder_not_found');if(actor.session.machineId!==f.machineId)return deny('local_machine_mismatch');const a=app(f.id,'admin');if(!a.ok)return a;
     if(c.type==='ntfs.setPermission'){if(!validPrincipal(next,p.principalId)||!permission(p.level))return deny('invalid_permission');if(getAccount(next,p.principalId)?.kind==='local'&&getAccount(next,p.principalId).ownerId!==f.machineId)return deny('invalid_principal_scope');if(getGroup(next,p.principalId)?.kind==='machine-local'&&getGroup(next,p.principalId).ownerId!==f.machineId)return deny('invalid_principal_scope');const entry={principalId:p.principalId,level:p.level,inheritable:p.inheritable!==false};const ix=f.acl.findIndex(x=>x.principalId===p.principalId&&x.converted!==true);if(ix>=0)f.acl[ix]=entry;else f.acl.push(entry);code='ntfs_permission_set';}
-    else if(c.type==='ntfs.removePermission'){const ix=f.acl.findIndex(x=>x.principalId===p.principalId);if(ix<0)return deny('permission_not_found');f.acl.splice(ix,1);code='ntfs_permission_removed';}
+    else if(c.type==='ntfs.removePermission'){
+     // Choix explicite : aucune dependance a l'ordre des ACE.
+     const source=p.source??'explicit';
+     if(!['explicit','converted','all'].includes(source))return deny('invalid_permission_source');
+     const matches=e=>e.principalId===p.principalId&&(source==='all'||(source==='converted'?e.converted===true:e.converted!==true));
+     if(!f.acl.some(matches))return deny('permission_not_found');
+     f.acl=f.acl.filter(e=>!matches(e));
+     code='ntfs_permission_removed';
+     data={principalId:p.principalId,source};
+    }
     else if(c.type==='ntfs.disableInheritance'){if(!['preserve','removeInherited'].includes(p.mode))return deny('invalid_inheritance_mode');if(!f.inheritanceEnabled)return deny('inheritance_already_disabled');if(p.mode==='preserve'){for(const entry of inheritedEntries(next,f.id)){
      // L'ACE explicite reste intacte. Les droits herites sont convertis
      // dans une ACE independante, agregation max pour le meme principal.

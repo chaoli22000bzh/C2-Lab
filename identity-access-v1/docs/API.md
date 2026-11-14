@@ -91,3 +91,13 @@ Le champ `code` est stable pour les interfaces. La traduction en français et le
 
 La simulation conserve les quatre niveaux `none/read/write/admin`, sans simuler toutes les ACE Windows ni les refus explicites. `file.list` ne divulgue pas le champ `content`; celui-ci nécessite `file.read` et un contrôle NTFS.
 
+
+## Suppression des permissions NTFS, règle A5
+
+La commande `ntfs.removePermission` reçoit `params:{folderId,principalId,source?}`.
+
+- `source:'explicit'` (**défaut**, pour compatibilité) supprime uniquement l'ACE explicite d'origine, jamais l'ACE convertie.
+- `source:'converted'` supprime uniquement l'ACE issue d'une conversion `preserve`.
+- `source:'all'` supprime toutes les ACE locales sur ce dossier pour le principal, sans toucher aux entrées du parent ni à l'héritage dynamique.
+
+Un sélecteur invalide renvoie `invalid_permission_source`. Une sélection ne correspondant à aucune ACE renvoie `permission_not_found`. Les refus ne changent pas l'état ni la révision. `ntfs.setPermission` conserve la sémantique d'édition de l'ACE explicite d'origine.

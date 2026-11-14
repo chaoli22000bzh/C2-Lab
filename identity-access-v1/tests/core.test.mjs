@@ -59,3 +59,30 @@ test('Un partage supprimé efface les références de lecteur des sessions',()=>
 test('A1 aucun rôle administrateur intermachine pour un compte local',()=>{const {engine,host}=start();const before=engine.exportState();err(cmd(engine,'administrator.grant',{scope:'machine',machineId:'asset-pc02',principalId:'account-3'}),'invalid_principal_scope');assert.deepEqual(engine.exportState(),before);const invalid=engine.exportState();invalid.administratorAssignments.push({scope:'machine',machineId:'asset-pc02',principalId:'account-3'});assert.throws(()=>restoreIdentityAccessEngine({scenario,savedState:invalid,host}),/invalid_administrator/);});
 test('A1 administrateur local PC01 ne peut pas administrer PC02',()=>{const {engine}=start();const local=engine.command({type:'session.open',params:{machineId:'asset-pc01',accountId:'account-3'}});ok(local);err(cmd(engine,'account.create',{kind:'local',ownerId:'asset-pc02',login:'Intrus'},local.data.session.id),'administrator_required');});
 test('A3 file.list ne révèle aucun contenu de fichier',()=>{const {engine}=start();const r=q(engine,'file.list');ok(r);assert.ok(r.data.items.length>0);assert.equal(Object.hasOwn(r.data.items[0],'content'),false);assert.equal(JSON.stringify(r).includes('Budget fictif CyberNet'),false);});
+
+test('A5 suppression explicite, convertie ou toutes les ACE sans ambiguïté',()=>{
+ const {engine}=start();const session=engine.command({type:'session.open',params:{machineId:'asset-files',accountId:'account-1'}});ok(session);const sid=session.data.session.id;
+ ok(cmd(engine,'ntfs.setPermission',{folderId:'folder-1',principalId:'group-2',level:'admin'},sid));
+ ok(cmd(engine,'ntfs.setPermission',{folderId:'folder-2',principalId:'group-2',level:'read'},sid));
+ ok(cmd(engine,'ntfs.disableInheritance',{folderId:'folder-2',mode:'preserve'},sid));
+ const acl=()=>engine.getSnapshot().folders.find(x=>x.id==='folder-2').acl.filter(x=>x.principalId==='group-2');
+ assert.equal(acl().length,2);
+ // Aucun selecteur : suppression de l'ACE explicite seulement, sans choix base sur l'ordre.
+ ok(cmd(engine,'ntfs.removePermission',{folderId:'folder-2',principalId:'group-2'},sid));
+ assert.equal(acl().length,1);assert.equal(acl()[0].converted,true);assert.equal(acl()[0].level,'admin');
+ assert.equal(q(engine,'ntfs.effectivePermission',{accountId:'account-2',folderId:'folder-2'}).data.level,'admin');
+ const snapshot=engine.exportState();
+ err(cmd(engine,'ntfs.removePermission',{folderId:'folder-2',principalId:'group-2',source:'explicit'},sid),'permission_not_found');
+ err(cmd(engine,'ntfs.removePermission',{folderId:'folder-2',principalId:'group-2',source:'garbage'},sid),'invalid_permission_source');
+ assert.deepEqual(engine.exportState(),snapshot);
+ ok(cmd(engine,'ntfs.removePermission',{folderId:'folder-2',principalId:'group-2',source:'converted'},sid));
+ assert.equal(acl().length,0);
+ assert.equal(q(engine,'ntfs.effectivePermission',{accountId:'account-2',folderId:'folder-2'}).data.level,'none');
+ ok(cmd(engine,'ntfs.setPermission',{folderId:'folder-2',principalId:'group-2',level:'read'},sid));
+ ok(cmd(engine,'ntfs.enableInheritance',{folderId:'folder-2'},sid));
+ ok(cmd(engine,'ntfs.disableInheritance',{folderId:'folder-2',mode:'preserve'},sid));
+ assert.equal(acl().length,2);
+ ok(cmd(engine,'ntfs.removePermission',{folderId:'folder-2',principalId:'group-2',source:'all'},sid));
+ assert.equal(acl().length,0);
+ assert.equal(q(engine,'ntfs.effectivePermission',{accountId:'account-2',folderId:'folder-2'}).data.level,'none');
+});

@@ -60,3 +60,9 @@ Ces trois manipulations ne doivent être demandées au professeur qu'après vali
 Les ACL distinguent désormais l'entrée explicite de l'entrée héritée convertie (`converted:true`), y compris pour un principal identique. Deux tests visent le droit effectif avant et après `preserve`, le maintien de l'explicite `read`, la conservation du droit converti `admin`, la modification ultérieure du parent, la restauration et le mode `removeInherited`.
 
 **Tests Node non encore exécutés sur ce commit.** La validation externe et la démonstration R2D3 restent requises. Ne pas déclarer l'intégration autorisée.
+
+## Correctif A5, 14 novembre 2026
+
+`ntfs.removePermission` : sélection déterministe `explicit` (défaut), `converted`, `all`. Test de régression ajouté : deux ACE pour le même groupe, suppression explicite seule, puis convertie seule, puis toutes, droit effectif et atomicité des refus.
+
+Le nouveau commit doit être vérifié par Node et contre-audit avant levée du refus d'intégration. Le raccordement aux vraies instances R2D3 (R1) demeure hors de cette correction.

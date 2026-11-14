@@ -69,3 +69,7 @@ L'auditeur a refusé l'intégration V0.1.0 (A1, A2, A3 majeures, A4 mineure, ré
 ## Correctif A2 après contre-audit
 
 La première correction A2 était non conforme car elle supprimait le niveau hérité quand il existait une entrée explicite du même principal. Le nouveau code représente une ACE convertie séparée (`converted:true`) et des tests vérifient le droit effectif avant/après désactivation. Le schéma des permissions reste volontairement simplifié (quatre niveaux). En attendant exécution Node et nouveau contre-audit : **intégration R2D3 NON autorisée**.
+
+## Correctif A5 après deuxième contre-audit
+
+La suppression NTFS prend dorénavant `source:'explicit'|'converted'|'all'`, avec `explicit` comme valeur par défaut. La documentation API et un test de non-régression ont été ajoutés. La portée reste strictement celle des ACL, sans modification R2D3. L'intégration demeure non autorisée jusqu'à tests exécutés et contre-vérification indépendante.
