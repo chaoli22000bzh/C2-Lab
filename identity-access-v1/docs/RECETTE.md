@@ -66,3 +66,9 @@ Les ACL distinguent désormais l'entrée explicite de l'entrée héritée conver
 `ntfs.removePermission` : sélection déterministe `explicit` (défaut), `converted`, `all`. Test de régression ajouté : deux ACE pour le même groupe, suppression explicite seule, puis convertie seule, puis toutes, droit effectif et atomicité des refus.
 
 Le nouveau commit doit être vérifié par Node et contre-audit avant levée du refus d'intégration. Le raccordement aux vraies instances R2D3 (R1) demeure hors de cette correction.
+
+## Exécution CI confirmée, commit 3ce0ac6
+
+GitHub Actions, exécution [43605816669](https://github.com/chaoli22000bzh/C2-Lab/actions/runs/43605816669), sur le commit `3ce0ac61b3d659e6b5ba48cfc721d4775009effc` : **36 tests Node exécutés, 36 réussis, 0 échec**, dont A5. `npm run build:demo` et la comparaison avec le scénario généré ont également réussi. Les résultats ont été contrôlés dans les journaux du job GitHub.
+
+La validation automatisée ne remplace ni le contre-audit indépendant ni le raccordement de l'adaptateur aux véritables moteurs R2D3 (R1). **Intégration R2D3 NON autorisée à cette étape.**

@@ -73,3 +73,9 @@ La première correction A2 était non conforme car elle supprimait le niveau hé
 ## Correctif A5 après deuxième contre-audit
 
 La suppression NTFS prend dorénavant `source:'explicit'|'converted'|'all'`, avec `explicit` comme valeur par défaut. La documentation API et un test de non-régression ont été ajoutés. La portée reste strictement celle des ACL, sans modification R2D3. L'intégration demeure non autorisée jusqu'à tests exécutés et contre-vérification indépendante.
+
+## Exécution CI confirmée, commit 3ce0ac6
+
+GitHub Actions, exécution [43605816669](https://github.com/chaoli22000bzh/C2-Lab/actions/runs/43605816669), sur le commit `3ce0ac61b3d659e6b5ba48cfc721d4775009effc` : **36 tests Node exécutés, 36 réussis, 0 échec**, dont A5. `npm run build:demo` et la comparaison avec le scénario généré ont également réussi. Les résultats ont été contrôlés dans les journaux du job GitHub.
+
+La validation automatisée ne remplace ni le contre-audit indépendant ni le raccordement de l'adaptateur aux véritables moteurs R2D3 (R1). **Intégration R2D3 NON autorisée à cette étape.**
