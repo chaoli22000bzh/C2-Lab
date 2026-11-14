@@ -1,14 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {createAssetRegistry,restoreAssetRegistry} from '../../r2d3-source/src/asset-profiles.js';
-import {createEngine,restoreEngine} from '../../r2d3-source/src/r2d3-core.js';
+import {createAssetRegistry,restoreAssetRegistry} from '../../../r2d3-source/src/asset-profiles.js';
+import {createEngine,restoreEngine} from '../../../r2d3-source/src/r2d3-core.js';
 import {createR2D3IdentityHost} from '../adapters/r2d3-adapter.js';
 import {createIdentityAccessEngine,restoreIdentityAccessEngine} from '../src/identity-access-core.js';
 import {scenario as original} from './fixture.mjs';
 
 // Real R2D3 scenario and actual constructors. No copied registry or network engine.
-const base=JSON.parse(readFileSync(new URL('../../r2d3-source/scenarios/atelier-2pc-imprimante-exp.json',import.meta.url),'utf8'));
+const base=JSON.parse(readFileSync(new URL('../../../r2d3-source/scenarios/atelier-2pc-imprimante-exp.json',import.meta.url),'utf8'));
 const names=['PC01','PC02','SRV-FICHIERS','DC01','DC02'];
 const netIds=['pc-01','pc-02','srv-files','dc-01','dc-02'];
 const identityIds=['asset-pc01','asset-pc02','asset-files','asset-dc01','asset-dc02'];
