@@ -90,3 +90,17 @@ test("un trajet sans câble reste interrompu sans ajout automatique",()=>{
  assert.equal(path.connected,false);
  assert.equal(JSON.stringify(engine.exportState()),before);
 });
+
+
+test("câble entièrement libre visible même lorsque le filtre par lieu est actif",()=>{
+ const {engine,place}=fixture();
+ const created=engine.createCable({connectors:["db9-female","db9-female"]});
+ assert.equal(created.success,true);
+ const before=JSON.stringify(engine.exportState());
+ const model=buildCablingViewModel(engine,place.id);
+ const cable=model.connections.find(c=>c.id===created.cable.id);
+ assert.ok(cable,"le câble libre doit rester sélectionnable");
+ assert.equal(cable.complete,false);
+ assert.equal(cable.ends.every(end=>end.free),true);
+ assert.equal(JSON.stringify(engine.exportState()),before);
+});
