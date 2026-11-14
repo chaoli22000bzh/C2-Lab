@@ -1,0 +1,14 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {createR2D3IdentityHost} from '../adapters/r2d3-adapter.js';
+import {createIdentityAccessEngine} from '../src/identity-access-core.js';
+import {scenario} from './fixture.mjs';
+const ids=['asset-pc01','asset-pc02','asset-files','asset-dc01','asset-dc02'];
+const snapshot={simulationClock:720,objectsById:Object.fromEntries(ids.map((id,i)=>['net-'+(i+1),{id:'net-'+(i+1)}]))};
+const assetRegistry={getAsset:id=>ids.includes(id)?{id,name:id}:null};
+const networkEngine={getSnapshot:()=>structuredClone(snapshot),query:()=>({status:'unavailable'})};
+const config={assetRegistry,networkEngine,assetToNetworkId:Object.fromEntries(ids.map((id,i)=>[id,'net-'+(i+1)])),assetKinds:Object.fromEntries(ids.map(id=>[id,id.includes('pc')?'computer':'server']))};
+test('Contrat hôte R2D3 et aucune correspondance implicite',()=>{const host=createR2D3IdentityHost(config);assert.equal(host.getMachine('asset-pc01').machine.id,'asset-pc01');assert.equal(host.getMachine('asset-unknown').status,'not_found');assert.equal(host.getSimulationTime().value,720);assert.equal(host.getServiceStatus('asset-files','smb').status,'unknown');assert.equal(host.getReachability('asset-pc01','asset-files','smb').status,'unknown');});
+test('Moteur refuse le faux succès en absence des constats de service',()=>{const host=createR2D3IdentityHost(config);const e=createIdentityAccessEngine({scenario,host});const r=e.query({type:'access.evaluateSmb',sessionId:'session-1',shareId:'share-1',credentialAccountId:'account-2',operation:'read'});assert.equal(r.success,false);assert.equal(r.code,'service_status_unknown');});
+test('Faits de test injectés : DC redondants et partage SMB',()=>{const services=new Map([['asset-dc01|ad-ds','unavailable']]);const host=createR2D3IdentityHost({...config,serviceEvidence:(id,type)=>services.get(id+'|'+type)||'available',reachabilityEvidence:()=> 'reachable'});const e=createIdentityAccessEngine({scenario,host});assert.equal(e.query({type:'domain.status',sourceMachineId:'asset-pc01'}).data.controllerAssetId,'asset-dc02');assert.equal(e.query({type:'access.evaluateSmb',sessionId:'session-1',shareId:'share-1',credentialAccountId:'account-2',operation:'write'}).success,true);});
+test('Référence de machine absente du moteur réseau produit unknown',()=>{const host=createR2D3IdentityHost({...config,assetToNetworkId:{...config.assetToNetworkId,'asset-files':'net-404'}});assert.equal(host.getMachine('asset-files').status,'unknown');assert.throws(()=>createIdentityAccessEngine({scenario,host}),/invalid/);});
