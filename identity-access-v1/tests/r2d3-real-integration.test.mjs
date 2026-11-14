@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {createAssetRegistry} from '../../r2d3-source/src/asset-profiles.js';
-import {createEngine} from '../../r2d3-source/src/r2d3-core.js';
+import {createAssetRegistry,restoreAssetRegistry} from '../../r2d3-source/src/asset-profiles.js';
+import {createEngine,restoreEngine} from '../../r2d3-source/src/r2d3-core.js';
 import {createR2D3IdentityHost} from '../adapters/r2d3-adapter.js';
-import {createIdentityAccessEngine} from '../src/identity-access-core.js';
+import {createIdentityAccessEngine,restoreIdentityAccessEngine} from '../src/identity-access-core.js';
 import {scenario as original} from './fixture.mjs';
 
 // Real R2D3 scenario and actual constructors. No copied registry or network engine.
@@ -89,4 +89,61 @@ test('R1 liaison réelle débranchée : pas de joignabilité déduite',()=>{
  const engine=createIdentityAccessEngine({scenario:x.scenario,host});
  assert.equal(host.getReachability(x.assetIds[0],x.assetIds[4],'domain').status,'unreachable');
  assert.equal(engine.query({type:'domain.status',sourceMachineId:x.assetIds[0]}).data.controllerAssetId,x.assetIds[3]);
+});
+
+function explicitNetworkEvidence(x) {
+ return {
+  serviceEvidence:(id,service)=> ['smb','ad-ds'].includes(service)?'available':'unknown',
+  reachabilityEvidence:(from,to,purpose)=>{
+   if(!['domain','smb'].includes(purpose))return 'unknown';
+   const result=x.network.query({type:'network.ping',sourceId:x.mapping[from],targetId:x.mapping[to]});
+   return result.status==='ok'?(result.success?'reachable':'unreachable'):'unknown';
+  }
+ };
+}
+
+test('R2 : restauration transversale préserve identités, actifs, réseau et droits SMB',()=>{
+ const x=setup();
+ const host=makeHost(x,explicitNetworkEvidence(x));
+ const identities=createIdentityAccessEngine({scenario:x.scenario,host});
+ const request={type:'access.evaluateSmb',sessionId:'session-1',shareId:'share-1',credentialAccountId:'account-2',operation:'write'};
+ const before=identities.query(request);
+ assert.equal(before.success,true,JSON.stringify(before));
+ const registryState=structuredClone(x.registry.exportState());
+ const networkState=structuredClone(x.network.exportState());
+ const identityState=structuredClone(identities.exportState());
+ const restoredRegistry=restoreAssetRegistry(registryState);
+ const restoredNetwork=restoreEngine(x.network.getSnapshot().scenario??x.scenario,networkState);
+ const restoredHost=createR2D3IdentityHost({
+  assetRegistry:restoredRegistry,networkEngine:restoredNetwork,
+  assetToNetworkId:x.mapping,assetKinds:x.kinds,
+  serviceEvidence:explicitNetworkEvidence({...x,network:restoredNetwork}).serviceEvidence,
+  reachabilityEvidence:explicitNetworkEvidence({...x,network:restoredNetwork}).reachabilityEvidence
+ });
+ const restoredIdentity=restoreIdentityAccessEngine({scenario:x.scenario,savedState:identityState,host:restoredHost});
+ assert.deepEqual(restoredRegistry.exportState(),registryState);
+ assert.deepEqual(restoredNetwork.exportState(),networkState);
+ assert.deepEqual(restoredIdentity.exportState(),identityState);
+ assert.equal(restoredIdentity.query(request).success,true);
+ assert.deepEqual(restoredIdentity.query(request).data,before.data);
+});
+
+test('R2 : interruption physique SMB refuse accès et toute modification des permissions',()=>{
+ const x=setup(),services=explicitNetworkEvidence(x),host=makeHost(x,services);
+ const identity=createIdentityAccessEngine({scenario:x.scenario,host});
+ const request={type:'access.evaluateSmb',sessionId:'session-1',shareId:'share-1',credentialAccountId:'account-2',operation:'write'};
+ assert.equal(identity.query(request).success,true);
+ const before=JSON.stringify(identity.exportState());
+ const link='cable-srv-files';
+ const cut=x.network.dispatch({commandVersion:1,id:'r2-disconnect-smb',type:'network.setLinkConnected',targetId:link,
+  params:{connected:false},expectedRevision:x.network.getSnapshot().revision});
+ assert.equal(cut.status,'applied',JSON.stringify(cut));
+ assert.equal(x.network.query({type:'network.ping',sourceId:x.mapping[x.assetIds[0]],targetId:x.mapping[x.assetIds[2]]}).success,false);
+ assert.equal(host.getReachability(x.assetIds[0],x.assetIds[2],'smb').status,'unreachable');
+ assert.equal(identity.query(request).code,'server_unreachable');
+ assert.equal(JSON.stringify(identity.exportState()),before);
+ const repair=x.network.dispatch({commandVersion:1,id:'r2-reconnect-smb',type:'network.setLinkConnected',targetId:link,
+  params:{connected:true},expectedRevision:x.network.getSnapshot().revision});
+ assert.equal(repair.status,'applied');
+ assert.equal(identity.query(request).success,true);
 });
