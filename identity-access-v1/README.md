@@ -1,5 +1,8 @@
 # Identity Access Core
 
+> **Publication de recette provisoire (14 novembre 2026).** Le code et l'interface CyberNet sont maintenant accessibles sur GitHub dans `C2-Lab/identity-access-v1/` : [ouvrir le laboratoire](https://chaoli22000bzh.github.io/C2-Lab/identity-access-v1/demo/). Ce dossier est un *banc d'essai*, et non le dépôt autonome définitif demandé par R2D3. Le dépôt `identity-access-core` reste à créer séparément. Le code source canonique V0.1.0 reste dans le dépôt Git livré en archive en attendant ce transfert.
+
+
 **Version de livraison : 0.1.0 (candidat à l'audit externe)**
 
 Moteur pédagogique JavaScript autonome pour les identités locales et de domaine, un Active Directory simulé, les appartenances AGDLP, les droits NTFS simplifiés, les partages SMB et les règles de lecteurs réseau. **Ce projet n'est pas un système de sécurité réel.**

@@ -1,5 +1,8 @@
 # Transmission au responsable R2D3
 
+> **Mise à jour de publication.** Un banc d'essai complet est publié sous [C2-Lab/identity-access-v1](https://github.com/chaoli22000bzh/C2-Lab/tree/main/identity-access-v1) et [sa page CyberNet](https://chaoli22000bzh.github.io/C2-Lab/identity-access-v1/demo/). L'absence de dépôt GitHub autonome mentionnée ci-dessous concerne toujours le dépôt définitif, qui reste à créer. Le banc C2-Lab n'est pas une intégration C² ni une validation navigateur.
+
+
 ## Livré
 
 - Projet : `identity-access-core`
