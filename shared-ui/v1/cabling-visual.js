@@ -71,6 +71,8 @@ export function renderCablingVisual(root, model, actions = {}) {
   };
   const selectedPort=actions.selectedPortId;
   const selectedCable=actions.selectedCableId;
+  const highlightedPorts=new Set(actions.highlightedPortIds||[]);
+  const highlightedCables=new Set(actions.highlightedCableIds||[]);
   const wiring=!!actions.onPortClick;
   const group=el("div","cv-devices");
   for(const device of model.devices){
@@ -79,7 +81,7 @@ export function renderCablingVisual(root, model, actions = {}) {
     const row=el("div","cv-ports");
     if(!device.ports.length)row.append(el("span","cv-muted","Aucun port physique"));
     for(const p of device.ports){
-      const highlighted=!!p.cableId&&p.cableId===selectedCable;
+      const highlighted=(!!p.cableId&&p.cableId===selectedCable)||highlightedPorts.has(p.id)||highlightedCables.has(p.cableId);
       const cls="cv-port "+(p.cableId?"cv-occupied":"cv-free")+
         (p.id===selectedPort?" cv-selected":"")+(highlighted?" cv-highlight":"");
       const chip=el(wiring?"button":"span",cls,p.label);
@@ -109,7 +111,7 @@ export function renderCablingVisual(root, model, actions = {}) {
   root.append(el("h3","","Câbles"));
   const connections=el("div","cv-connections");
   for(const cable of model.connections){
-    const active=cable.id===selectedCable;
+    const active=cable.id===selectedCable||highlightedCables.has(cable.id);
     const line=el("div","cv-connection"+(active?" cv-connection-selected":""));
     const heading=el("div","cv-cable-heading");
     if(actions.onCableSelect)heading.append(makeButton(cable.id,()=>actions.onCableSelect(cable.id),"cv-cable-choice"));
