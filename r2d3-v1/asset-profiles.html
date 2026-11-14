@@ -13,6 +13,31 @@ button{border:0;border-radius:7px;background:#1867a3;color:white;padding:10px 13
 button.subtle{background:#e5edf5;color:#174b75}.check{display:flex;align-items:center;gap:8px}.check input{width:auto}.item span:last-child{display:flex;gap:4px}#asset-values label{margin-top:10px}.item{border:1px solid #e1e6ed;border-radius:7px;padding:9px;margin:8px 0;display:flex;align-items:center;justify-content:space-between;gap:10px}
 .item button{padding:5px 8px}.notice{font-size:13px;font-weight:600;min-height:22px;margin-top:10px}.bad{color:#ae283a}.good{color:#17703e}.full{grid-column:1/-1}
 @media(max-width:750px){.grid{grid-template-columns:1fr}section{border-radius:0}}
+
+/* Vue graphique du câblage, sans interaction de modification. */
+.cv-toolbar{display:flex;gap:12px;align-items:end;flex-wrap:wrap;margin:12px 0}
+.cv-toolbar label{max-width:320px}
+.cv-devices{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:12px;margin:12px 0 18px}
+.cv-device{border:1px solid #b9cadd;border-radius:9px;background:#f5f9fd;padding:12px;min-width:0}
+.cv-kind{font-size:12px;color:#61768d;text-transform:uppercase;letter-spacing:.03em}
+.cv-name{display:block;margin:3px 0 10px}
+.cv-ports{display:flex;flex-wrap:wrap;gap:5px}
+.cv-port{display:inline-block;border:1px solid #a9b8c7;background:#fff;padding:4px 6px;border-radius:4px;font-size:12px;white-space:nowrap}
+.cv-occupied{border-color:#c67b12;background:#fff0d2;color:#6e4205}
+.cv-free{color:#607386}
+.cv-connections{display:grid;gap:8px}
+.cv-connection{border:1px solid #d5dde9;border-radius:7px;padding:9px 12px;background:#fff}
+.cv-cable-id{font-size:12px;color:#355775}
+.cv-path{display:grid;grid-template-columns:minmax(0,1fr) minmax(30px,.25fr) minmax(0,1fr);align-items:center;gap:8px;margin-top:4px}
+.cv-end{overflow-wrap:anywhere;font-size:13px}
+.cv-wire{height:3px;background:#8593a3;border-radius:4px;position:relative}
+.cv-wire:after{content:"";width:7px;height:7px;border:2px solid #8593a3;background:white;border-radius:50%;position:absolute;right:0;top:-4px}
+.cv-wire-complete{background:#26825a}
+.cv-wire-complete:after{border-color:#26825a}
+.cv-wire-incomplete{background:repeating-linear-gradient(90deg,#9aa6b4 0 7px,transparent 7px 12px)}
+.cv-muted{color:#6a7a8c;font-size:13px}
+.cv-outside{color:#74508a}
+@media(max-width:550px){.cv-path{grid-template-columns:minmax(0,1fr) 20px minmax(0,1fr);gap:5px}.cv-end{font-size:12px}}
 </style></head><body>
 <header><h1>R2D3 : constructeur de profils matériels</h1><p>Créer un profil, ajouter des caractéristiques et inventorier des équipements</p></header>
 <main><div class="grid">
@@ -116,7 +141,12 @@ button.subtle{background:#e5edf5;color:#174b75}.check{display:flex;align-items:c
 <button type="button" id="cable-delete" class="subtle">Supprimer le câble</button>
 <div id="cable-status" class="notice" role="status"></div>
 </section>
-<section class="full"><h2>4. Chemin physique</h2>
+<section class="full" id="cabling-visual-section"><h2>4. Vue graphique du câblage</h2>
+<p>Vue en lecture seule des équipements, panneaux, ports et câbles réellement présents dans le moteur. Orange : port occupé ; blanc : port libre. Une ligne verte représente un câble raccordé aux deux extrémités.</p>
+<div class="cv-toolbar"><label>Lieu<select id="cabling-visual-place"><option value="">Tous les lieux</option></select></label></div>
+<div id="cabling-visual" aria-live="polite"></div>
+</section>
+<section class="full"><h2>5. Chemin physique</h2>
 <p>Rechercher un chemin réel entre deux ports. En cas de coupure, les deux portions observables sont affichées séparément, sans inventer le raccordement manquant.</p>
 <form id="path-search">
 <label>Départ<select name="from" required></select></label>
@@ -124,5 +154,5 @@ button.subtle{background:#e5edf5;color:#174b75}.check{display:flex;align-items:c
 <button>Rechercher le chemin</button></form>
 <div id="path-result" class="notice" role="status"></div>
 </section>
-<section class="full"><h2>Périmètre de cette première version</h2><p>Création, duplication et modification des profils, édition des champs descriptifs et des fiches des actifs, protection des valeurs existantes. La génération des ports intégrés et des extensions est disponible. Le premier moteur de câbles à deux extrémités est disponible pour recette sur RJ45. Prises et panneaux de brassage disposent maintenant de points avant et arrière. Les vues graphiques, les autres connecteurs ne sont pas encore opérationnels ; la recherche de chemin physique est disponible en mode textuel ; les comportements réseau viendront ensuite. Le rechargement réinitialise cet exemple, sans sauvegarde locale.</p><button type="button" id="reset" class="subtle">Recommencer</button></section>
+<section class="full"><h2>Périmètre de cette première version</h2><p>Création, duplication et modification des profils, édition des champs descriptifs et des fiches des actifs, protection des valeurs existantes. La génération des ports intégrés et des extensions est disponible. Le premier moteur de câbles à deux extrémités est disponible pour recette sur RJ45. Prises et panneaux de brassage disposent maintenant de points avant et arrière. Une vue graphique du câblage en lecture seule est disponible ; les autres connecteurs ne sont pas encore opérationnels et la recherche de chemin physique reste disponible en mode textuel ; les comportements réseau viendront ensuite. Le rechargement réinitialise cet exemple, sans sauvegarde locale.</p><button type="button" id="reset" class="subtle">Recommencer</button></section>
 </div></main><script type="module" src="./asset-profiles-lab.js"></script></body></html>
