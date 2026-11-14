@@ -75,6 +75,7 @@ function visualPortClick(portId){
   return;
  }
  if(p.occupied){
+  if(visualSelectedPort){visualMessage("Port déjà occupé. Choisis un port libre.",false);drawCablingVisual();return;}
   const c=engine.listCables().find(c=>c.ends.some(end=>end?.portId===portId));
   visualSelectedPort=null;visualSelectedCable=c?.id??null;
   visualMessage(c?"Port raccordé à "+c.id+". Sélectionne une extrémité du câble pour la débrancher.":"Port occupé.");
