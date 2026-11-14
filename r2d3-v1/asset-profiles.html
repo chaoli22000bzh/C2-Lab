@@ -52,6 +52,7 @@ button.cv-cable-choice,button.cv-disconnect,button.cv-attach{width:auto;min-heig
 button.cv-cable-choice{background:#e5edf5;color:#174b75}
 button.cv-disconnect{background:#fce8e8;color:#8d2530}
 button.cv-attach{background:#dcefe4;color:#17613d}
+.cv-modes{display:flex;gap:6px;flex-wrap:wrap}.cv-modes button{background:#e5edf5;color:#174b75;min-height:38px}.cv-modes button[aria-pressed="true"]{background:#1867a3;color:white}
 </style></head><body>
 <header><h1>R2D3 : constructeur de profils matériels</h1><p>Créer un profil, ajouter des caractéristiques et inventorier des équipements</p></header>
 <main><div class="grid">
@@ -156,8 +157,8 @@ button.cv-attach{background:#dcefe4;color:#17613d}
 <div id="cable-status" class="notice" role="status"></div>
 </section>
 <section class="full" id="cabling-visual-section"><h2>4. Vue graphique du câblage</h2>
-<p>Pour brancher : clique sur deux ports libres, ou fais glisser un port vers un autre sur PC. Clique sur un port occupé ou sur un câble pour afficher les actions de débranchement. Orange : occupé ; blanc : libre ; vert : câble raccordé aux deux extrémités. Les mêmes commandes fonctionnent au toucher.</p>
-<div class="cv-toolbar"><label>Lieu<select id="cabling-visual-place"><option value="">Tous les lieux</option></select></label></div>
+<p>Pour brancher : clique sur deux ports libres, ou fais glisser un port vers un autre sur PC. Clique sur un port occupé ou sur un câble pour afficher les actions de débranchement. Orange : occupé ; blanc : libre ; vert : câble raccordé aux deux extrémités. Utilise « Suivre un chemin » pour mettre en évidence une liaison physique entre deux ports. Les mêmes commandes fonctionnent au toucher.</p>
+<div class="cv-toolbar"><label>Lieu<select id="cabling-visual-place"><option value="">Tous les lieux</option></select></label><div class="cv-modes" role="group" aria-label="Mode de visualisation"><button type="button" id="cabling-mode-connect" aria-pressed="true">Brancher</button><button type="button" id="cabling-mode-path" aria-pressed="false">Suivre un chemin</button></div></div>
 <div id="cabling-visual-status" class="notice" role="status" aria-live="polite">Choisis deux ports libres pour créer un câble.</div>
 <div id="cabling-visual"></div>
 </section>
