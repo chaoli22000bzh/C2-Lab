@@ -1,0 +1,19 @@
+name: Tests Node câblage R2D3
+on:
+  push:
+    paths:
+      - '.github/workflows/node-cabling.yml'
+      - 'tests/cabling-*.test.mjs'
+      - 'shared-ui/v1/cabling-*.js'
+      - 'r2d3-v1/asset-profiles.js'
+  workflow_dispatch:
+jobs:
+  node-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Exécuter les tests de câblage
+        run: node --test tests/cabling-visual.test.mjs tests/cabling-interactive.test.mjs
