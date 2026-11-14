@@ -42,7 +42,10 @@ export function buildCablingViewModel(registry, selectedPlaceId = "") {
     ? devices.filter(d => d.placeId === selectedPlaceId)
     : devices;
   const visiblePorts = new Set(visible.flatMap(d => d.ports.map(p => p.id)));
+  // Les câbles entièrement libres restent sélectionnables pour raccordement,
+  // même lorsque le filtre par lieu est actif.
   const connections = cables.filter(c => !selectedPlaceId ||
+    c.ends.every(end => !end?.portId) ||
     c.ends.some(end => end && visiblePorts.has(end.portId))
   ).map(c => {
     const ends = c.ends.map((end, i) => {
