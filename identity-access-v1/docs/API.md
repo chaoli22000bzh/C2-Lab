@@ -83,3 +83,8 @@ Le champ `code` est stable pour les interfaces. La traduction en français et le
 - La révision est incrémentée après une mutation admissible.
 - Une restitution incohérente provoque une exception plutôt qu'une réparation silencieuse.
 - Une modification de schéma incompatible nécessitera une migration explicite et une nouvelle version majeure.
+## Restriction explicite V0.1.0 sur la conversion NTFS
+
+Une ACL explicite existante n'est jamais modifiée par `ntfs.disableInheritance(mode:'preserve')`. Les entrées héritées de nouveaux principaux sont copiées. Si une entrée héritée porte sur un principal déjà explicitement présent, elle n'est **pas** convertie en une deuxième entrée : le schéma V0.1.0 interdit les doublons de principal. Le niveau effectif peut donc changer lors de la désactivation dans ce cas. Une simulation fidèle des ACE Windows distinctes exigera une évolution du schéma, à concevoir avant intégration pédagogique avancée.
+
+`file.list` ne fournit que les métadonnées des fichiers, sans leur champ `content`. Le contenu est réservé à `file.read` après contrôle NTFS.

@@ -46,3 +46,11 @@ Les tests vérifient : comptes locaux homonymes, domaine et groupes, chaîne AGD
 3. Sur le dossier Comptabilite : désactiver l'héritage en le conservant, constater les droits, puis le réactiver.
 
 Ces trois manipulations ne doivent être demandées au professeur qu'après validation complète des tests et de l'audit externe.
+## Correctifs après audit indépendant (candidat, vérification à refaire)
+
+- A1 : contrôle de portée des administrateurs locaux à l'attribution, à l'utilisation et à la restauration.
+- A2 : protection des entrées ACL explicites lors de `preserve` ; limite du schéma sur les ACE de même principal documentée dans API.md.
+- A3 : `file.list` ne renvoie plus le contenu des fichiers.
+- A4 : ajout du script `scripts/build-demo.mjs` pour `npm run build:demo`.
+- Tests de non-régression ajoutés. **Aucun verdict de réussite Node revendiqué tant que `npm test` n'a pas été exécuté sur le commit corrigé.**
+- Verdict d'intégration R2D3 : **NON**, en attendant contre-audit, clarification A2 et raccordement réel de l'adaptateur.

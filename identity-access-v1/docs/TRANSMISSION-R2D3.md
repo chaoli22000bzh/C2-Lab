@@ -62,3 +62,6 @@ L'adaptateur conserve **uniquement les références** aux objets R2D3 et aux fon
 - Le laboratoire n'a pas été validé dans le navigateur : la plateforme d'exécution bloque la navigation HTTP locale par stratégie administrative.
 - Aucun changement de C², `R2D3/src/asset-profiles.js` ou `R2D3/src/r2d3-core.js`.
 - Les tests automatisés ne sont pas un audit indépendant.
+## Suite de l'audit indépendant (14 novembre 2026)
+
+L'auditeur a refusé l'intégration V0.1.0 (A1, A2, A3 majeures, A4 mineure, réserve R1). Des correctifs ont été publiés sur le banc, mais la contre-vérification et l'exécution des tests sur ce commit restent nécessaires. La conversion NTFS de permissions héritées pour un principal déjà couvert par une permission explicite n'est pas fidèle à toutes les ACE Windows en raison du schéma actuel, comme expliqué dans `docs/API.md`. **Ne pas intégrer à R2D3 à ce stade.**
