@@ -1,7 +1,7 @@
 name: Identity Access Core real R2D3 integration
 on:
   push:
-    branches: [main]
+    branches: [main, 'test/r2d3-identity-r2-restoration-smb-20261114']
     paths:
       - 'identity-access-v1/**'
       - '.github/workflows/identity-access-r2d3.yml'
@@ -25,4 +25,4 @@ jobs:
         working-directory: C2-Lab/identity-access-v1
         env:
           R2D3_SOURCE_ROOT: ../../r2d3-source
-        run: node --test tests/integration-real.mjs
+        run: node --test tests/integration-real.mjs tests/r2d3-real-integration.test.mjs
