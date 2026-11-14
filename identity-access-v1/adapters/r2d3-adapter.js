@@ -15,7 +15,9 @@ export function createR2D3IdentityHost({assetRegistry,networkEngine,assetToNetwo
   const asset=assetRegistry.getAsset(assetId);if(!asset)return {status:'not_found'};
   const kind=assetKinds[assetId];if(!['computer','server'].includes(kind))return {status:'unknown'};
   const id=assetToNetworkId[assetId];if(typeof id!=='string'||!id)return {status:'unknown'};
-  const nw=networkEngine.getSnapshot();if(!nw?.objectsById?.[id])return {status:'unknown'};
+  const nw=networkEngine.getSnapshot();const object=nw?.objectsById?.[id];if(!object)return {status:'unknown'};
+  // Si l'objet réseau expose une liaison canonique à l'actif, elle doit être cohérente.
+  if(object.assetId!==undefined&&object.assetId!==assetId)return {status:'unknown'};
   return {status:'ok',machine:{id:assetId,kind}};
  };
  return {

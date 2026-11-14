@@ -76,3 +76,11 @@ La validation automatisée ne remplace ni le contre-audit indépendant ni le rac
 ## R1 : tests transversaux avec véritables moteurs R2D3
 
 Une CI distincte importe les vrais `createAssetRegistry` et `createEngine` du dépôt R2D3 à commit figé ; source et rapport : `docs/RECETTE-R1.md`. Les tests ont des observations applicatives simulées mais de vrais identifiants d'actifs et de vraies réponses réseau. La disponibilité applicative AD DS/SMB n'est **pas** encore observée nativement par R2D3.
+
+## R1, banc transversal avec moteurs réels (14 novembre 2026)
+
+La suite `tests/integration-real.mjs` charge directement `createAssetRegistry` depuis `R2D3/src/asset-profiles.js` et `createEngine` depuis `R2D3/src/r2d3-core.js` par un deuxième checkout GitHub Actions. Elle crée les cinq actifs via le registre réel et une topologie dérivée du scénario réseau réel `atelier-dhcp-deux-pc-v1.json`, avec correspondance explicite des identifiants. Aucun moteur réseau, registre d'actifs ou stock métier parallèle n'est créé.
+
+Le test distingue strictement deux choses : (1) le vrai moteur R2D3 constate la connectivité ICMP ; (2) un constat explicite injecté par le scénario de banc est nécessaire pour AD DS/SMB, qui ne sont pas encore observables directement par le moteur R2D3. Le ping seul ne permet aucun faux succès AD/SMB. Ce banc prouve l'interopérabilité des API et la propagation des références, **pas** l'observation intrinsèque des services AD/SMB par R2D3.
+
+Le workflow est `.github/workflows/identity-access-r2d3.yml`. Résultat non confirmé avant consultation de l'exécution GitHub Actions.

@@ -1,4 +1,4 @@
-name: Identity Access R2D3 real-engine integration
+name: Identity Access Core real R2D3 integration
 on:
   push:
     branches: [main]
@@ -10,18 +10,19 @@ jobs:
   integration:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout identity access lab
-        uses: actions/checkout@v4
-      - name: Checkout pinned R2D3 real engines
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          path: C2-Lab
+      - uses: actions/checkout@v4
         with:
           repository: chaoli22000bzh/R2D3
-          ref: b497a7168913e0f3c31fad0dcdccfab3a3a4052c
+          ref: main
           path: r2d3-source
-          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Real-module integration test
-        working-directory: identity-access-v1
-        run: node --test tests/r2d3-real-integration.test.mjs
+      - name: Real integration against R2D3 source modules
+        working-directory: C2-Lab/identity-access-v1
+        env:
+          R2D3_SOURCE_ROOT: ../../r2d3-source
+        run: node --test tests/integration-real.mjs

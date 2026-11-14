@@ -83,3 +83,7 @@ La validation automatisée ne remplace ni le contre-audit indépendant ni le rac
 ## R1 : état de la preuve d'intégration
 
 Le test transversal avec les vrais moteurs R2D3 a été lancé et passé dans [la CI dédiée](https://github.com/chaoli22000bzh/C2-Lab/actions/runs/43606692598). Les identifiants d'actifs sont produits par `createAssetRegistry`, le réseau par le vrai `createEngine`. Les observations de services AD DS et SMB restent **injectées** (absence de sondes applicatives natives dans R2D3). Détails et réserves : `docs/RECETTE-R1.md`.
+
+## Épreuve R1 avec les deux dépôts
+
+Nouveau banc `tests/integration-real.mjs`, qui importe les modules R2D3 réels lors d'un checkout dédié en CI, utilise le registre d'actifs réel et le moteur réseau réel, puis instancie Identity Access Core avec leurs `asset.id` et `objectsById`. Les constats `ad-ds`/`smb` restent des observations **externes explicites de laboratoire**, pas des constats actuellement fournis par R2D3. Il faut donc encore un contrat de preuve de service pour lever R1 intégralement. Aucun fichier R2D3 ni C² modifié.
