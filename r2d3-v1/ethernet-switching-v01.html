@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>R2D3 - Commutation Ethernet simple V0.1</title>
+<style>
+:root{font:16px/1.5 system-ui,Segoe UI,sans-serif;color-scheme:light dark}body{max-width:860px;margin:0 auto;padding:18px}h1{font-size:1.55rem}h2{font-size:1.12rem}section{border:1px solid #9ca3af88;border-radius:12px;padding:18px;margin:18px 0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:640px){.grid{grid-template-columns:1fr}}button,select{font:inherit;padding:9px;border-radius:7px;margin:4px 3px}button{cursor:pointer;border:1px solid #7699bf;background:#e8f1ff;color:#173e69}button:disabled{opacity:.4;cursor:not-allowed}button:focus-visible,select:focus-visible{outline:3px solid #e89d34}.devices{display:flex;justify-content:space-around;gap:4px;align-items:center;margin:20px 0}.device{border:1px solid #8098b3;border-radius:8px;padding:10px;min-width:70px;text-align:center}.wire{height:4px;flex:1;background:#16a34a}.wire.down{background:#c75042;opacity:.6;background-image:repeating-linear-gradient(90deg,transparent 0 8px,#fff 8px 12px)}.good{color:#168447;font-weight:700}.bad{color:#cd5549;font-weight:700}.note{opacity:.8;font-size:.9rem}.stage{padding:8px 12px;border-radius:8px;background:#7a87951c}#feedback{min-height:50px}label{display:block;margin-top:10px}small{opacity:.75}a{color:inherit}
+</style>
+</head>
+<body>
+<p><a href="./">Retour au laboratoire R2D3</a></p>
+<h1>V0.1 : commutation Ethernet simple</h1>
+<p>Deux PC, un switch non administrable de 5 ports, deux câbles issus du véritable registre R2D3. Aucun VLAN ni routage.</p>
+<section><h2>Réseau du laboratoire</h2>
+<div class="devices"><div class="device">PC1<br><small>192.168.10.20</small></div><div class="wire" id="wire1"></div><div class="device">SW01<br><small>5 ports</small></div><div class="wire" id="wire2"></div><div class="device">PC2<br><small id="pc2ip">192.168.10.30</small></div></div>
+<p id="wiring"></p><p id="feedback" aria-live="polite" class="stage">Clique sur « Tester le ping » pour commencer.</p>
+<button id="ping">Tester le ping PC1 → PC2</button><button id="reset">Réinitialiser le scénario</button></section>
+<section><h2>Manipulations</h2><div class="grid"><div>
+<button id="disconnect">Débrancher PC2 du switch</button>
+<button id="reconnect">Rebrancher PC2</button>
+</div><div>
+<label for="ip">Adresse IPv4 de PC2</label><select id="ip"><option value="192.168.10.30">192.168.10.30 /24 (même réseau)</option><option value="192.168.20.30">192.168.20.30 /24 (autre réseau)</option></select>
+<label for="port">Port du switch pour PC2</label><select id="port"><option value="1">Port 2</option><option value="2">Port 3</option><option value="3">Port 4</option><option value="4">Port 5</option></select>
+<button id="move">Déplacer le câble de PC2 sur ce port</button>
+</div></div></section>
+<section><h2>Recette prévue</h2><ol><li>Ping réussi, câbles et IP corrects</li><li>Débranchement : ping échoué</li><li>Rebranchement : ping rétabli</li><li>PC2 dans un autre sous-réseau : ping échoué</li><li>PC2 sur un autre port : ping réussi</li></ol>
+<p class="note">Version légère : un switch et deux PC seulement. La capacité de commutation est sélectionnée explicitement pour ce test ; son rattachement générique aux profils viendra dans la version complète.</p></section>
+<script type="module" src="./ethernet-switching-lab-v01.js"></script>
+</body></html>
