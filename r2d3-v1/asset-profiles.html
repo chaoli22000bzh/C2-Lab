@@ -38,6 +38,20 @@ button.subtle{background:#e5edf5;color:#174b75}.check{display:flex;align-items:c
 .cv-muted{color:#6a7a8c;font-size:13px}
 .cv-outside{color:#74508a}
 @media(max-width:550px){.cv-path{grid-template-columns:minmax(0,1fr) 20px minmax(0,1fr);gap:5px}.cv-end{font-size:12px}}
+
+/* Interactions graphiques : ports cliquables, surbrillance et actions câbles. */
+button.cv-port{cursor:pointer;width:auto;min-width:38px;min-height:34px;padding:5px 8px;font-size:12px;font-weight:600}
+button.cv-port.cv-free{background:#fff;color:#425771;border:1px solid #a9b8c7}
+button.cv-port.cv-occupied{background:#fff0d2;color:#6e4205;border:1px solid #c67b12}
+button.cv-port:hover,button.cv-port:focus-visible{outline:2px solid #17679d;outline-offset:1px}
+button.cv-port.cv-selected{background:#d7ecfd;border-color:#17679d;color:#104b79;box-shadow:0 0 0 2px #91c7ee}
+button.cv-port.cv-highlight{box-shadow:0 0 0 2px #e4a52b}
+.cv-connection-selected{border-color:#d19b37;background:#fffaf0}
+.cv-cable-heading{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+button.cv-cable-choice,button.cv-disconnect,button.cv-attach{width:auto;min-height:34px;padding:6px 9px;font-size:12px}
+button.cv-cable-choice{background:#e5edf5;color:#174b75}
+button.cv-disconnect{background:#fce8e8;color:#8d2530}
+button.cv-attach{background:#dcefe4;color:#17613d}
 </style></head><body>
 <header><h1>R2D3 : constructeur de profils matériels</h1><p>Créer un profil, ajouter des caractéristiques et inventorier des équipements</p></header>
 <main><div class="grid">
@@ -142,9 +156,10 @@ button.subtle{background:#e5edf5;color:#174b75}.check{display:flex;align-items:c
 <div id="cable-status" class="notice" role="status"></div>
 </section>
 <section class="full" id="cabling-visual-section"><h2>4. Vue graphique du câblage</h2>
-<p>Vue en lecture seule des équipements, panneaux, ports et câbles réellement présents dans le moteur. Orange : port occupé ; blanc : port libre. Une ligne verte représente un câble raccordé aux deux extrémités.</p>
+<p>Pour brancher : clique sur deux ports libres, ou fais glisser un port vers un autre sur PC. Clique sur un port occupé ou sur un câble pour afficher les actions de débranchement. Orange : occupé ; blanc : libre ; vert : câble raccordé aux deux extrémités. Les mêmes commandes fonctionnent au toucher.</p>
 <div class="cv-toolbar"><label>Lieu<select id="cabling-visual-place"><option value="">Tous les lieux</option></select></label></div>
-<div id="cabling-visual" aria-live="polite"></div>
+<div id="cabling-visual-status" class="notice" role="status" aria-live="polite">Choisis deux ports libres pour créer un câble.</div>
+<div id="cabling-visual"></div>
 </section>
 <section class="full"><h2>5. Chemin physique</h2>
 <p>Rechercher un chemin réel entre deux ports. En cas de coupure, les deux portions observables sont affichées séparément, sans inventer le raccordement manquant.</p>
