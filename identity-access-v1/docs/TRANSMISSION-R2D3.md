@@ -87,3 +87,14 @@ Le test transversal avec les vrais moteurs R2D3 a été lancé et passé dans [l
 ## Épreuve R1 avec les deux dépôts
 
 Nouveau banc `tests/integration-real.mjs`, qui importe les modules R2D3 réels lors d'un checkout dédié en CI, utilise le registre d'actifs réel et le moteur réseau réel, puis instancie Identity Access Core avec leurs `asset.id` et `objectsById`. Les constats `ad-ds`/`smb` restent des observations **externes explicites de laboratoire**, pas des constats actuellement fournis par R2D3. Il faut donc encore un contrat de preuve de service pour lever R1 intégralement. Aucun fichier R2D3 ni C² modifié.
+
+## Résultat exécuté R1, commit 15c2918
+
+GitHub Actions a exécuté le test transversal avec les **vrais modules** `R2D3/src/asset-profiles.js` et `R2D3/src/r2d3-core.js` (second checkout GitHub). Le banc part du scénario réel `atelier-dhcp-deux-pc-v1.json` pour construire une topologie de cinq postes/serveurs et crée les actifs avec `createAssetRegistry`. Les identifiants produits sont utilisés directement par Identity Access Core.
+
+- [Exécution R1 43607324111](https://github.com/chaoli22000bzh/C2-Lab/actions/runs/43607324111) : **3/3 tests réussis**.
+- [Exécution cœur 43607324105](https://github.com/chaoli22000bzh/C2-Lab/actions/runs/43607324105) : **36/36 tests réussis**.
+- Les mauvais appariements sont refusés si l'objet réseau porte une référence d'actif contradictoire ; mapping injectif exigé.
+- La connectivité ICMP du moteur R2D3 est testée, mais les observations positives `ad-ds` et `smb` sont injectées explicitement par le banc. **R2D3 ne fournit pas encore une preuve native de service AD DS/SMB.**
+
+**Verdict limité : interopérabilité des APIs réelles prouvée ; intégration complète des services AD DS/SMB non démontrée.** Aucun composant R2D3/C² n'a été modifié. Une recette indépendante pourra décider si cette réserve bloque l'intégration applicative ou doit être traitée par le futur composant de supervision de services.
