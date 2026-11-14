@@ -1,4 +1,5 @@
 import {createAssetRegistry} from "./asset-profiles.js";
+import {buildCablingViewModel, renderCablingVisual} from "../shared-ui/v1/cabling-visual.js";
 let engine=createAssetRegistry();
 const id=x=>document.getElementById(x);
 const opt=(label,value)=>{const e=document.createElement("option");e.value=value;e.textContent=label;return e};
@@ -14,7 +15,13 @@ function refresh(){
  else if(ps.some(p=>p.id===oldP))id("asset-profile").value=oldP;
  id("assets").replaceChildren(...as.map(a=>opt(a.name+" ("+(ps.find(p=>p.id===a.profileId)?.name||"?")+")",a.id)));
  if(as.some(a=>a.id===oldA))id("assets").value=oldA;
- renderPlaces();renderInfrastructure();renderCables();renderPathChoices();renderFields();renderAsset();
+ renderPlaces();renderInfrastructure();renderCables();renderPathChoices();renderFields();renderAsset();refreshCablingVisual();
+}
+function refreshCablingVisual() {
+ const picker=id("cabling-visual-place"), previous=picker.value, places=engine.listPlaces();
+ picker.replaceChildren(opt("Tous les lieux",""),...places.map(p=>opt(placeLabel(p,places),p.id)));
+ if(places.some(p=>p.id===previous))picker.value=previous;
+ renderCablingVisual(id("cabling-visual"),buildCablingViewModel(engine,picker.value));
 }
 function placeLabel(place,all){
  const names=[place.name];let current=place,seen=new Set([place.id]);
@@ -323,4 +330,5 @@ id("asset-edit").onsubmit=e=>{
 };
 id("profiles").onchange=renderFields;id("assets").onchange=renderAsset;
 id("reset").onclick=()=>{engine=createAssetRegistry();refresh();id("asset-status").textContent="";id("profile-status").textContent="";id("cable-status").textContent="";id("infrastructure-status").textContent="";id("place-status").textContent="";id("path-result").textContent=""};
+id("cabling-visual-place").onchange=()=>renderCablingVisual(id("cabling-visual"),buildCablingViewModel(engine,id("cabling-visual-place").value));
 window.__assetProfilesLab={snapshot:()=>engine.exportState()};refresh();
