@@ -36,7 +36,10 @@ function drawCablingVisual(){
   selectedPortId:visualSelectedPort,selectedCableId:visualSelectedCable,
   highlightedPortIds:visualPathPorts,highlightedCableIds:visualPathCableIds,
   onPortClick:visualPortClick,
-  onPortDrop:(from,to)=>visualConnect(from,to),
+  onPortDrop:(from,to)=>{
+   if(visualPathMode){visualMessage("Le glisser-déposer est réservé au mode Branchement.",false);return;}
+   visualConnect(from,to);
+  },
   onCableSelect:cableId=>{
    visualSelectedCable=visualSelectedCable===cableId?null:cableId;
    visualSelectedPort=null;visualPendingAttach=null;
@@ -60,6 +63,8 @@ function drawCablingVisual(){
  });
 }
 function visualConnect(from,to){
+ if(visualPathMode){visualMessage("Sélectionne le mode Branchement pour connecter des ports.",false);return;}
+ visualPathPorts=[];visualPathCableIds=[];
  const r=connectNewCable(engine,from,to);
  if(r.success){visualSelectedCable=r.cableId;visualSelectedPort=null;visualPendingAttach=null;}
  visualMessage(r.message,r.success);
