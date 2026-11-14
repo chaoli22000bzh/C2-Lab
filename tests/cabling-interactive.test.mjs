@@ -69,3 +69,24 @@ test("le graphique montre les extrémités hors du lieu filtré",()=>{
  assert.equal(model.connections.length,1);
  assert.equal(model.connections[0].ends[1].outside,true);
 });
+
+test("mise en évidence du chemin utilise les segments réels de R2D3",()=>{
+ const {engine,a,b}=fixture();
+ const created=connectNewCable(engine,a.portId,b.portId);
+ assert.equal(created.success,true);
+ const rev=engine.exportState().revision;
+ const path=engine.explorePhysicalPath(a.portId,b.portId);
+ assert.equal(path.success,true);
+ assert.equal(path.connected,true);
+ assert.deepEqual(path.segments.filter(s=>s.kind==="cable").map(s=>s.id),[created.cableId]);
+ assert.equal(engine.exportState().revision,rev);
+});
+
+test("un trajet sans câble reste interrompu sans ajout automatique",()=>{
+ const {engine,a,b}=fixture();
+ const before=JSON.stringify(engine.exportState());
+ const path=engine.explorePhysicalPath(a.portId,b.portId);
+ assert.equal(path.success,true);
+ assert.equal(path.connected,false);
+ assert.equal(JSON.stringify(engine.exportState()),before);
+});
