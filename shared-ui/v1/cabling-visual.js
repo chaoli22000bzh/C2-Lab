@@ -58,7 +58,7 @@ export function buildCablingViewModel(registry, selectedPlaceId = "") {
     unlocatedOutlets: outlets.length > 0 && !!selectedPlaceId};
 }
 
-export function renderCablingVisual(root, model) {
+export function renderCablingVisual(root, model, actions = {}) {
   root.replaceChildren();
   const el = (tag, className, value) => {
     const node = document.createElement(tag);
@@ -66,37 +66,74 @@ export function renderCablingVisual(root, model) {
     if (value !== undefined) node.textContent = value;
     return node;
   };
-  const group = el("div", "cv-devices");
-  for (const device of model.devices) {
-    const card = el("article", "cv-device");
-    card.append(el("div", "cv-kind", device.kind), el("strong", "cv-name", device.name));
-    const row = el("div", "cv-ports");
-    if (!device.ports.length) row.append(el("span", "cv-muted", "Aucun port physique"));
-    for (const p of device.ports) {
-      const chip = el("span", "cv-port " + (p.cableId ? "cv-occupied" : "cv-free"), p.label);
-      chip.title = p.cableId ? "Raccordé à " + p.cableId : "Port libre";
+  const makeButton=(label,callback,className="subtle")=>{
+    const button=el("button",className,label);button.type="button";button.onclick=callback;return button;
+  };
+  const selectedPort=actions.selectedPortId;
+  const selectedCable=actions.selectedCableId;
+  const wiring=!!actions.onPortClick;
+  const group=el("div","cv-devices");
+  for(const device of model.devices){
+    const card=el("article","cv-device");
+    card.append(el("div","cv-kind",device.kind),el("strong","cv-name",device.name));
+    const row=el("div","cv-ports");
+    if(!device.ports.length)row.append(el("span","cv-muted","Aucun port physique"));
+    for(const p of device.ports){
+      const highlighted=!!p.cableId&&p.cableId===selectedCable;
+      const cls="cv-port "+(p.cableId?"cv-occupied":"cv-free")+
+        (p.id===selectedPort?" cv-selected":"")+(highlighted?" cv-highlight":"");
+      const chip=el(wiring?"button":"span",cls,p.label);
+      chip.title=p.cableId?"Raccordé à "+p.cableId:"Port libre";
+      if(wiring){
+        chip.type="button";
+        chip.setAttribute("aria-pressed",String(p.id===selectedPort));
+        chip.onclick=()=>actions.onPortClick(p.id);
+        chip.draggable=true;
+        chip.ondragstart=event=>{
+          event.dataTransfer.setData("text/plain",p.id);
+          event.dataTransfer.effectAllowed="move";
+        };
+        chip.ondragover=event=>{event.preventDefault();event.dataTransfer.dropEffect="move";};
+        chip.ondrop=event=>{
+          event.preventDefault();
+          const source=event.dataTransfer.getData("text/plain");
+          if(source&&actions.onPortDrop)actions.onPortDrop(source,p.id);
+        };
+      }
       row.append(chip);
     }
-    card.append(row); group.append(card);
+    card.append(row);group.append(card);
   }
-  if (!model.devices.length) group.append(el("p", "cv-muted", "Aucun équipement ni panneau dans cette vue."));
+  if(!model.devices.length)group.append(el("p","cv-muted","Aucun équipement ni panneau dans cette vue."));
   root.append(group);
-  root.append(el("h3", "", "Câbles"));
-  const connections = el("div", "cv-connections");
-  for (const cable of model.connections) {
-    const line = el("div", "cv-connection");
-    line.append(el("strong", "cv-cable-id", cable.id));
-    const path = el("div", "cv-path");
-    for (let i=0;i<2;i++) {
-      const end = cable.ends[i];
-      path.append(el("span", "cv-end " + (end.free ? "cv-muted" : "") +
-        (end.outside ? " cv-outside" : ""), end.label));
-      if (i===0) path.append(el("span", "cv-wire " + (cable.complete ? "cv-wire-complete" : "cv-wire-incomplete")));
+  root.append(el("h3","","Câbles"));
+  const connections=el("div","cv-connections");
+  for(const cable of model.connections){
+    const active=cable.id===selectedCable;
+    const line=el("div","cv-connection"+(active?" cv-connection-selected":""));
+    const heading=el("div","cv-cable-heading");
+    if(actions.onCableSelect)heading.append(makeButton(cable.id,()=>actions.onCableSelect(cable.id),"cv-cable-choice"));
+    else heading.append(el("strong","cv-cable-id",cable.id));
+    if(active&&actions.onDisconnect){
+      for(let i=0;i<2;i++){
+        const end=cable.ends[i];
+        if(!end.free)heading.append(makeButton("Débrancher "+(i?"B":"A"),()=>actions.onDisconnect(cable.id,i),"cv-disconnect"));
+        else if(actions.onAttach)heading.append(makeButton("Raccorder "+(i?"B":"A"),()=>actions.onAttach(cable.id,i),"cv-attach"));
+      }
+      if(actions.onDelete)heading.append(makeButton("Supprimer",()=>actions.onDelete(cable.id),"cv-disconnect"));
+    }
+    line.append(heading);
+    const path=el("div","cv-path");
+    for(let i=0;i<2;i++){
+      const end=cable.ends[i];
+      path.append(el("span","cv-end "+(end.free?"cv-muted":"")+
+        (end.outside?" cv-outside":""),end.label));
+      if(i===0)path.append(el("span","cv-wire "+(cable.complete?"cv-wire-complete":"cv-wire-incomplete")));
     }
     line.append(path);connections.append(line);
   }
-  if (!model.connections.length) connections.append(el("p", "cv-muted", "Aucun câble à afficher."));
+  if(!model.connections.length)connections.append(el("p","cv-muted","Aucun câble à afficher."));
   root.append(connections);
-  if (model.unlocatedOutlets) root.append(el("p", "cv-muted",
+  if(model.unlocatedOutlets)root.append(el("p","cv-muted",
     "Les prises murales sans lieu structuré sont visibles dans « Tous les lieux »."));
 }
