@@ -19,6 +19,7 @@ function refresh(){
  renderPlaces();renderInfrastructure();renderCables();renderPathChoices();renderFields();renderAsset();refreshCablingVisual();
 }
 let visualSelectedPort=null,visualSelectedCable=null,visualPendingAttach=null;
+let visualPathMode=false,visualPathPorts=[],visualPathCableIds=[];
 function visualMessage(message,success=true){
  const out=id("cabling-visual-status");
  out.textContent=message;
@@ -33,6 +34,7 @@ function drawCablingVisual(){
  if(visualPendingAttach&&!engine.getCable(visualPendingAttach.cableId))visualPendingAttach=null;
  renderCablingVisual(id("cabling-visual"),model,{
   selectedPortId:visualSelectedPort,selectedCableId:visualSelectedCable,
+  highlightedPortIds:visualPathPorts,highlightedCableIds:visualPathCableIds,
   onPortClick:visualPortClick,
   onPortDrop:(from,to)=>visualConnect(from,to),
   onCableSelect:cableId=>{
@@ -64,6 +66,14 @@ function visualConnect(from,to){
  if(r.success)refresh();else drawCablingVisual();
 }
 function visualPortClick(portId){
+ if(visualPathMode){
+  if(visualPathPorts.length!==1){visualPathPorts=[portId];visualPathCableIds=[];visualMessage("Point de départ sélectionné. Choisis le point d’arrivée.");drawCablingVisual();return;}
+  const from=visualPathPorts[0],result=engine.explorePhysicalPath(from,portId);
+  visualPathPorts=result.success&&result.connected?result.path.map(p=>p.portId):[from,portId];
+  visualPathCableIds=result.success&&result.connected?result.segments.filter(s=>s.kind==="cable").map(s=>s.id):[];
+  visualMessage(result.message,result.success&&result.connected);
+  drawCablingVisual();return;
+ }
  const p=engine.listCablePoints().find(x=>x.portId===portId);
  if(!p)return;
  if(visualPendingAttach){
@@ -401,6 +411,9 @@ id("asset-edit").onsubmit=e=>{
  status("asset-status",r);refresh();
 };
 id("profiles").onchange=renderFields;id("assets").onchange=renderAsset;
-id("reset").onclick=()=>{engine=createAssetRegistry();visualSelectedPort=null;visualSelectedCable=null;visualPendingAttach=null;id("cabling-visual-status").textContent="";refresh();id("asset-status").textContent="";id("profile-status").textContent="";id("cable-status").textContent="";id("infrastructure-status").textContent="";id("place-status").textContent="";id("path-result").textContent=""};
+id("reset").onclick=()=>{engine=createAssetRegistry();visualPathPorts=[];visualPathCableIds=[];visualSelectedPort=null;visualSelectedCable=null;visualPendingAttach=null;id("cabling-visual-status").textContent="";refresh();id("asset-status").textContent="";id("profile-status").textContent="";id("cable-status").textContent="";id("infrastructure-status").textContent="";id("place-status").textContent="";id("path-result").textContent=""};
 id("cabling-visual-place").onchange=()=>{visualSelectedPort=null;visualPendingAttach=null;drawCablingVisual()};
+id("cabling-mode-connect").onclick=()=>{visualPathMode=false;visualPathPorts=[];visualPathCableIds=[];visualSelectedPort=null;id("cabling-mode-connect").setAttribute("aria-pressed","true");id("cabling-mode-path").setAttribute("aria-pressed","false");visualMessage("Mode branchement : sélectionne deux ports libres.");drawCablingVisual()};
+id("cabling-mode-path").onclick=()=>{visualPathMode=true;visualPathPorts=[];visualPathCableIds=[];visualSelectedPort=null;visualPendingAttach=null;id("cabling-mode-path").setAttribute("aria-pressed","true");id("cabling-mode-connect").setAttribute("aria-pressed","false");visualMessage("Mode chemin : sélectionne un départ et une arrivée.");drawCablingVisual()};
+
 window.__assetProfilesLab={snapshot:()=>engine.exportState()};refresh();
