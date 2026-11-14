@@ -17,3 +17,7 @@ Le test vérifie la correspondance explicite entre l'identité des objets résea
 **Limite majeure :** R2D3 ne simule toujours pas les services AD DS et SMB eux-mêmes. Les observations applicatives sont injectées par le test ; `network.ping` ne prouve que la connectivité IPv4 de base et est traité comme une condition nécessaire, jamais comme une preuve autonome de la disponibilité applicative. Sans observations injectées, la réponse reste `unknown`.
 
 **Décision d'intégration :** le test transversal atteste une compatibilité des constructeurs et de leurs états. Il ne permet PAS de déclarer une vraie détection AD DS/SMB ni de supprimer le risque R1 avant prise en charge de ces observations par l'hôte R2D3. Aucun fichier dans le dépôt R2D3 n'a été modifié.
+
+## Exécution de la première CI transversale
+
+Exécution [43606692598](https://github.com/chaoli22000bzh/C2-Lab/actions/runs/43606692598) : **succès**, avec les vrais constructeurs R2D3. La première exécution du workflow Node général a échoué car sa commande globale incluait à tort ce test qui dépend d'un deuxième checkout. Les scripts ont été isolés : `npm test` (36 tests autonomes) et `npm run test:r2d3` (3 tests réels, après checkout séparé).

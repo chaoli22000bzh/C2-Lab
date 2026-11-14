@@ -72,3 +72,7 @@ Le nouveau commit doit être vérifié par Node et contre-audit avant levée du 
 GitHub Actions, exécution [43605816669](https://github.com/chaoli22000bzh/C2-Lab/actions/runs/43605816669), sur le commit `3ce0ac61b3d659e6b5ba48cfc721d4775009effc` : **36 tests Node exécutés, 36 réussis, 0 échec**, dont A5. `npm run build:demo` et la comparaison avec le scénario généré ont également réussi. Les résultats ont été contrôlés dans les journaux du job GitHub.
 
 La validation automatisée ne remplace ni le contre-audit indépendant ni le raccordement de l'adaptateur aux véritables moteurs R2D3 (R1). **Intégration R2D3 NON autorisée à cette étape.**
+
+## R1 : tests transversaux avec véritables moteurs R2D3
+
+Une CI distincte importe les vrais `createAssetRegistry` et `createEngine` du dépôt R2D3 à commit figé ; source et rapport : `docs/RECETTE-R1.md`. Les tests ont des observations applicatives simulées mais de vrais identifiants d'actifs et de vraies réponses réseau. La disponibilité applicative AD DS/SMB n'est **pas** encore observée nativement par R2D3.

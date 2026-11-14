@@ -9,9 +9,10 @@
     "./r2d3-adapter": "./adapters/r2d3-adapter.js"
   },
   "scripts": {
-    "test": "node --test tests/*.test.mjs",
+    "test": "node --test tests/core.test.mjs tests/adapter.test.mjs",
     "demo": "node demo/cybernet-node.mjs",
-    "build:demo": "node scripts/build-demo.mjs"
+    "build:demo": "node scripts/build-demo.mjs",
+    "test:r2d3": "node --test tests/r2d3-real-integration.test.mjs"
   },
   "engines": {
     "node": ">=20"

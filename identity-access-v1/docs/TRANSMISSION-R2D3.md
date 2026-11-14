@@ -79,3 +79,7 @@ La suppression NTFS prend dorénavant `source:'explicit'|'converted'|'all'`, ave
 GitHub Actions, exécution [43605816669](https://github.com/chaoli22000bzh/C2-Lab/actions/runs/43605816669), sur le commit `3ce0ac61b3d659e6b5ba48cfc721d4775009effc` : **36 tests Node exécutés, 36 réussis, 0 échec**, dont A5. `npm run build:demo` et la comparaison avec le scénario généré ont également réussi. Les résultats ont été contrôlés dans les journaux du job GitHub.
 
 La validation automatisée ne remplace ni le contre-audit indépendant ni le raccordement de l'adaptateur aux véritables moteurs R2D3 (R1). **Intégration R2D3 NON autorisée à cette étape.**
+
+## R1 : état de la preuve d'intégration
+
+Le test transversal avec les vrais moteurs R2D3 a été lancé et passé dans [la CI dédiée](https://github.com/chaoli22000bzh/C2-Lab/actions/runs/43606692598). Les identifiants d'actifs sont produits par `createAssetRegistry`, le réseau par le vrai `createEngine`. Les observations de services AD DS et SMB restent **injectées** (absence de sondes applicatives natives dans R2D3). Détails et réserves : `docs/RECETTE-R1.md`.
