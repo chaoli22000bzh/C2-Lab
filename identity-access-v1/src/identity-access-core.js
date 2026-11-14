@@ -92,7 +92,8 @@ function adminFor(s,accountId,machineId,scope){
 }
 function sessionIdentity(s,id){const ses=idRef(s.sessions,id);if(!ses)return null;const a=getAccount(s,ses.accountId);return a?{session:ses,account:a}:null;}
 function validPrincipal(s,id){return !!getAccount(s,id)||!!getGroup(s,id);}
-function validateAcl(s,acl){return Array.isArray(acl)&&acl.every(e=>obj(e)&&validPrincipal(s,e.principalId)&&permission(e.level)&&typeof e.inheritable==='boolean')&&noDup(acl.map(x=>x.principalId));}
+// V0.1 : une ACE explicite et une ACE convertie peuvent coexister pour le meme principal.
+function validateAcl(s,acl){return Array.isArray(acl)&&acl.every(e=>obj(e)&&validPrincipal(s,e.principalId)&&permission(e.level)&&typeof e.inheritable==='boolean'&&(e.converted===undefined||e.converted===true))&&noDup(acl.map(x=>x.principalId+'|'+(x.converted===true?'converted':'explicit')));}
 function normalizeAcl(s,acl){if(!Array.isArray(acl))return null;const v=acl.map(e=>({principalId:e.principalId,level:e.level,inheritable:e.inheritable!==false}));return validateAcl(s,v)?v:null;}
 function validMembership(s,m){const g=getGroup(s,m.groupId);if(!g)return false;
  if(m.memberType==='account'){
@@ -236,9 +237,15 @@ function buildEngine(initial,host){let s=initial;
    }
    case 'ntfs.setPermission':case 'ntfs.removePermission':case 'ntfs.disableInheritance':case 'ntfs.enableInheritance': {
     const f=get('folders',p.folderId);if(!f)return deny('folder_not_found');if(actor.session.machineId!==f.machineId)return deny('local_machine_mismatch');const a=app(f.id,'admin');if(!a.ok)return a;
-    if(c.type==='ntfs.setPermission'){if(!validPrincipal(next,p.principalId)||!permission(p.level))return deny('invalid_permission');if(getAccount(next,p.principalId)?.kind==='local'&&getAccount(next,p.principalId).ownerId!==f.machineId)return deny('invalid_principal_scope');if(getGroup(next,p.principalId)?.kind==='machine-local'&&getGroup(next,p.principalId).ownerId!==f.machineId)return deny('invalid_principal_scope');const entry={principalId:p.principalId,level:p.level,inheritable:p.inheritable!==false};const ix=f.acl.findIndex(x=>x.principalId===p.principalId);if(ix>=0)f.acl[ix]=entry;else f.acl.push(entry);code='ntfs_permission_set';}
+    if(c.type==='ntfs.setPermission'){if(!validPrincipal(next,p.principalId)||!permission(p.level))return deny('invalid_permission');if(getAccount(next,p.principalId)?.kind==='local'&&getAccount(next,p.principalId).ownerId!==f.machineId)return deny('invalid_principal_scope');if(getGroup(next,p.principalId)?.kind==='machine-local'&&getGroup(next,p.principalId).ownerId!==f.machineId)return deny('invalid_principal_scope');const entry={principalId:p.principalId,level:p.level,inheritable:p.inheritable!==false};const ix=f.acl.findIndex(x=>x.principalId===p.principalId&&x.converted!==true);if(ix>=0)f.acl[ix]=entry;else f.acl.push(entry);code='ntfs_permission_set';}
     else if(c.type==='ntfs.removePermission'){const ix=f.acl.findIndex(x=>x.principalId===p.principalId);if(ix<0)return deny('permission_not_found');f.acl.splice(ix,1);code='ntfs_permission_removed';}
-    else if(c.type==='ntfs.disableInheritance'){if(!['preserve','removeInherited'].includes(p.mode))return deny('invalid_inheritance_mode');if(!f.inheritanceEnabled)return deny('inheritance_already_disabled');if(p.mode==='preserve'){for(const entry of inheritedEntries(next,f.id)){const existing=f.acl.find(x=>x.principalId===entry.principalId);if(existing){/* Une entree explicite existante reste inchangee ; le schema interdit les doublons de principal. */}else f.acl.push({principalId:entry.principalId,level:entry.level,inheritable:entry.inheritable});}}f.inheritanceEnabled=false;code='inheritance_disabled';}
+    else if(c.type==='ntfs.disableInheritance'){if(!['preserve','removeInherited'].includes(p.mode))return deny('invalid_inheritance_mode');if(!f.inheritanceEnabled)return deny('inheritance_already_disabled');if(p.mode==='preserve'){for(const entry of inheritedEntries(next,f.id)){
+     // L'ACE explicite reste intacte. Les droits herites sont convertis
+     // dans une ACE independante, agregation max pour le meme principal.
+     const converted=f.acl.find(x=>x.principalId===entry.principalId&&x.converted===true);
+     if(converted){if(ranks[entry.level]>ranks[converted.level])converted.level=entry.level;converted.inheritable=converted.inheritable||entry.inheritable!==false;}
+     else f.acl.push({principalId:entry.principalId,level:entry.level,inheritable:entry.inheritable!==false,converted:true});
+    }}f.inheritanceEnabled=false;code='inheritance_disabled';}
     else {if(f.inheritanceEnabled)return deny('inheritance_already_enabled');f.inheritanceEnabled=true;code='inheritance_enabled';}break;
    }
    case 'file.create':case 'file.update':case 'file.rename':case 'file.delete': {

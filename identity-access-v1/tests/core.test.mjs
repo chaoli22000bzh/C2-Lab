@@ -27,8 +27,27 @@ test('Pas de modification de fichier distant par la commande locale',()=>{const 
 test('Modification distante par SMB soumise aux deux couches',()=>{const {engine}=start();const update=cmd(engine,'smb.fileUpdate',{shareId:'share-1',fileId:'file-1',credentialAccountId:'account-2',content:'budget modifié'});ok(update);assert.equal(engine.getSnapshot().files[0].content,'budget modifié');ok(cmd(engine,'share.setPermission',{shareId:'share-1',principalId:'group-2',level:'read'}));const before=engine.exportState();err(cmd(engine,'smb.fileUpdate',{shareId:'share-1',fileId:'file-1',credentialAccountId:'account-2',content:'non'}),'share_insufficient_permission');assert.deepEqual(engine.exportState(),before);});
 
 test('Réinitialisation d’un secret fictif invalide le marqueur précédent',()=>{const {engine}=start();ok(cmd(engine,'account.resetCredential',{accountId:'account-2'}));err(engine.command({type:'session.open',params:{machineId:'asset-pc02',accountId:'account-2'}}),'credential_rejected');ok(engine.command({type:'session.open',params:{machineId:'asset-pc02',accountId:'account-2',credentialRevision:1}}));});
-test('Conservation des ACL explicites en conversion de l héritage',()=>{const {engine}=start();const server=engine.command({type:'session.open',params:{machineId:'asset-files',accountId:'account-1'}});ok(server);ok(cmd(engine,'ntfs.setPermission',{folderId:'folder-1',principalId:'group-2',level:'admin'},server.data.session.id));ok(cmd(engine,'ntfs.setPermission',{folderId:'folder-2',principalId:'group-2',level:'read'},server.data.session.id));ok(cmd(engine,'ntfs.disableInheritance',{folderId:'folder-2',mode:'preserve'},server.data.session.id));let folder=engine.getSnapshot().folders.find(f=>f.id==='folder-2');assert.equal(folder.acl.find(x=>x.principalId==='group-2').level,'read');ok(cmd(engine,'ntfs.enableInheritance',{folderId:'folder-2'},server.data.session.id));folder=engine.getSnapshot().folders.find(f=>f.id==='folder-2');assert.equal(folder.acl.find(x=>x.principalId==='group-2').level,'read');});
-
+test('A2 preserve garde ACE explicite read et droit effectif admin',()=>{const {engine,host}=start();const srv=engine.command({type:'session.open',params:{machineId:'asset-files',accountId:'account-1'}});ok(srv);const sid=srv.data.session.id;
+ ok(cmd(engine,'ntfs.setPermission',{folderId:'folder-1',principalId:'group-2',level:'admin'},sid));
+ ok(cmd(engine,'ntfs.setPermission',{folderId:'folder-2',principalId:'group-2',level:'read'},sid));
+ const before=q(engine,'ntfs.effectivePermission',{accountId:'account-2',folderId:'folder-2'});ok(before);assert.equal(before.data.level,'admin');
+ ok(cmd(engine,'ntfs.disableInheritance',{folderId:'folder-2',mode:'preserve'},sid));
+ const folder=engine.getSnapshot().folders.find(f=>f.id==='folder-2'),entries=folder.acl.filter(x=>x.principalId==='group-2');
+ assert.equal(entries.length,2);assert.equal(entries.find(x=>x.converted!==true).level,'read');assert.equal(entries.find(x=>x.converted===true).level,'admin');
+ const after=q(engine,'ntfs.effectivePermission',{accountId:'account-2',folderId:'folder-2'});ok(after);assert.equal(after.data.level,'admin');
+ // La permission convertie persiste quand le parent est ensuite diminue.
+ ok(cmd(engine,'ntfs.setPermission',{folderId:'folder-1',principalId:'group-2',level:'read'},sid));
+ assert.equal(q(engine,'ntfs.effectivePermission',{accountId:'account-2',folderId:'folder-2'}).data.level,'admin');
+ ok(cmd(engine,'ntfs.enableInheritance',{folderId:'folder-2'},sid));
+ assert.equal(q(engine,'ntfs.effectivePermission',{accountId:'account-2',folderId:'folder-2'}).data.level,'admin');
+ const snapshot=engine.exportState(),restored=restoreIdentityAccessEngine({scenario,savedState:snapshot,host});assert.deepEqual(restored.getSnapshot(),snapshot);
+});
+test('A2 preserve et suppression conservent ou retirent correctement les droits',()=>{const {engine}=start();const srv=engine.command({type:'session.open',params:{machineId:'asset-files',accountId:'account-1'}});ok(srv);const sid=srv.data.session.id;
+ ok(cmd(engine,'ntfs.setPermission',{folderId:'folder-1',principalId:'group-2',level:'admin'},sid));ok(cmd(engine,'ntfs.setPermission',{folderId:'folder-2',principalId:'group-2',level:'read'},sid));
+ ok(cmd(engine,'ntfs.disableInheritance',{folderId:'folder-2',mode:'removeInherited'},sid));
+ const folder=engine.getSnapshot().folders.find(f=>f.id==='folder-2');
+ assert.deepEqual(folder.acl.filter(x=>x.principalId==='group-2').map(x=>x.level),['read']);assert.equal(q(engine,'ntfs.effectivePermission',{accountId:'account-2',folderId:'folder-2'}).data.level,'read');
+});
 test('Références incohérentes dans les sessions sont rejetées à la restauration',()=>{const {engine,host}=start(),state=engine.exportState();state.sessions[0].profileId='profile-other';assert.throws(()=>restoreIdentityAccessEngine({scenario,savedState:state,host}),/invalid_session/);});
 
 test('Départ de domaine conserve groupes locaux et appartenances',()=>{const {engine}=start();ok(cmd(engine,'group.addMember',{groupId:'group-3',memberType:'group',memberId:'group-1'}));ok(cmd(engine,'domain.leaveMachine',{machineId:'asset-pc01'}));assert.equal(engine.getSnapshot().groupMemberships.some(x=>x.groupId==='group-3'&&x.memberId==='group-1'),true);assert.equal(q(engine,'identity.groups',{accountId:'account-2',machineId:'asset-pc01'}).data.groupIds.includes('group-3'),false);});

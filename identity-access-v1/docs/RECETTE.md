@@ -54,3 +54,9 @@ Ces trois manipulations ne doivent être demandées au professeur qu'après vali
 - A4 : ajout du script `scripts/build-demo.mjs` pour `npm run build:demo`.
 - Tests de non-régression ajoutés. **Aucun verdict de réussite Node revendiqué tant que `npm test` n'a pas été exécuté sur le commit corrigé.**
 - Verdict d'intégration R2D3 : **NON**, en attendant contre-audit, clarification A2 et raccordement réel de l'adaptateur.
+
+## Deuxième correction A2 (14 novembre 2026)
+
+Les ACL distinguent désormais l'entrée explicite de l'entrée héritée convertie (`converted:true`), y compris pour un principal identique. Deux tests visent le droit effectif avant et après `preserve`, le maintien de l'explicite `read`, la conservation du droit converti `admin`, la modification ultérieure du parent, la restauration et le mode `removeInherited`.
+
+**Tests Node non encore exécutés sur ce commit.** La validation externe et la démonstration R2D3 restent requises. Ne pas déclarer l'intégration autorisée.

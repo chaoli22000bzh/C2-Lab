@@ -83,8 +83,11 @@ Le champ `code` est stable pour les interfaces. La traduction en français et le
 - La révision est incrémentée après une mutation admissible.
 - Une restitution incohérente provoque une exception plutôt qu'une réparation silencieuse.
 - Une modification de schéma incompatible nécessitera une migration explicite et une nouvelle version majeure.
-## Restriction explicite V0.1.0 sur la conversion NTFS
+## Conversion de l'héritage NTFS après contre-audit
 
-Une ACL explicite existante n'est jamais modifiée par `ntfs.disableInheritance(mode:'preserve')`. Les entrées héritées de nouveaux principaux sont copiées. Si une entrée héritée porte sur un principal déjà explicitement présent, elle n'est **pas** convertie en une deuxième entrée : le schéma V0.1.0 interdit les doublons de principal. Le niveau effectif peut donc changer lors de la désactivation dans ce cas. Une simulation fidèle des ACE Windows distinctes exigera une évolution du schéma, à concevoir avant intégration pédagogique avancée.
+`ntfs.disableInheritance(mode:'preserve')` maintient les ACE explicites et ajoute les ACE héritées converties avec le marqueur `converted:true`. Deux entrées de même `principalId` peuvent coexister si l'une est une ACE explicite et l'autre est convertie. Les permissions héritées de plusieurs ancêtres pour un même principal sont agrégées par maximum dans l'ACE convertie. Le niveau effectif immédiatement avant/après `preserve` doit rester identique.
 
-`file.list` ne fournit que les métadonnées des fichiers, sans leur champ `content`. Le contenu est réservé à `file.read` après contrôle NTFS.
+`mode:'removeInherited'` élimine les ACE héritées sans affecter les ACE explicites. Lors de la réactivation de l'héritage, les ACE converties restent explicites, tandis que le moteur recalcule les entrées héritées dynamiquement.
+
+La simulation conserve les quatre niveaux `none/read/write/admin`, sans simuler toutes les ACE Windows ni les refus explicites. `file.list` ne divulgue pas le champ `content`; celui-ci nécessite `file.read` et un contrôle NTFS.
+

@@ -65,3 +65,7 @@ L'adaptateur conserve **uniquement les références** aux objets R2D3 et aux fon
 ## Suite de l'audit indépendant (14 novembre 2026)
 
 L'auditeur a refusé l'intégration V0.1.0 (A1, A2, A3 majeures, A4 mineure, réserve R1). Des correctifs ont été publiés sur le banc, mais la contre-vérification et l'exécution des tests sur ce commit restent nécessaires. La conversion NTFS de permissions héritées pour un principal déjà couvert par une permission explicite n'est pas fidèle à toutes les ACE Windows en raison du schéma actuel, comme expliqué dans `docs/API.md`. **Ne pas intégrer à R2D3 à ce stade.**
+
+## Correctif A2 après contre-audit
+
+La première correction A2 était non conforme car elle supprimait le niveau hérité quand il existait une entrée explicite du même principal. Le nouveau code représente une ACE convertie séparée (`converted:true`) et des tests vérifient le droit effectif avant/après désactivation. Le schéma des permissions reste volontairement simplifié (quatre niveaux). En attendant exécution Node et nouveau contre-audit : **intégration R2D3 NON autorisée**.
