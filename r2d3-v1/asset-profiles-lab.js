@@ -1,5 +1,6 @@
 import {createAssetRegistry} from "./asset-profiles.js";
 import {buildCablingViewModel, renderCablingVisual} from "../shared-ui/v1/cabling-visual.js";
+import {connectNewCable,attachExistingCable,detachExistingCable} from "../shared-ui/v1/cabling-actions.js";
 let engine=createAssetRegistry();
 const id=x=>document.getElementById(x);
 const opt=(label,value)=>{const e=document.createElement("option");e.value=value;e.textContent=label;return e};
@@ -17,11 +18,81 @@ function refresh(){
  if(as.some(a=>a.id===oldA))id("assets").value=oldA;
  renderPlaces();renderInfrastructure();renderCables();renderPathChoices();renderFields();renderAsset();refreshCablingVisual();
 }
+let visualSelectedPort=null,visualSelectedCable=null,visualPendingAttach=null;
+function visualMessage(message,success=true){
+ const out=id("cabling-visual-status");
+ out.textContent=message;
+ out.className="notice "+(success?"good":"bad");
+}
+function drawCablingVisual(){
+ const picker=id("cabling-visual-place");
+ const model=buildCablingViewModel(engine,picker.value);
+ const currentPorts=new Set(engine.listCablePoints().map(p=>p.portId));
+ if(visualSelectedPort&&!currentPorts.has(visualSelectedPort))visualSelectedPort=null;
+ if(visualSelectedCable&&!engine.getCable(visualSelectedCable))visualSelectedCable=null;
+ if(visualPendingAttach&&!engine.getCable(visualPendingAttach.cableId))visualPendingAttach=null;
+ renderCablingVisual(id("cabling-visual"),model,{
+  selectedPortId:visualSelectedPort,selectedCableId:visualSelectedCable,
+  onPortClick:visualPortClick,
+  onPortDrop:(from,to)=>visualConnect(from,to),
+  onCableSelect:cableId=>{
+   visualSelectedCable=visualSelectedCable===cableId?null:cableId;
+   visualSelectedPort=null;visualPendingAttach=null;
+   visualMessage(visualSelectedCable?"Câble "+cableId+" sélectionné.":"Sélection annulée.");
+   drawCablingVisual();
+  },
+  onDisconnect:(cableId,end)=>{
+   const r=detachExistingCable(engine,cableId,end);
+   visualMessage(r.message,r.success);if(r.success)refresh();else drawCablingVisual();
+  },
+  onAttach:(cableId,end)=>{
+   visualPendingAttach={cableId,end};visualSelectedPort=null;
+   visualMessage("Clique sur le port où raccorder l'extrémité "+(end?"B":"A")+" de "+cableId+".");
+   drawCablingVisual();
+  },
+  onDelete:cableId=>{
+   const r=engine.deleteCable(cableId);
+   if(r.success){visualSelectedCable=null;visualPendingAttach=null;}
+   visualMessage(r.message,r.success);refresh();
+  }
+ });
+}
+function visualConnect(from,to){
+ const r=connectNewCable(engine,from,to);
+ if(r.success){visualSelectedCable=r.cableId;visualSelectedPort=null;visualPendingAttach=null;}
+ visualMessage(r.message,r.success);
+ if(r.success)refresh();else drawCablingVisual();
+}
+function visualPortClick(portId){
+ const p=engine.listCablePoints().find(x=>x.portId===portId);
+ if(!p)return;
+ if(visualPendingAttach){
+  const {cableId,end}=visualPendingAttach;
+  const r=attachExistingCable(engine,cableId,end,portId);
+  if(r.success){visualPendingAttach=null;visualSelectedCable=cableId;}
+  visualMessage(r.message,r.success);
+  if(r.success)refresh();else drawCablingVisual();
+  return;
+ }
+ if(p.occupied){
+  const c=engine.listCables().find(c=>c.ends.some(end=>end?.portId===portId));
+  visualSelectedPort=null;visualSelectedCable=c?.id??null;
+  visualMessage(c?"Port raccordé à "+c.id+". Sélectionne une extrémité du câble pour la débrancher.":"Port occupé.");
+  drawCablingVisual();return;
+ }
+ if(visualSelectedPort===portId){
+  visualSelectedPort=null;visualMessage("Sélection du port annulée.");drawCablingVisual();return;
+ }
+ if(visualSelectedPort){visualConnect(visualSelectedPort,portId);return;}
+ visualSelectedPort=portId;visualSelectedCable=null;
+ visualMessage("Premier port sélectionné. Clique sur un second port libre pour créer le câble, ou fais glisser un port vers l'autre.");
+ drawCablingVisual();
+}
 function refreshCablingVisual() {
  const picker=id("cabling-visual-place"), previous=picker.value, places=engine.listPlaces();
  picker.replaceChildren(opt("Tous les lieux",""),...places.map(p=>opt(placeLabel(p,places),p.id)));
  if(places.some(p=>p.id===previous))picker.value=previous;
- renderCablingVisual(id("cabling-visual"),buildCablingViewModel(engine,picker.value));
+ drawCablingVisual();
 }
 function placeLabel(place,all){
  const names=[place.name];let current=place,seen=new Set([place.id]);
@@ -329,6 +400,6 @@ id("asset-edit").onsubmit=e=>{
  status("asset-status",r);refresh();
 };
 id("profiles").onchange=renderFields;id("assets").onchange=renderAsset;
-id("reset").onclick=()=>{engine=createAssetRegistry();refresh();id("asset-status").textContent="";id("profile-status").textContent="";id("cable-status").textContent="";id("infrastructure-status").textContent="";id("place-status").textContent="";id("path-result").textContent=""};
-id("cabling-visual-place").onchange=()=>renderCablingVisual(id("cabling-visual"),buildCablingViewModel(engine,id("cabling-visual-place").value));
+id("reset").onclick=()=>{engine=createAssetRegistry();visualSelectedPort=null;visualSelectedCable=null;visualPendingAttach=null;id("cabling-visual-status").textContent="";refresh();id("asset-status").textContent="";id("profile-status").textContent="";id("cable-status").textContent="";id("infrastructure-status").textContent="";id("place-status").textContent="";id("path-result").textContent=""};
+id("cabling-visual-place").onchange=()=>{visualSelectedPort=null;visualPendingAttach=null;drawCablingVisual()};
 window.__assetProfilesLab={snapshot:()=>engine.exportState()};refresh();
