@@ -1,5 +1,22 @@
 # Recette technique et limites
 
+## Recette enseignante réellement effectuée le 14 novembre 2026
+
+**5 tests sur 5 déclarés validés par le professeur dans le navigateur** sur le banc CyberNet publié dans C2-Lab, après correction de l'affichage des identités et élargissement de l'interface :
+
+1. Identification de cinq comptes (domaine et comptes administrateurs locaux) et affichage lisible des machines.
+2. SMB : accès Julie autorisé (`access_granted`) et compte local de PC01 non reconnu (`identity_not_recognized`).
+3. Partage SMB : écriture autorisée, refus `share_insufficient_permission` après limitation à Lecture, puis écriture à nouveau autorisée.
+4. Active Directory : session Julie ouverte si DC02 reste disponible malgré l'arrêt de DC01, puis refus `domain_controller_unavailable` si les deux DC sont indisponibles.
+5. NTFS : désactivation de l'héritage avec conservation, réactivation, puis désactivation avec suppression des entrées héritées ; codes et état affiché conformes.
+
+**Portée :** recette fonctionnelle de l'interface web sur ce scénario, pas preuve exhaustive des calculs NTFS ni audit indépendant. La vérification de la conservation effective de toutes les entrées ACL dans chaque mode relève aussi des tests Node et de l'audit externe.
+
+**Tests Node annoncés à la livraison :** 31/31 réussis. Aucun nouveau test Node exécuté lors de cette mise à jour documentaire.
+
+**Points restant ouverts :** dépôt GitHub autonome distinct à créer ; adaptateur à valider avec vraies instances R2D3 et faits réseau AD/SMB ; audit externe ; aucune intégration C².
+
+
 ## Commandes exécutables
 
 ```sh
