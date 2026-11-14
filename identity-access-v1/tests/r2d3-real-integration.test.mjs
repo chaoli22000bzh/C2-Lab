@@ -46,7 +46,7 @@ function setup(disconnected=false) {
  for(let i=0;i<assetIds.length;i++)replaced=replaced.replaceAll('"'+identityIds[i]+'"','"'+assetIds[i]+'"');
  const scenario=JSON.parse(replaced);
  assert.equal(scenario.state.sessions[0].machineId,assetIds[0]);
- return {registry,network,mapping,kinds,scenario,assetIds};
+ return {registry,network,networkScenario:source,mapping,kinds,scenario,assetIds};
 }
 const makeHost=(x,extras={})=>createR2D3IdentityHost({
  assetRegistry:x.registry,networkEngine:x.network,assetToNetworkId:x.mapping,assetKinds:x.kinds,...extras
@@ -113,7 +113,7 @@ test('R2 : restauration transversale préserve identités, actifs, réseau et dr
  const networkState=structuredClone(x.network.exportState());
  const identityState=structuredClone(identities.exportState());
  const restoredRegistry=restoreAssetRegistry(registryState);
- const restoredNetwork=restoreEngine(x.network.getSnapshot().scenario??x.scenario,networkState);
+ const restoredNetwork=restoreEngine(x.networkScenario,networkState);
  const restoredHost=createR2D3IdentityHost({
   assetRegistry:restoredRegistry,networkEngine:restoredNetwork,
   assetToNetworkId:x.mapping,assetKinds:x.kinds,
