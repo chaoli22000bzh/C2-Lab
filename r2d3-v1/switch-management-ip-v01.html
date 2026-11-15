@@ -1,0 +1,28 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>R2D3 : IPv4 de gestion des switchs</title><style>
+:root{font:16px/1.5 system-ui,Arial,sans-serif;color-scheme:light dark}
+body{max-width:920px;margin:auto;padding:16px}h1{font-size:1.55rem}h2{font-size:1.1rem}
+section{border:1px solid #8797a377;border-radius:12px;padding:15px;margin:15px 0}
+button{font:inherit;padding:9px 12px;border:1px solid #7195b5;border-radius:9px;background:#eaf3fc;color:#163d60;cursor:pointer}
+button.selected{background:#2567a8;color:#fff}button:disabled{opacity:.5}
+.tests,.actions{display:flex;flex-wrap:wrap;gap:8px}
+#network{background:#74879718;padding:14px;border-radius:8px;white-space:pre-wrap;font:14px/1.65 ui-monospace,Consolas,monospace;overflow:auto}
+#result{border:1px solid #8797a377;border-radius:8px;padding:12px;min-height:30px}
+#result.good{border-color:#20975a;color:#16834c}#result.bad{border-color:#bc574a;color:#b94b3f}
+.note{opacity:.8;font-size:.9rem}a{color:inherit}
+</style></head><body>
+<p><a href="./">Retour au laboratoire R2D3</a></p>
+<h1>Switchs : adresse IPv4 de gestion V0.1</h1>
+<p>Un switch administrable possède sa propre IPv4 de gestion en mode statique ou DHCP, sans devenir un routeur ni un serveur DHCP.</p>
+<section><h2>Choisir un test</h2><div id="tests" class="tests">
+<button data-test="1">1. Configuration initiale</button>
+<button data-test="2">2. Adresse statique</button>
+<button data-test="3">3. Adresse erronée</button>
+<button data-test="4">4. Acquisition DHCP</button>
+<button data-test="5">5. Sauvegarde et restauration</button>
+</div></section>
+<section><h2 id="title"></h2><p id="instruction"></p>
+<div id="network"></div><p id="result" aria-live="polite"></p>
+<div class="actions"><button id="action">Appliquer</button><button id="second">Autre action</button><button id="reset">Recommencer</button></div>
+<p class="note">L'attribution d'une adresse DHCP est effectuée par le véritable Core DHCP R2D3. La connexion réseau est vérifiée dans le registre physique.</p>
+</section><script type="module" src="./switch-management-ip-lab-v01.js"></script></body></html>
