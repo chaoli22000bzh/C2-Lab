@@ -57,7 +57,7 @@ $("t1").onclick=()=>{try{
  const current=state.objectsById[pc.id].config.ipv4;
  const after=current.address,status=state.runtime[pc.id]?.dhcpStatus;
  const pass=!before&&x.reason==="IP Helper absent ou désactivé sur le VLAN client"&&
-   status==="apipa"&&/^169\\.254\\./.test(after||"")&&current.prefix===16&&current.lease===null;
+   status==="apipa"&&/^169\.254\./.test(after||"")&&current.prefix===16&&current.lease===null;
  $("result").textContent=(pass?"CONFORME. ":"ANOMALIE. ")+"Sans IP Helper : "+x.reason+
   ". Échec DHCP traité par le Core : "+(after||"aucune IPv4")+
   (current.prefix!=null?"/"+current.prefix:"")+" (état "+status+").";
