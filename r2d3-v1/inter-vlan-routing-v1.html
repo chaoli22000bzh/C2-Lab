@@ -1,0 +1,38 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>R2D3 : Routage inter-VLAN V1</title>
+<style>
+:root{font:16px/1.5 system-ui,Arial,sans-serif;color-scheme:light dark}
+body{max-width:900px;margin:auto;padding:16px}h1{font-size:1.55rem}h2{font-size:1.12rem}
+section{border:1px solid #8c98a477;border-radius:12px;padding:15px;margin:15px 0}
+button{font:inherit;padding:9px 12px;border:1px solid #7195b5;border-radius:9px;background:#eaf3fc;color:#163d60;cursor:pointer}
+button.selected{background:#2567a8;color:#fff}button:disabled{opacity:.45;cursor:default}
+.tests,.actions{display:flex;flex-wrap:wrap;gap:8px}
+#network{background:#74879718;padding:14px;border-radius:8px;white-space:pre-wrap;font:14px/1.6 ui-monospace,Consolas,monospace;overflow:auto}
+#result{border:1px solid #8c98a477;border-radius:8px;min-height:35px;padding:12px}
+#result.good{color:#16834c;border-color:#20975a}#result.bad{color:#b94b3f;border-color:#bc574a}
+.note{opacity:.77;font-size:.9rem}a{color:inherit}
+</style></head><body>
+<p><a href="./">Retour au laboratoire R2D3</a></p>
+<h1>Routage inter-VLAN V1</h1>
+<p>Les capacités, le routage et les interfaces VLAN appartiennent désormais aux équipements du registre R2D3.</p>
+<section><h2>Choisir un test</h2><div id="tests" class="tests">
+<button data-test="1">1. Profil et routage</button>
+<button data-test="2">2. Activer le L3</button>
+<button data-test="3">3. Switchs indépendants</button>
+<button data-test="4">4. Incident IPv4</button>
+<button data-test="5">5. Sauvegarde</button>
+</div></section>
+<section><h2 id="title"></h2><p id="instruction"></p>
+<div id="network" aria-label="État réseau et interfaces VLAN"></div>
+<p id="result" aria-live="polite">Scénario chargé.</p>
+<div class="actions">
+<button id="ping">Ping PC1 → PC2</button>
+<button id="action">Appliquer la modification</button>
+<button id="export">Exporter l'état</button>
+<button id="restore">Restaurer l'état</button>
+<button id="reset">Recommencer ce test</button>
+</div>
+<p class="note">L'observation interroge le moteur L3 R2D3 à partir des configurations enregistrées, pas d'un résultat prédéfini.</p>
+</section>
+<script type="module" src="./inter-vlan-routing-lab-v1.js"></script>
+</body></html>
