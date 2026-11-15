@@ -1,0 +1,9 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>R2D3 : recette transversale switch L3</title>
+<style>:root{font:16px/1.5 system-ui,Arial,sans-serif;color-scheme:light dark}body{max-width:960px;margin:auto;padding:16px}h1{font-size:1.5rem}section{border:1px solid #8797a377;border-radius:12px;padding:16px;margin:14px 0}button{font:inherit;padding:10px 12px;border:1px solid #7195b5;border-radius:9px;background:#eaf3fc;color:#163d60;cursor:pointer}button:disabled{opacity:.45;cursor:not-allowed}.controls{display:flex;gap:8px;flex-wrap:wrap}pre{white-space:pre-wrap;background:#74879718;padding:14px;border-radius:8px;overflow-wrap:anywhere}#result{min-height:30px}a{color:inherit}</style></head><body>
+<p><a href="./">Retour aux laboratoires R2D3</a></p><h1>Recette transversale 1 : VLAN + DHCP + routage L3</h1>
+<p>SW-L3 dessert deux postes : PC10 sur VLAN 10 et PC20 sur VLAN 20. Le service DHCP et le routage utilisent les modules communs R2D3.</p>
+<section><h2>Configuration du réseau</h2><pre id="state"></pre></section>
+<section><h2>Vérifications</h2><p>1. Obtiens les deux baux DHCP. 2. Vérifie ensuite la communication entre les VLAN.</p>
+<div class="controls"><button id="dhcp">1. Demander les deux adresses DHCP</button><button id="ping" disabled>2. Tester la communication PC10 vers PC20</button><button id="reset">Recommencer</button></div>
+<p id="result" aria-live="polite">Scénario chargé.</p></section>
+<p><small>Ce premier test ne couvre pas STP, IP Helper, les topologies multi-switch ou l'intégration métier C².</small></p><script type="module" src="./switch-integration-l3-dhcp-01.js"></script></body></html>
