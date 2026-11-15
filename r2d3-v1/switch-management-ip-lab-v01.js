@@ -178,6 +178,7 @@ $("second").onclick=()=>{
   }else if(testNumber===5&&!backup){
    backup=registry.exportState();
    good(configureSwitchManagementDhcp(registry,sw1.id));
+   good(syncSwitchManagementDhcp(registry,sw1.id,engine));
    $("second").hidden=true;$("action").textContent="Restaurer le registre R2";
    render();notice("État sauvegardé. SW01 est repassé en mode DHCP.");
   }
