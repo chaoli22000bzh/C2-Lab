@@ -5,10 +5,10 @@ import {setSwitchVlanInterface,setSwitchInterVlanRouting,observeRegisteredInterV
 import {configureSwitchDhcp,createSwitchDhcpCoreObject,requestSwitchDhcp} from "./switch-dhcp-service-v1.js";
 const $=id=>document.getElementById(id);
 const good=x=>{if(!x?.success)throw Error(x?.message||x?.reason||x?.code||"Opération refusée");return x};
-let r,sw,pcs,engine,addresses;
+let r,sw,pcs,engine,addresses,routingVerified=false;
 function wire(a,b){const c=good(r.createCable()).cable;good(r.connectCableEnd(c.id,0,a));good(r.connectCableEnd(c.id,1,b));return c;}
 function boot(){
- r=createAssetRegistry();engine=null;addresses=null;
+ r=createAssetRegistry();engine=null;addresses=null;routingVerified=false;
  const sp=good(r.createProfile("Switch L3")).profile,pp=good(r.createProfile("PC Windows")).profile;
  good(r.addPortGroup(sp.id,{type:"ethernet-rj45",prefix:"P",start:1,count:4}));
  good(r.addPortGroup(pp.id,{type:"ethernet-rj45",prefix:"LAN",start:1,count:1}));
@@ -27,12 +27,12 @@ function boot(){
   objects:[...pcs.map(coreClient),createSwitchDhcpCoreObject(r,sw.id)],
   links:cables.map((c,i)=>({id:c.id,kind:"ethernet-cable",connected:true,endpoints:[
    {objectId:pcs[i].id,portId:pcs[i].ports[0].id},{objectId:sw.id,portId:sw.ports[i].id}]}))});
- $("dhcp").disabled=false;$("ping").disabled=true;$("result").textContent="Scénario chargé. Lance les demandes DHCP.";render();
+ $("dhcp").disabled=false;$("ping").disabled=true;$("disable").disabled=true;$("result").textContent="Scénario chargé. Lance les demandes DHCP.";render();
 }
 function snapshotAddress(pc){const cfg=engine.getSnapshot().objectsById[pc.id]?.config;
  return {address:cfg?.ipv4?.address,prefix:cfg?.ipv4?.prefix,gateway:cfg?.networkOptions?.gateway};}
 function render(){const swAsset=r.getAsset(sw.id),snap=engine.getSnapshot();
- const rows=["SW-L3 : VLAN 10 et VLAN 20 ; routage inter-VLAN ACTIVÉ ; DHCP ACTIF",
+ const rows=["SW-L3 : VLAN 10 et VLAN 20 ; routage inter-VLAN "+(swAsset.routingConfig.routingEnabled?"ACTIVÉ":"DÉSACTIVÉ")+" ; DHCP "+(swAsset.dhcpServerConfig.enabled?"ACTIF":"ARRÊTÉ"),
   "Interfaces : 192.168.10.1/24 et 192.168.20.1/24"];
  for(const [i,pc] of pcs.entries()){const v=[10,20][i],cfg=snap.objectsById[pc.id].config;
   rows.push(pc.name+" | VLAN "+v+" | IPv4 "+(cfg.ipv4.address||"aucune")+(cfg.ipv4.prefix!=null?"/"+cfg.ipv4.prefix:"")+
@@ -45,12 +45,28 @@ $("dhcp").onclick=()=>{try{
   addresses[pcs[i].id].gateway==="192.168."+[10,20][i]+".1");
  $("result").textContent=(ok?"DHCP conforme. ":"ANOMALIE DHCP. ")+
   pcs.map((pc,i)=>pc.name+" : "+(results[i].address||results[i].code)).join(" ; ");
- $("ping").disabled=!ok;render();
+ $("ping").disabled=!ok;$("disable").disabled=true;routingVerified=false;render();
  }catch(err){$("result").textContent="Erreur DHCP : "+err.message;}};
 $("ping").onclick=()=>{try{
  if(!addresses)throw Error("Demande DHCP préalable requise");
  const result=observeRegisteredInterVlanPing(r,sw.id,pcs[0].id,pcs[1].id,addresses);
  $("result").textContent=(result.success?"Communication inter-VLAN RÉUSSIE. ":"Communication inter-VLAN ÉCHOUÉE. ")+(result.reason||result.status);
+ if(result.success&&r.getAsset(sw.id).routingConfig.routingEnabled){routingVerified=true;$("disable").disabled=false;}
  render();}catch(err){$("result").textContent="Erreur ping : "+err.message;}};
+$("disable").onclick=()=>{try{
+ if(!routingVerified)throw Error("Valide d'abord la communication entre les VLAN.");
+ const before=pcs.map(snapshotAddress);
+ good(setSwitchInterVlanRouting(r,sw.id,false));
+ const after=pcs.map(snapshotAddress);
+ const leasePreserved=before.every((v,i)=>v.address===after[i].address&&v.prefix===after[i].prefix&&v.gateway===after[i].gateway&&!!v.address);
+ const observation=observeRegisteredInterVlanPing(r,sw.id,pcs[0].id,pcs[1].id,addresses);
+ const expected=leasePreserved&&!observation.success&&observation.status!=="unavailable"&&
+  observation.reason==="Routage inter-VLAN désactivé";
+ $("result").textContent=(expected?"CONFORME. ":"ANOMALIE. ")+
+  "Routage désactivé ; "+(observation.success?"communication encore possible":"communication interrompue")+
+  " ("+(observation.reason||observation.status)+"). "+
+  (leasePreserved?"Baux DHCP conservés sur les deux PC.":"Au moins un bail DHCP a changé.");
+ $("disable").disabled=true;render();
+ }catch(err){$("result").textContent="Erreur de vérification : "+err.message;}};
 $("reset").onclick=()=>{try{boot()}catch(e){$("result").textContent="Erreur de préparation : "+e.message;}};
 try{boot()}catch(e){$("result").textContent="Erreur de préparation : "+e.message;}
