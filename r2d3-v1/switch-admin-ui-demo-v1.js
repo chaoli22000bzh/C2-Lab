@@ -1,5 +1,5 @@
 import {createAssetRegistry} from "./asset-profiles.js";
-import {mountSwitchAdmin} from "./switch-admin-ui-v1.js?v=2";
+import {mountSwitchAdmin} from "./switch-admin-ui-v1.js?v=3";
 const $=id=>document.getElementById(id);
 const good=r=>{if(!r?.success)throw Error(r?.message||r?.code||"Opération refusée");return r;};
 let view,registry,ids;
@@ -16,5 +16,5 @@ function boot(){
  $("switch-choice").value="l2";view=mountSwitchAdmin({root:$("host"),registry,assetId:ids.l2});$("lab-error").textContent="";
 }
 $("switch-choice").addEventListener("change",e=>{try{view.setAssetId(ids[e.target.value])}catch(error){$("lab-error").textContent=error.message;}});
-$("reset").addEventListener("click",()=>{try{boot()}catch(error){$("lab-error").textContent=error.message;}});
+
 try{boot()}catch(error){$("lab-error").textContent="Erreur de préparation : "+error.message;}

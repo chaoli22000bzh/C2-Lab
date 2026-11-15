@@ -1,12 +1,14 @@
-<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Administration réseau : switchs L2/L3</title>
-<link rel="stylesheet" href="./switch-admin-ui-v1.css?v=2"><style>
-:root{color-scheme:light}*{box-sizing:border-box}body{background:#edf2f4;color:#25343d;margin:0;font:16px/1.5 system-ui,"Segoe UI",Arial,sans-serif}
-.workspace{max-width:1390px;margin:auto;padding:13px}
-.lab-tools{display:flex;align-items:center;flex-wrap:wrap;gap:11px;background:#fff;border:1px solid #dce4e8;border-radius:6px;padding:10px 15px;margin-bottom:12px}
-.lab-tools label{font-weight:700}.lab-tools select,.lab-tools button{min-height:42px;font:inherit;border:1px solid #9badb5;background:#fff;color:#25343d;border-radius:5px;padding:7px 12px}
-.lab-tools button{cursor:pointer}.lab-back{margin-left:auto;color:#16744e;font-weight:700}
-@media(max-width:600px){.lab-back{margin-left:0}}
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Administration du switch</title>
+<link rel="stylesheet" href="./switch-admin-ui-v1.css?v=3"><style>
+:root{color-scheme:light}*{box-sizing:border-box}
+body{margin:0;background:#f5f7f8;color:#293b43;font:16px/1.45 system-ui,"Segoe UI",Arial,sans-serif}
+.workspace{max-width:1360px;margin:auto;background:#fff;min-height:100vh;border-inline:1px solid #e3e8eb}
+.device-picker{display:flex;align-items:center;gap:11px;min-height:48px;padding:6px 24px;background:#008e70}
+.device-picker label{color:#fff;font-weight:600;font-size:16px}
+.device-picker select{font:inherit;font-size:16px;padding:4px 10px;border:1px solid #71b6a6;border-radius:3px;background:#fff;color:#293b43;min-height:34px}
+#lab-error{padding:0 24px}
+@media(max-width:600px){.device-picker{padding:7px 14px}}
 </style></head><body><div class="workspace">
-<div class="lab-tools"><label for="switch-choice">Équipement</label><select id="switch-choice"><option value="l2">SW-L2 (8 ports)</option><option value="l3">SW-L3 (8 ports)</option></select><button id="reset">Réinitialiser</button><a class="lab-back" href="./">Retour</a></div>
+<div class="device-picker"><label for="switch-choice">Équipement</label><select id="switch-choice"><option value="l2">SW-L2</option><option value="l3">SW-L3</option></select></div>
 <div id="host"></div><p id="lab-error" role="alert"></p></div>
-<script type="module" src="./switch-admin-ui-demo-v1.js?v=2"></script></body></html>
+<script type="module" src="./switch-admin-ui-demo-v1.js?v=3"></script></body></html>
