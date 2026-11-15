@@ -30,9 +30,12 @@ function boot(){
  const serverObject={id:srv.id,kind:"dhcp-server",name:srv.name,ports:[{id:srv.ports[0].id,type:"rj45"}],
   config:{ipv4:{interfaceId:srv.ports[0].id,mode:"static",address:"192.168.30.2",prefix:24},
    dhcpEnabled:true,dhcpPools:[pool(20,"remote20")]}};
- const links=[[c10,pc10,0],[c20,pc20,1],[c30,srv,2]].map(([c,obj,i])=>({
-  id:c.id,kind:"ethernet-cable",connected:true,endpoints:[
-   {objectId:obj.id,portId:obj.ports[0].id},{objectId:sw.id,portId:sw.ports[i].id}]}));
+ // Le Core ne peut utiliser deux liaisons pour un même port.
+ // Les trois câbles restent dans le registre R2, source du chemin physique.
+ // Le Core reçoit seulement le câble du client DHCP local et la liaison
+ // logique du relais, contrôlée par l'adaptateur IP Helper depuis R2.
+ const links=[{id:c10.id,kind:"ethernet-cable",connected:true,endpoints:[
+   {objectId:pc10.id,portId:pc10.ports[0].id},{objectId:sw.id,portId:sw.ports[0].id}]}];
  links.push({id:"relay-service",kind:"relay-service",connected:true,endpoints:[
   {objectId:pc20.id,portId:pc20.ports[0].id},{objectId:srv.id,portId:srv.ports[0].id}]});
  engine=createEngine({format:"r2d3-scenario",schemaVersion:1,scenarioId:"two-dhcp-services",scenarioVersion:"1",capabilities:{network:true},
