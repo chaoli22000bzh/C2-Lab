@@ -1,0 +1,26 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>R2D3 : IP Helper V0.1</title><style>
+:root{font:16px/1.5 system-ui,Arial,sans-serif;color-scheme:light dark}
+body{max-width:900px;margin:auto;padding:16px}h1{font-size:1.55rem}h2{font-size:1.1rem}
+section{border:1px solid #8c98a477;border-radius:12px;padding:15px;margin:15px 0}
+button{font:inherit;padding:9px 12px;border:1px solid #7195b5;border-radius:9px;background:#eaf3fc;color:#163d60;cursor:pointer}
+button.selected{background:#2567a8;color:#fff}button:disabled{opacity:.5}
+.tests,.actions{display:flex;flex-wrap:wrap;gap:8px}#network{background:#74879718;padding:14px;border-radius:8px;white-space:pre-wrap;font:14px/1.6 ui-monospace,Consolas,monospace;overflow:auto}
+#result{border:1px solid #8c98a477;border-radius:8px;padding:12px;min-height:30px}
+#result.good{color:#16834c;border-color:#20975a}#result.bad{color:#b94b3f;border-color:#bc574a}
+.note{opacity:.77;font-size:.9rem}a{color:inherit}
+</style></head><body><p><a href="./">Retour au laboratoire R2D3</a></p>
+<h1>IP Helper V0.1 : relais DHCP</h1>
+<p>Un PC dans le VLAN 10 demande un bail au serveur DHCP dans le VLAN 20. Le moteur DHCP existant gère les plages et les baux.</p>
+<section><h2>Choisir un test</h2><div id="tests" class="tests">
+<button data-test="1">1. Sans IP Helper</button>
+<button data-test="2">2. Mauvaise adresse</button>
+<button data-test="3">3. Relais correct</button>
+<button data-test="4">4. Câble interrompu</button>
+<button data-test="5">5. Serveur arrêté</button>
+</div></section>
+<section><h2 id="title"></h2><p id="instruction"></p>
+<div id="network"></div><p id="result" aria-live="polite"></p>
+<div class="actions"><button id="request">Demander une adresse DHCP</button><button id="change">Appliquer la correction</button><button id="reset">Recommencer</button></div>
+<p class="note">Le test utilise le registre physique R2D3, le routage L3, les VLAN V1 et le véritable moteur DHCP Core.</p>
+</section><script type="module" src="./ip-helper-lab-v01.js"></script></body></html>
