@@ -1,4 +1,17 @@
-<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>R2D3 : administration des switchs L2/L3</title><link rel="stylesheet" href="./switch-admin-ui-v1.css"><style>:root{color-scheme:light dark}body{max-width:1150px;margin:0 auto;padding:16px;font:16px/1.5 system-ui,Arial,sans-serif} .toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:15px}.toolbar select,.toolbar button{font:inherit;padding:8px;border-radius:7px}.context{max-width:850px}#host{margin-top:16px}</style></head><body>
-<p><a href="./">Retour aux laboratoires R2D3</a></p><h1>Administration des switchs L2 et L3</h1><p class="context">Première recette de l'interface graphique réutilisable. Les réglages utilisent directement le registre d'actifs R2 et les modules communs des VLAN et de l'IPv4 de gestion. Aucun changement du moteur et aucune sauvegarde de séance C².</p>
-<div class="toolbar"><label for="switch-choice">Équipement</label><select id="switch-choice"><option value="l2">SW-L2 (8 ports)</option><option value="l3">SW-L3 (8 ports)</option></select><button id="reset">Recommencer</button></div>
-<div id="host"></div><p id="lab-error" role="alert"></p><script type="module" src="./switch-admin-ui-demo-v1.js"></script></body></html>
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Administration des switchs | R2D3</title>
+<link rel="stylesheet" href="./switch-admin-ui-v1.css"><style>
+:root{color-scheme:light}*{box-sizing:border-box}body{background:#ecf1f4;color:#23313a;margin:0;font:17px/1.55 system-ui,"Segoe UI",Arial,sans-serif}
+.lab-wrap{max-width:1440px;margin:0 auto;padding:20px}
+.lab-top{display:flex;gap:16px;align-items:center;flex-wrap:wrap;justify-content:space-between;margin:0 0 14px}
+.lab-top a{color:#14694b;font-weight:700}
+.lab-top h1{font-size:24px;margin:0}
+.toolbar{background:#fff;border:1px solid #d6e0e5;border-radius:10px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:13px 17px;margin:0 0 15px}
+.toolbar label{font-size:17px;font-weight:700}.toolbar select,.toolbar button{font:inherit;font-size:17px;border:1px solid #8da2ae;border-radius:8px;min-height:44px;padding:8px 14px;background:#fff;color:#23313a}
+.toolbar button{cursor:pointer}.lab-note{margin:15px 0 0;color:#405761}
+:focus-visible{outline:3px solid #e2aa2b;outline-offset:3px}
+</style></head><body><div class="lab-wrap">
+<div class="lab-top"><h1>Administration des équipements réseau</h1><a href="./">Retour aux laboratoires R2D3</a></div>
+<div class="toolbar"><label for="switch-choice">Switch à administrer</label><select id="switch-choice"><option value="l2">SW-L2 (8 ports)</option><option value="l3">SW-L3 (8 ports)</option></select><button id="reset">Recommencer</button></div>
+<div id="host"></div><p class="lab-note">Banc d'essai autonome. Les données restent en mémoire jusqu'au rechargement de cette page. L'intégration et la sauvegarde dans C² font l'objet d'un chantier distinct.</p>
+<p id="lab-error" role="alert"></p>
+</div><script type="module" src="./switch-admin-ui-demo-v1.js"></script></body></html>
