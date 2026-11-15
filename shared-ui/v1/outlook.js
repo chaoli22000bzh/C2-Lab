@@ -115,7 +115,7 @@ export function mountOutlook(host, options = {}) {
     emit('onBackupRestore',{accountId,sourceEmail:pack.sourceEmail,messageCount:fresh.length,skippedDuplicates:skipped});
     return {restored:fresh.length,skipped};
   }
-  function composeHtml(){const d=state.compose;return `<section class="ou-compose" role="dialog" aria-label="Nouveau courrier"><header><b>Nouveau courrier</b><button data-action="close-compose" aria-label="Fermer">×</button></header><form id="ou-compose-form"><div class="ou-compose-toolbar"><button type="submit" class="ou-primary" ${state.sending?'disabled':''}>➤ &nbsp; ${state.sending?'Envoi…':'Envoyer'}</button><button type="button" data-action="save-draft" class="ou-secondary">Enregistrer le brouillon</button><button type="button" data-action="discard-draft" class="ou-trash" title="Supprimer le brouillon">⌫</button></div><div class="ou-compose-row"><label for="ou-from">De</label><select id="ou-from" name="fromAccountId" aria-label="Compte expéditeur" ${state.sending?'disabled':''}>${state.accounts.map(a=>`<option value="${esc(a.id)}" ${a.id===d.fromAccountId?'selected':''}>${esc(a.email)}</option>`).join('')}</select></div><div class="ou-compose-row"><label for="ou-to">À</label><input id="ou-to" name="to" value="${esc(d.to)}" placeholder="Ajouter un destinataire" required></div><div class="ou-compose-row"><label for="ou-subject">Objet</label><input id="ou-subject" name="subject" value="${esc(d.subject)}" required></div><textarea name="body" aria-label="Corps du message" placeholder="Rédigez votre message…">${esc(d.body)}</textarea><div class="ou-result" role="status">${state.result?esc(state.result.message):''}</div></form></section>`;}
+  function composeHtml(){const d=state.compose;return `<section class="ou-compose" role="dialog" aria-label="Nouveau courrier"><header><b>Nouveau courrier</b><button data-action="close-compose" aria-label="Fermer">×</button></header><form id="ou-compose-form"><div class="ou-compose-toolbar"><button type="submit" class="ou-primary" ${state.sending?'disabled':''}>➤ &nbsp; ${state.sending?'Envoi…':'Envoyer'}</button><button type="button" data-action="save-draft" class="ou-secondary">Enregistrer le brouillon</button><button type="button" data-action="discard-draft" class="ou-trash" title="Supprimer le brouillon">⌫</button></div><div class="ou-compose-row"><label for="ou-from">De</label><select id="ou-from" name="fromAccountId" aria-label="Compte expéditeur" ${state.sending?'disabled':''}>${state.accounts.map(a=>`<option value="${esc(a.id)}" ${a.id===d.fromAccountId?'selected':''}>${esc(a.email)}</option>`).join('')}</select></div><div class="ou-compose-row ou-compose-recipient-row"><label for="ou-to">À</label><div class="ou-recipient-field"><input id="ou-to" name="to" value="${esc(d.to)}" placeholder="Nom ou adresse du destinataire" autocomplete="off" aria-autocomplete="list" aria-controls="ou-contact-suggestions" aria-expanded="false" required><div id="ou-contact-suggestions" class="ou-contact-suggestions" role="listbox" aria-label="Contacts proposés" hidden></div></div></div><div class="ou-compose-row"><label for="ou-subject">Objet</label><input id="ou-subject" name="subject" value="${esc(d.subject)}" required></div><textarea name="body" aria-label="Corps du message" placeholder="Rédigez votre message…">${esc(d.body)}</textarea><div class="ou-result" role="status">${state.result?esc(state.result.message):''}</div></form></section>`;}
   // Usual ports are suggestions only. Existing custom server ports are preserved.
   const standardIncomingPorts=new Set(['110','143','993','995']);
   const standardOutgoingPorts=new Set(['25','465','587']);
@@ -127,11 +127,87 @@ export function mountOutlook(host, options = {}) {
   function captureAccountFields(){const form=root.querySelector('#ou-account');if(!form)return;Object.assign(state.account,Object.fromEntries(new FormData(form)));}
   function switchAccount(id){captureAccountFields();const a=state.accounts.find(x=>x.id===id);if(!a)return;if(state.composeOpen){saveDraft();state.composeOpen=false;}state.account=a;state.activeId=id;state.accountMenuOpen=false;state.adding=false;state.deleteConfirm=false;state.result=null;state.testSeq++;state.testing=false;state.selected=null;state.folder='inbox';}
   function startAccount(){captureAccountFields();state.account=blank();state.adding=true;state.deleteConfirm=false;state.result=null;state.testSeq++;state.testing=false;}
+  // Carnet de contacts partagé : suggestions locales pendant la rédaction.
+  // Les destinataires saisis librement restent acceptés.
+  function contactMatches(value){
+    const token=String(value||'').split(/[;,]/).pop().trim().toLocaleLowerCase('fr');
+    if(!token)return [];
+    return state.contacts.filter(c=>String(c.name||'').toLocaleLowerCase('fr').includes(token)||
+      String(c.email||'').toLocaleLowerCase('fr').includes(token)).slice(0,8);
+  }
+  function hideContactSuggestions(){
+    const list=root.querySelector('#ou-contact-suggestions');
+    const input=root.querySelector('#ou-to');
+    if(list){list.replaceChildren();list.hidden=true;}
+    if(input)input.setAttribute('aria-expanded','false');
+  }
+  function showContactSuggestions(){
+    const list=root.querySelector('#ou-contact-suggestions');
+    const input=root.querySelector('#ou-to');
+    if(!list||!input)return;
+    const matches=contactMatches(input.value);
+    list.replaceChildren();
+    matches.forEach((contact,index)=>{
+      const choice=document.createElement('button');
+      choice.type='button';choice.className='ou-contact-suggestion';
+      choice.dataset.contactIndex=String(state.contacts.indexOf(contact));
+      choice.id='ou-contact-option-'+index;
+      choice.setAttribute('role','option');
+      const name=document.createElement('strong'),mail=document.createElement('small');
+      name.textContent=String(contact.name||contact.email);
+      mail.textContent=String(contact.email||'');
+      choice.append(name,mail);list.append(choice);
+    });
+    list.hidden=!matches.length;
+    input.setAttribute('aria-expanded',String(matches.length>0));
+  }
+  function chooseContact(index){
+    const contact=state.contacts[index];
+    const input=root.querySelector('#ou-to');
+    if(!contact||!input)return;
+    // Remplacer uniquement la dernière adresse en cours de saisie.
+    const value=input.value;
+    const lastSeparator=Math.max(value.lastIndexOf(';'),value.lastIndexOf(','));
+    const prefix=lastSeparator<0?'':value.slice(0,lastSeparator+1).trimEnd()+' ';
+    input.value=prefix+contact.email;
+    state.compose.to=input.value;
+    hideContactSuggestions();
+    input.focus();
+  }
+  root.addEventListener('input',e=>{
+    if(e.target.id==='ou-to'){
+      state.compose.to=e.target.value;
+      showContactSuggestions();
+    }
+  });
+  root.addEventListener('keydown',e=>{
+    if(e.target.id!=='ou-to')return;
+    const list=root.querySelector('#ou-contact-suggestions');
+    if(e.key==='Escape'){hideContactSuggestions();return;}
+    if(e.key==='ArrowDown'&&list&&!list.hidden){
+      e.preventDefault();list.querySelector('button')?.focus();
+    }
+  });
+  root.addEventListener('keydown',e=>{
+    const item=e.target.closest('.ou-contact-suggestion');
+    if(!item)return;
+    if(e.key==='Escape'){e.preventDefault();hideContactSuggestions();root.querySelector('#ou-to')?.focus();}
+    if(e.key==='ArrowDown'){e.preventDefault();(item.nextElementSibling||item.parentElement.firstElementChild)?.focus();}
+    if(e.key==='ArrowUp'){e.preventDefault();(item.previousElementSibling||root.querySelector('#ou-to'))?.focus();}
+  });
+  root.addEventListener('focusout',e=>{
+    if(!e.target.closest('.ou-recipient-field'))return;
+    // Le clic sur une suggestion déclenche d'abord son action.
+    setTimeout(()=>{if(!root.querySelector('.ou-recipient-field')?.contains(document.activeElement))hideContactSuggestions();},0);
+  });
   function captureCompose(){const form=root.querySelector('#ou-compose-form');if(form)state.compose={...state.compose,...Object.fromEntries(new FormData(form))};}
   function openCompose(d=null){if(state.composeOpen)saveDraft();state.compose=d?{fromAccountId:d.fromAccountId||d.accountId||state.activeId,to:d.to||'',subject:d.subject||'',body:d.body||''}:{fromAccountId:state.activeId,to:'',subject:'',body:''};state.draftId=d?.id||null;state.composeOpen=true;state.result=null;}
   function saveDraft(){captureCompose();const d=state.compose;if(!d.to.trim()&&!d.subject.trim()&&!d.body.trim())return;const sender=state.accounts.find(a=>a.id===d.fromAccountId)||state.accounts.find(a=>a.id===state.activeId);if(!sender)return;let item=state.messages.find(m=>m.id===state.draftId&&m.folder==='drafts');if(!item){item={id:'draft-'+Date.now()+'-'+(++state.sendSeq),folder:'drafts',localDraft:true};state.messages.unshift(item);state.draftId=item.id;}Object.assign(item,d,{from:sender.email,accountId:sender.id,accountEmail:sender.email,date:'Brouillon'});emit('onDraftSave',{...d,id:item.id,accountId:sender.id,accountEmail:sender.email});}
   root.addEventListener('error',e=>{if(!e.target.matches('.ou-avatar-photo'))return;const img=e.target;if(avatar.initials){img.replaceWith(document.createTextNode(avatar.initials));return;}if(avatar.fallbackUrl&&img.getAttribute('src')!==avatar.fallbackUrl){img.src=avatar.fallbackUrl;return;}img.replaceWith(document.createTextNode(''));},true);
   root.addEventListener('click',async e=>{
+    const suggestion=e.target.closest('.ou-contact-suggestion');
+    if(suggestion){chooseContact(Number(suggestion.dataset.contactIndex));return;}
+    if(!e.target.closest('.ou-recipient-field'))hideContactSuggestions();
     const view=e.target.closest('[data-view]');if(view){state.accountMenuOpen=false;captureAccountFields();if(state.composeOpen)saveDraft();state.view=view.dataset.view;state.configOpen=false;state.composeOpen=false;render();return;}
     const accountFolder=e.target.closest('[data-account-folder]');if(accountFolder){const id=accountFolder.dataset.accountFolder;if(id!==state.activeId)switchAccount(id);else if(state.composeOpen){saveDraft();state.composeOpen=false;}state.folder=accountFolder.dataset.targetFolder;state.selected=null;state.mobileFoldersOpen=false;render();return;}
     const folder=e.target.closest('[data-folder]');if(folder){state.accountMenuOpen=false;if(state.composeOpen){saveDraft();state.composeOpen=false;}state.folder=folder.dataset.folder;state.selected=null;state.mobileFoldersOpen=false;render();return;}
