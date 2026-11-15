@@ -15,6 +15,24 @@ export function mountOutlook(host, options = {}) {
   const accounts=(Array.isArray(options.accounts)?options.accounts:options.account?[options.account]:[account]).map(normalize);
   const blank=()=>({id:null,email:'',type:'imap',incomingHost:'',incomingPort:'993',incomingSecurity:'ssl',outgoingHost:'',outgoingPort:'587',outgoingSecurity:'starttls',incomingUsername:'',incomingPassword:'',outgoingUsername:'',outgoingPassword:'',smtpAuthMode:'same',username:'',password:''});
   const state = {view:'mail',folder:'inbox',configOpen:false,composeOpen:false,accountMenuOpen:false,mobileFoldersOpen:false,accounts,activeId:accounts[0]?.id||null,account:accounts[0]||blank(),adding:accounts.length===0,messages:(options.messages||[]).map(x=>({...x,accountId:x.accountId||accounts[0]?.id||'acct-1'})),selected:null,result:null,accountNotice:null,testing:false,testSeq:0,sending:false,sendSeq:0,compose:{fromAccountId:accounts[0]?.id||null,to:'',subject:'',body:''},draftId:null,settingsTab:'accounts',deleteConfirm:false,contacts:(options.contacts||[{name:'Camille KOENIG',email:'camille.koenig@entreprise.fr'},{name:'Sophie MARTIN',email:'sophie.martin@entreprise.fr'}]).map(x=>({...x})),calendarItems:(options.calendarItems||[{title:'Réunion équipe',day:1,time:'09:30'},{title:'Suivi SAV',day:3,time:'14:00',shared:true}]).map(x=>({...x}))};
+  let accountNoticeTimer=null;
+  let destroyed=false;
+  function clearAccountNotice(){
+    if(accountNoticeTimer!==null){clearTimeout(accountNoticeTimer);accountNoticeTimer=null;}
+    state.accountNotice=null;
+  }
+  function showAccountNotice(message){
+    clearAccountNotice();
+    state.accountNotice=message;
+    accountNoticeTimer=setTimeout(()=>{
+      accountNoticeTimer=null;
+      if(destroyed)return;
+      state.accountNotice=null;
+      // Retirer uniquement la notification pour ne pas reconstruire
+      // Outlook pendant une saisie ou une autre interaction.
+      root.querySelector('.ou-account-notice')?.remove();
+    },4000);
+  }
   const avatar={photoUrl:options.avatar?.photoUrl||'',initials:options.avatar?.initials||'',fallbackUrl:options.avatar?.fallbackUrl??'https://cscybersecurite.github.io/ressources/ipv4/assets/pepette.webp',alt:options.avatar?.alt||'Pépette'};
   function avatarHtml(){const src=avatar.photoUrl||(!avatar.initials?avatar.fallbackUrl:'');return src?`<img class="ou-avatar-photo" src="${esc(src)}" alt="${esc(avatar.alt)}">`:esc(avatar.initials||'');}
   // R2D3 identifies mailboxes with accountEmail; legacy UI callers may use accountId.
@@ -221,8 +239,8 @@ export function mountOutlook(host, options = {}) {
     if(action==='mobile-folders'){state.mobileFoldersOpen=!state.mobileFoldersOpen;state.selected=null;render();return;}
     if(action==='mobile-back'){state.selected=null;render();return;}
     if(action==='toggle-account-menu'){if(!state.accounts.length){state.configOpen=true;state.settingsTab='accounts';state.accountMenuOpen=false;}else{state.accountMenuOpen=!state.accountMenuOpen;}render();return;}state.accountMenuOpen=false;if(action==='close-settings')captureAccountFields();
-    if(action==='settings'){state.mobileFoldersOpen=false;state.configOpen=true;state.settingsTab='accounts';state.deleteConfirm=false;state.result=null;state.accountNotice=null;}
-    if(action==='dismiss-account-notice'){state.accountNotice=null;render();return;}
+    if(action==='settings'){state.mobileFoldersOpen=false;state.configOpen=true;state.settingsTab='accounts';state.deleteConfirm=false;state.result=null;clearAccountNotice();}
+    if(action==='dismiss-account-notice'){clearAccountNotice();root.querySelector('.ou-account-notice')?.remove();return;}
     if(action==='close-settings'){state.configOpen=false;state.result=null;}
     if(action==='compose'){openCompose();}
     if(action==='close-compose'){saveDraft();state.composeOpen=false;state.result=null;state.sending=false;state.sendSeq++;}
@@ -257,7 +275,7 @@ export function mountOutlook(host, options = {}) {
       state.testing=false;
       if(state.result?.success){
         state.configOpen=false;
-        state.accountNotice='Paramètres enregistrés et vérifiés.';
+        showAccountNotice('Paramètres enregistrés et vérifiés.');
         render();
       }else renderSettingsAtCurrentPosition();
     }
@@ -281,5 +299,5 @@ export function mountOutlook(host, options = {}) {
     if(e.target.form?.id==='ou-account'){captureAccountFields();state.testSeq++;state.testing=false;if(['type','smtpAuthMode','incomingSecurity','outgoingSecurity'].includes(e.target.name)){if(['type','incomingSecurity'].includes(e.target.name)&&['pop3','imap'].includes(state.account.type)&&(!state.account.incomingPort.trim()||standardIncomingPorts.has(state.account.incomingPort.trim())))state.account.incomingPort=defaultIncomingPort(state.account.type,state.account.incomingSecurity);if(e.target.name==='outgoingSecurity'&&(!state.account.outgoingPort.trim()||standardOutgoingPorts.has(state.account.outgoingPort.trim())))state.account.outgoingPort=defaultOutgoingPort(state.account.outgoingSecurity);state.result=null;renderSettingsAtCurrentPosition();}else if(state.result){state.result=null;const status=root.querySelector('.ou-result');if(status){status.textContent='';status.className='ou-result';}}}
   });
   function update(patch={}){captureCompose();if(patch.avatar)Object.assign(avatar,patch.avatar);if(patch.account){state.testSeq++;state.testing=false;}if(patch.account)state.account={...state.account,...patch.account};if(patch.messages){const localDrafts=externalMessageStore?state.messages.filter(m=>m.folder==='drafts'&&m.localDraft):[];const external=patch.messages.map(x=>({...x}));const ids=new Set(external.map(m=>m.id));state.messages=external.concat(localDrafts.filter(m=>!ids.has(m.id)));}if(patch.result)state.result=patch.result;render();}
-  render();return {update,destroy(){root.remove()},getAccount(){return {...state.account}},getAccounts(){return state.accounts.map(a=>({...a}))},getMessages(){return state.messages.map(m=>({...m}))},getContacts(){return state.contacts.map(c=>({...c}))},getCalendarItems(){return state.calendarItems.map(c=>({...c}))}};
+  render();return {update,destroy(){destroyed=true;clearAccountNotice();root.remove()},getAccount(){return {...state.account}},getAccounts(){return state.accounts.map(a=>({...a}))},getMessages(){return state.messages.map(m=>({...m}))},getContacts(){return state.contacts.map(c=>({...c}))},getCalendarItems(){return state.calendarItems.map(c=>({...c}))}};
 }
