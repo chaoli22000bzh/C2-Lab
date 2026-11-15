@@ -5,5 +5,5 @@
 <section><h2>Configuration du réseau</h2><pre id="state"></pre></section>
 <section><h2>Vérifications</h2><p>1. Obtiens les deux baux DHCP. 2. Vérifie ensuite la communication entre les VLAN. 3. Désactive le routage et observe que les baux restent présents.</p>
 <div class="controls"><button id="dhcp">1. Demander les deux adresses DHCP</button><button id="ping" disabled>2. Tester la communication PC10 vers PC20</button><button id="disable" disabled>3. Désactiver le routage et vérifier</button><button id="reset">Recommencer</button></div>
-<p id="result" aria-live="polite">Scénario chargé.</p></section>
+<p id="result" aria-live="polite">Scénario chargé.</p><p id="verdict" role="status" aria-live="polite" style="font-weight:700" hidden></p></section>
 <p><small>Ce premier test ne couvre pas STP, IP Helper, les topologies multi-switch ou l'intégration métier C².</small></p><script type="module" src="./switch-integration-l3-dhcp-01.js"></script></body></html>

@@ -8,7 +8,7 @@ const good=x=>{if(!x?.success)throw Error(x?.message||x?.reason||x?.code||"Opér
 let r,sw,pcs,engine,addresses,routingVerified=false;
 function wire(a,b){const c=good(r.createCable()).cable;good(r.connectCableEnd(c.id,0,a));good(r.connectCableEnd(c.id,1,b));return c;}
 function boot(){
- r=createAssetRegistry();engine=null;addresses=null;routingVerified=false;
+ r=createAssetRegistry();engine=null;addresses=null;routingVerified=false;$("verdict").hidden=true;$("verdict").textContent="";
  const sp=good(r.createProfile("Switch L3")).profile,pp=good(r.createProfile("PC Windows")).profile;
  good(r.addPortGroup(sp.id,{type:"ethernet-rj45",prefix:"P",start:1,count:4}));
  good(r.addPortGroup(pp.id,{type:"ethernet-rj45",prefix:"LAN",start:1,count:1}));
@@ -45,7 +45,7 @@ $("dhcp").onclick=()=>{try{
   addresses[pcs[i].id].gateway==="192.168."+[10,20][i]+".1");
  $("result").textContent=(ok?"DHCP conforme. ":"ANOMALIE DHCP. ")+
   pcs.map((pc,i)=>pc.name+" : "+(results[i].address||results[i].code)).join(" ; ");
- $("ping").disabled=!ok;$("disable").disabled=true;routingVerified=false;render();
+ $("ping").disabled=!ok;$("disable").disabled=true;routingVerified=false;$("verdict").hidden=true;$("verdict").textContent="";render();
  }catch(err){$("result").textContent="Erreur DHCP : "+err.message;}};
 $("ping").onclick=()=>{try{
  if(!addresses)throw Error("Demande DHCP préalable requise");
@@ -62,10 +62,12 @@ $("disable").onclick=()=>{try{
  const observation=observeRegisteredInterVlanPing(r,sw.id,pcs[0].id,pcs[1].id,addresses);
  const expected=leasePreserved&&!observation.success&&observation.status!=="unavailable"&&
   observation.reason==="Routage inter-VLAN désactivé";
- $("result").textContent=(expected?"CONFORME. ":"ANOMALIE. ")+
+ $("verdict").textContent=(expected?"CONFORME. ":"ANOMALIE. ")+
   "Routage désactivé ; "+(observation.success?"communication encore possible":"communication interrompue")+
   " ("+(observation.reason||observation.status)+"). "+
   (leasePreserved?"Baux DHCP conservés sur les deux PC.":"Au moins un bail DHCP a changé.");
+ $("verdict").hidden=false;
+ $("result").textContent="Vérification 3 terminée. Le verdict ci-dessous reste affiché si tu relances le ping.";
  $("disable").disabled=true;render();
  }catch(err){$("result").textContent="Erreur de vérification : "+err.message;}};
 $("reset").onclick=()=>{try{boot()}catch(e){$("result").textContent="Erreur de préparation : "+e.message;}};
