@@ -1,0 +1,10 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>R2D3 : recette transversale STP et VLAN</title><style>
+:root{font:16px/1.5 system-ui,Arial,sans-serif;color-scheme:light dark}body{max-width:960px;margin:auto;padding:16px}h1{font-size:1.5rem}h2{font-size:1.1rem}section{border:1px solid #8797a377;border-radius:12px;padding:16px;margin:14px 0}button{font:inherit;padding:10px 12px;border:1px solid #7195b5;border-radius:9px;background:#eaf3fc;color:#163d60;cursor:pointer}button:disabled{opacity:.48}.controls{display:flex;flex-wrap:wrap;gap:8px}pre{white-space:pre-wrap;background:#74879718;padding:14px;border-radius:8px;overflow-wrap:anywhere}#verdict{font-weight:700}a{color:inherit}
+</style></head><body><p><a href="./">Retour aux laboratoires R2D3</a></p><h1>Recette transversale 2 : STP et VLAN sur switchs L3</h1>
+<p>Trois switchs L3 forment un triangle. Les liaisons Trunk transportent les VLAN 10 et 20. Le routage inter-VLAN reste désactivé pour observer STP et l'isolation.</p>
+<section><h2>Installation</h2><pre id="state"></pre></section>
+<section><h2>Vérifications</h2><div class="controls">
+<button id="step1">1. Vérifier STP sur VLAN 10</button><button id="step2" disabled>2. Vérifier l'isolation du VLAN 20</button><button id="reset">Recommencer</button>
+</div><p id="result" aria-live="polite">Scénario chargé.</p><p id="verdict" role="status" aria-live="polite" hidden></p></section>
+<p><small>Ce scénario observe STP et les VLAN avec le moteur STP V1. Il ne valide pas le routage L3 à travers plusieurs switchs ni l'intégration STP à tous les autres moteurs d'observation.</small></p>
+<script type="module" src="./switch-transverse-stp-vlan.js"></script></body></html>
