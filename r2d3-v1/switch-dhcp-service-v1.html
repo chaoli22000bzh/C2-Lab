@@ -1,0 +1,25 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>R2D3 : serveur DHCP sur switch L3</title><style>
+:root{font:16px/1.5 system-ui,Arial,sans-serif;color-scheme:light dark}
+body{max-width:960px;margin:auto;padding:16px}h1{font-size:1.5rem}h2{font-size:1.12rem}
+section{border:1px solid #8797a377;border-radius:12px;padding:16px;margin:14px 0}
+button{font:inherit;padding:9px 12px;border:1px solid #7195b5;border-radius:9px;background:#eaf3fc;color:#163d60;cursor:pointer}
+button.selected{background:#2567a8;color:white}.controls{display:flex;gap:8px;flex-wrap:wrap}
+pre{white-space:pre-wrap;background:#74879718;padding:14px;border-radius:8px;overflow-wrap:anywhere}
+#result{min-height:30px}a{color:inherit}small{color:gray}
+</style></head><body>
+<p><a href="./">Retour aux laboratoires R2D3</a></p>
+<h1>Service DHCP sur un switch L3</h1>
+<p>Les adresses et les baux proviennent exclusivement du Core DHCP R2D3.</p>
+<section><h2>Scénarios de recette</h2><div id="tests" class="controls">
+<button data-test="1">1. Service absent</button>
+<button data-test="2">2. VLAN 10</button>
+<button data-test="3">3. VLAN 20</button>
+<button data-test="4">4. Serveur arrêté</button>
+<button data-test="5">5. Coupure réseau</button>
+</div></section>
+<section><h2 id="title"></h2><p id="instruction"></p><pre id="state"></pre>
+<div class="controls"><button id="action"></button><button id="second" hidden></button><button id="reset">Recommencer</button></div>
+<p id="result" aria-live="polite"></p>
+</section>
+<script type="module" src="./switch-dhcp-service-lab-v1.js"></script></body></html>
