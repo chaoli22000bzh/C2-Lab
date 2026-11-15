@@ -1,0 +1,11 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>R2D3 : DHCP intégré et IP Helper</title><style>:root{font:16px/1.5 system-ui,Arial,sans-serif;color-scheme:light dark}body{max-width:940px;margin:auto;padding:16px}h1{font-size:1.5rem}section{border:1px solid #8797a377;border-radius:12px;padding:16px;margin:14px 0}button{font:inherit;padding:10px 12px;border:1px solid #7195b5;border-radius:9px;background:#eaf3fc;color:#163d60;cursor:pointer}button:disabled{opacity:.48}.controls{display:flex;flex-wrap:wrap;gap:8px}pre{white-space:pre-wrap;background:#74879718;padding:14px;border-radius:8px;overflow-wrap:anywhere}#verdict{font-weight:700}a{color:inherit}</style></head><body>
+<p><a href="./">Retour aux laboratoires R2D3</a></p><h1>Recette transversale 5 : DHCP local et IP Helper</h1>
+<p>Sur un même switch L3 : le VLAN 10 reçoit ses adresses du DHCP intégré, tandis que le VLAN 20 utilise IP Helper pour joindre un serveur DHCP externe situé dans le VLAN 30. Un seul Core DHCP gère les deux sources et leurs baux.</p>
+<section><h2>État du réseau</h2><pre id="state"></pre></section><section><h2>Tests</h2><div class="controls">
+<button id="local">1. DHCP intégré, VLAN 10</button>
+<button id="remote" disabled>2. IP Helper, VLAN 20</button>
+<button id="failure" disabled>3. Désactiver IP Helper</button>
+<button id="reset">Recommencer</button></div>
+<p id="result" aria-live="polite">Installation prête.</p><p id="verdict" role="status" aria-live="polite" hidden></p>
+</section><p><small>Topologie simplifiée : clients et serveur raccordés directement en Access au même switch L3. Pas de routage multi-switch ni d'arbitrage entre plusieurs serveurs pour un même VLAN.</small></p>
+<script type="module" src="./switch-transverse-two-dhcp-services.js"></script></body></html>
