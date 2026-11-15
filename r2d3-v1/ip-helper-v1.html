@@ -1,0 +1,32 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>R2D3 : IP Helper V1</title><style>
+:root{font:16px/1.5 system-ui,Arial,sans-serif;color-scheme:light dark}
+body{max-width:900px;margin:auto;padding:16px}h1{font-size:1.55rem}h2{font-size:1.1rem}
+section{border:1px solid #8c98a477;border-radius:12px;padding:15px;margin:15px 0}
+button{font:inherit;padding:9px 12px;border:1px solid #7195b5;border-radius:9px;background:#eaf3fc;color:#163d60;cursor:pointer}
+button.selected{background:#2567a8;color:#fff}button:disabled{opacity:.5}
+.tests,.actions{display:flex;flex-wrap:wrap;gap:8px}#network{background:#74879718;padding:14px;border-radius:8px;white-space:pre-wrap;font:14px/1.65 ui-monospace,Consolas,monospace;overflow:auto}
+#result{border:1px solid #8c98a477;border-radius:8px;padding:12px;min-height:30px}
+#result.good{color:#16834c;border-color:#20975a}#result.bad{color:#b94b3f;border-color:#bc574a}
+.note{opacity:.77;font-size:.9rem}a{color:inherit}
+</style></head><body><p><a href="./">Retour au laboratoire R2D3</a></p>
+<h1>IP Helper V1 : configuration persistante</h1>
+<p>La fonction IP Helper appartient aux profils et aux équipements. Le serveur DHCP commun attribue les adresses selon le réseau du client.</p>
+<section><h2>Choisir un test</h2><div id="tests" class="tests">
+<button data-test="1">1. Profil et état initial</button>
+<button data-test="2">2. Activer IP Helper</button>
+<button data-test="3">3. Réglages indépendants</button>
+<button data-test="4">4. Désactiver le relais</button>
+<button data-test="5">5. Sauvegarde</button>
+</div></section>
+<section><h2 id="title"></h2><p id="instruction"></p>
+<div id="network" aria-label="Équipement et plages DHCP"></div><p id="result" aria-live="polite"></p>
+<div class="actions">
+<button id="request">Demander une adresse DHCP</button>
+<button id="change">Appliquer la modification</button>
+<button id="export">Exporter l'état R2</button>
+<button id="restore">Restaurer l'état R2</button>
+<button id="reset">Recommencer</button>
+</div>
+<p class="note">Les adresses sont attribuées par le véritable moteur DHCP R2D3. Les interfaces IP Helper sont conservées dans le registre des équipements.</p>
+</section><script type="module" src="./ip-helper-lab-v1.js"></script></body></html>
