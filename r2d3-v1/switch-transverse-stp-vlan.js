@@ -28,7 +28,7 @@ function setup(){
  addresses={
   [pcs[0].id]:{address:"192.168.10.11",prefix:24},
   [pcs[1].id]:{address:"192.168.10.12",prefix:24},
-  [pcs[2].id]:{address:"192.168.10.13",prefix:24}
+  [pcs[2].id]:{address:"192.168.20.13",prefix:24}
  };
  $("step1").disabled=false;$("step2").disabled=true;$("verdict").hidden=true;$("verdict").textContent="";
  $("result").textContent="Installation prête. Lance le premier contrôle.";render();
@@ -40,7 +40,7 @@ function render(obs){
  "Trunks entre switchs : VLAN 10 et VLAN 20 autorisés",
  "PC10-A : SW01 / Access VLAN 10 / 192.168.10.11/24",
  "PC10-B : SW03 / Access VLAN 10 / 192.168.10.12/24",
- "PC20 : SW02 / Access VLAN 20 / adresse de test 192.168.10.13/24",
+ "PC20 : SW02 / Access VLAN 20 / 192.168.20.13/24",
  "Câbles entre switchs : "+loopCableIds.join(", ")
  ];
  if(obs){lines.push("VLAN observé : "+(obs.vlan??"indéterminé"),"Boucle : "+(obs.loop?"OUI":"NON"),
