@@ -173,3 +173,14 @@
   .ou-app .ou-compose{left:3px;right:3px;width:calc(100% - 6px);height:min(540px,calc(100% - 54px));max-width:none}
   .ou-app .ou-compose .ou-compose-toolbar{flex-wrap:wrap}
 }
+
+/* Outlook : suggestions des contacts dans le champ destinataire. */
+.ou-app .ou-compose .ou-recipient-field{position:relative;min-width:0}
+.ou-app .ou-compose .ou-recipient-field #ou-to{width:100%;min-width:0}
+.ou-app .ou-compose .ou-contact-suggestions{position:absolute;top:100%;left:0;right:0;z-index:10;max-height:195px;overflow-y:auto;border:1px solid #a9bfd5;border-radius:5px;background:#fff;color:#24334a;box-shadow:0 5px 18px #12233b24}
+.ou-app .ou-compose .ou-contact-suggestions[hidden]{display:none}
+.ou-app .ou-compose .ou-contact-suggestion{display:flex;width:100%;flex-direction:column;align-items:flex-start;gap:2px;border:0;border-bottom:1px solid #e9eef5;background:#fff;color:#24334a;padding:8px 10px;text-align:left;font-size:13px;cursor:pointer}
+.ou-app .ou-compose .ou-contact-suggestion:last-child{border-bottom:0}
+.ou-app .ou-compose .ou-contact-suggestion strong{font-weight:600}
+.ou-app .ou-compose .ou-contact-suggestion small{font-size:12px;color:#526a82;overflow-wrap:anywhere}
+.ou-app .ou-compose .ou-contact-suggestion:hover,.ou-app .ou-compose .ou-contact-suggestion:focus-visible{background:#e8f2ff;outline:2px solid #0f6cbd;outline-offset:-2px}
