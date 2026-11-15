@@ -184,3 +184,7 @@
 .ou-app .ou-compose .ou-contact-suggestion strong{font-weight:600}
 .ou-app .ou-compose .ou-contact-suggestion small{font-size:12px;color:#526a82;overflow-wrap:anywhere}
 .ou-app .ou-compose .ou-contact-suggestion:hover,.ou-app .ou-compose .ou-contact-suggestion:focus-visible{background:#e8f2ff;outline:2px solid #0f6cbd;outline-offset:-2px}
+
+/* Confirmation non bloquante après enregistrement réussi du compte. */
+.ou-app .ou-account-notice{position:absolute;top:55px;left:12px;right:12px;z-index:4;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;border:1px solid #81b69b;border-radius:6px;background:#eaf8ef;color:#185b37;box-shadow:0 3px 12px #122a3a24;font-size:13px}
+.ou-app .ou-account-notice button{border:0;background:transparent;color:inherit;font-size:21px;line-height:1;padding:2px 5px}
