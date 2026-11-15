@@ -78,8 +78,14 @@ $("failure").onclick=()=>{try{
  const res=observeRegisteredRelayedDhcp({registry:r,switchId:sw.id,clientId:pc20.id,serverId:srv.id,serverAddress:"192.168.30.2",dhcpEngine:engine});
  const pass=!res.success&&res.reason==="IP Helper absent ou désactivé sur le VLAN client"&&
   address(pc10)===before10&&address(pc20)===before20&&leaseCount(sw.id)===1&&leaseCount(srv.id)===1;
- $("verdict").textContent=(pass?"CONFORME. ":"ANOMALIE. ")+"Relais désactivé : nouvelle demande refusée, "+
-  (address(pc10)===before10&&address(pc20)===before20?"baux existants conservés.":"baux modifiés.");
+ const retained=address(pc10)===before10&&address(pc20)===before20;
+ $("verdict").textContent=[
+  pass?"CONFORME.":"ANOMALIE.",
+  "Nouvelle demande DHCP relayée : "+(res.success?"RÉUSSIE (anomalie)":"ÉCHEC"),
+  "Motif : "+(res.reason||res.status||"non précisé"),
+  "Baux DHCP existants : "+(retained?"CONSERVÉS":"MODIFIÉS"),
+  "Compteurs : DHCP intégré = "+leaseCount(sw.id)+" ; DHCP externe = "+leaseCount(srv.id)
+ ].join("\n");
  $("verdict").hidden=false;$("failure").disabled=true;render();
  }catch(e){$("verdict").textContent="Erreur : "+e.message;$("verdict").hidden=false;}};
 $("reset").onclick=()=>{try{boot()}catch(e){$("result").textContent="Erreur de préparation : "+e.message;}};
