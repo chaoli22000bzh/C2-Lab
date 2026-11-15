@@ -12,7 +12,7 @@ function createCore(){return createEngine({format:"r2d3-scenario",schemaVersion:
  {id:srv.id,kind:"dhcp-server",name:"SRV-DHCP",ports:[{id:"eth0",type:"rj45"}],
  config:{ipv4:{interfaceId:"eth0",mode:"static",address:"192.168.20.2",prefix:24},
  dhcpEnabled:true,dhcpPools:[{id:"plage10",start:"192.168.10.100",end:"192.168.10.110",prefix:24,gateway:"192.168.10.1",dns:[],leaseSeconds:3600}]}}],
- links:[{id:"service-relay",kind:"relay-service",connected:true,endpoints:[{objectId:pc.id,portId:"eth0"},{objectId:srv.id,portId:"eth0"}]}]});}
+ links:[{id:"service-relay",kind:"relay-service",connected:false,endpoints:[{objectId:pc.id,portId:"eth0"},{objectId:srv.id,portId:"eth0"}]}]});}
 function setup(){
  step=0;r=createAssetRegistry();
  const p=ok(r.createProfile("PC")).profile,d=ok(r.createProfile("Serveur DHCP")).profile,s=ok(r.createProfile("Switch L3")).profile;
@@ -28,6 +28,19 @@ function setup(){
  $("result").textContent="Installation initialisée, IP Helper non configuré.";render();
 }
 function request(){return observeRegisteredRelayedDhcp({registry:r,switchId:sw.id,clientId:pc.id,serverId:srv.id,serverAddress:"192.168.20.2",dhcpEngine:engine});}
+// Liaison de service logique du banc d'essai, indépendante des câbles R2.
+// Sans IP Helper, le Core ne voit aucun chemin DHCP et peut attribuer une APIPA.
+function setRelayPath(connected){
+ const result=engine.dispatch({commandVersion:1,id:"service-link-"+engine.getSnapshot().revision,
+  type:"network.setLinkConnected",targetId:"service-relay",params:{connected}});
+ if(result.status!=="applied")throw Error(result.message||result.code||"Impossible de mettre à jour le chemin DHCP");
+}
+function coreRequestWithoutRelay(){
+ const result=engine.dispatch({commandVersion:1,id:"core-dhcp-no-helper-"+engine.getSnapshot().revision,
+  type:"dhcp.request",targetId:pc.id,params:{serverId:srv.id}});
+ if(result.status!=="applied")throw Error(result.message||result.code||"Requête DHCP Core refusée");
+ return engine.getSnapshot();
+}
 function render(){
  const v=getAssetIpHelperConfig(r,sw.id).helpers["vlan:10"],cfg=engine.getSnapshot().objectsById[pc.id].config.ipv4;
  $("state").textContent=["SW-L3 : routage inter-VLAN ACTIF, interfaces VLAN 10 et 20 configurées",
@@ -38,13 +51,20 @@ function render(){
 }
 $("t1").onclick=()=>{try{
  const before=engine.getSnapshot().objectsById[pc.id].config.ipv4.address;
- const x=request(),after=engine.getSnapshot().objectsById[pc.id].config.ipv4.address;
- const pass=!x.success&&!before&&!after&&x.reason==="IP Helper absent ou désactivé sur le VLAN client";
- $("result").textContent=(pass?"CONFORME. ":"ANOMALIE. ")+"Sans relais : "+x.reason+". IPv4 PC10 : "+(after||"aucune")+".";
+ const x=request();
+ if(x.success)throw Error("Le relais DHCP a fonctionné sans IP Helper.");
+ const state=coreRequestWithoutRelay();
+ const current=state.objectsById[pc.id].config.ipv4;
+ const after=current.address,status=state.runtime[pc.id]?.dhcpStatus;
+ const pass=!before&&x.reason==="IP Helper absent ou désactivé sur le VLAN client"&&
+   status==="apipa"&&/^169\.254\./.test(after||"")&&current.prefix===16&&current.lease===null;
+ $("result").textContent=(pass?"CONFORME. ":"ANOMALIE. ")+"Sans IP Helper : "+x.reason+
+  ". Échec DHCP traité par le Core : "+(after||"aucune IPv4")+
+  (current.prefix!=null?"/"+current.prefix:"")+" (état "+status+").";
  $("t2").disabled=!pass;render();
  }catch(e){$("result").textContent="Erreur : "+e.message;}};
 $("t2").onclick=()=>{try{
- ok(setVlanIpHelper(r,sw.id,10,"192.168.20.2",true));const x=request();
+ ok(setVlanIpHelper(r,sw.id,10,"192.168.20.2",true));setRelayPath(true);const x=request();
  const addr=engine.getSnapshot().objectsById[pc.id].config.ipv4.address;
  const pass=x.success&&x.address==="192.168.10.100"&&addr==="192.168.10.100";
  $("result").textContent=(pass?"CONFORME. ":"ANOMALIE. ")+"IP Helper actif : "+(x.reason||x.status)+" ; bail "+(addr||"aucun")+".";
