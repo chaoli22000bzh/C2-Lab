@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>R2D3 • VLAN V1</title>
+<style>
+:root{font:16px/1.5 system-ui,Arial,sans-serif;color-scheme:light dark}body{max-width:920px;margin:0 auto;padding:16px}
+h1{font-size:1.5rem}h2{font-size:1.12rem}section{border:1px solid #8793a680;border-radius:12px;padding:15px;margin:15px 0}
+button{font:inherit;border:1px solid #7d9ab8;border-radius:8px;padding:9px 12px;background:#e7f1fa;color:#123f66;cursor:pointer}
+button.selected{background:#2366a7;color:#fff}button:focus-visible{outline:3px solid #efad37;outline-offset:2px}
+.tests,.actions{display:flex;flex-wrap:wrap;gap:8px}
+#network{background:#74879718;padding:12px;border-radius:8px;white-space:pre-wrap;font:13px/1.65 ui-monospace,Consolas,monospace;overflow:auto}
+#feedback{padding:12px;border:1px solid #9aa5b5;border-radius:8px;min-height:22px}
+#feedback.good{border-color:#1c9864;color:#118251;font-weight:bold}
+#feedback.bad{border-color:#be5649;color:#b44739;font-weight:bold}
+table{border-collapse:collapse;width:100%;margin:10px 0;font-size:.9rem}
+th,td{padding:6px;border-bottom:1px solid #9aa5b555;text-align:left}
+.note{font-size:.9rem;opacity:.8}a{color:inherit}
+</style></head>
+<body>
+<p><a href="./">Retour au laboratoire R2D3</a></p>
+<h1>VLAN : laboratoire V1</h1>
+<p>Deux PC, un ou deux switchs L2. Capacités définies par les profils, configurations propres à chaque équipement et câblage réel du registre R2D3.</p>
+<section><h2>Choisir un test</h2>
+<div class="tests" id="tests">
+<button data-test="1">1. Profil et VLAN 1</button>
+<button data-test="2">2. Switchs indépendants</button>
+<button data-test="3">3. Isolation Access</button>
+<button data-test="4">4. Trunk configuré</button>
+<button data-test="5">5. Sauvegarde</button>
+</div></section>
+<section>
+<h2 id="title">Test 1</h2><p id="instruction"></p>
+<div id="network" aria-label="Réseau VLAN et câblage"></div>
+<div id="settings"></div>
+<p id="feedback" aria-live="polite">Choisis une manipulation.</p>
+<div class="actions">
+<button id="action">Appliquer la modification</button>
+<button id="ping">Tester le ping PC1 → PC2</button>
+<button id="export">Exporter l’état</button><button id="restore">Restaurer l’état</button><button id="reset">Recommencer ce test</button>
+</div>
+<p class="note">La page est uniquement un banc d'essai. Les capacités, VLAN et ports sont enregistrés dans chaque équipement. Aucun moteur métier n’est simulé dans l’interface.</p>
+</section>
+<script type="module" src="./vlan-lab-v1.js"></script>
+</body></html>
