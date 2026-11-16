@@ -1,5 +1,5 @@
 import {createAssetRegistry} from "./asset-profiles.js";
-import {mountSwitchAdmin} from "./switch-admin-ui-v1.js?v=6";
+import {mountSwitchAdmin} from "./switch-admin-ui-v1.js?v=6.2";
 const $=id=>document.getElementById(id);
 const good=r=>{if(!r?.success)throw Error(r?.message||r?.code||"Opération refusée");return r;};
 let view,registry,ids;
