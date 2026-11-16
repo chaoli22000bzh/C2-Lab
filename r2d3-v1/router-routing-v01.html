@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="fr">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>R2D3 - Routage direct entre deux LAN</title>
+<title>R2D3 - Routage direct LAN/LAN et LAN/WAN</title>
 <link rel="stylesheet" href="./switch-admin-ui-v1.css?v=6.18">
 <style>
 *{box-sizing:border-box}body{margin:0;background:#f3f6f7;color:#293b43;font-family:system-ui,"Segoe UI",Arial,sans-serif}
@@ -17,6 +17,8 @@
 .lab-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:12px 0}
 .lab-actions button{font:inherit;padding:8px 12px;border-radius:4px;cursor:pointer;border:1px solid #bbcbd0;background:#fff;color:#304a55}
 .lab-actions button.primary{background:#009b75;color:#fff;border-color:#009b75}
+.lab-actions button.ping-selected{background:#009b75;color:white;border-color:#009b75;box-shadow:0 0 0 2px #91dcc7}
+.lab-actions button.ping-selected:hover{background:#008a69}
 .lab-result{padding:10px 12px;border-radius:5px;font-size:14px;background:#f2f5f7;color:#445963}
 .lab-result.success{background:#e5f7ef;color:#117351}.lab-result.failed{background:#fff0ec;color:#9a3832}.lab-result.unsupported{background:#fff9e3;color:#785f13}
 #router-admin{background:#fff;border:1px solid #dce4e8;border-radius:7px;overflow:hidden}
@@ -26,11 +28,12 @@
 @media(max-width:640px){.lab-grid{grid-template-columns:1fr}.topology .wire{flex-basis:30px;width:30px}.lab-main{padding:0 6px}.router-admin .form-grid{grid-template-columns:minmax(0,1fr)!important}}
 </style></head>
 <body>
-<header class="lab-header"><h1>R2D3 : routage entre deux réseaux LAN</h1><p>Lot 2. Deux ordinateurs directement câblés au routeur. Aucun switch, aucun VLAN.</p></header>
+<header class="lab-header"><h1>R2D3 : routage entre deux réseaux</h1><p>Lot 2. Deux PC directement câblés au routeur. Aucun switch, aucun VLAN.</p></header>
 <main class="lab-main">
 <section class="lab-panel"><h2>Topologie physique</h2>
+<label style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px;font-size:14px">Scénario <select id="scenario" style="font:inherit;padding:7px 9px;border:1px solid #bbcbd0;border-radius:4px"><option value="lan-lan">LAN vers LAN (GE02 ↔ GE03)</option><option value="lan-wan">LAN vers WAN (GE02 ↔ GE01)</option></select></label>
 <div class="topology"><div class="node"><strong>PC1</strong><small id="pc1-label">192.168.10.10/24</small></div><div class="wire" id="wire1" title="Câble PC1 - GE02"></div>
-<div class="node router-node"><strong>RTR-01</strong><small>GE02 : 192.168.10.1/24</small><small>GE03 : 192.168.20.1/24</small></div>
+<div class="node router-node"><strong>RTR-01</strong><small>GE02 : 192.168.10.1/24</small><small id="router-second-port">GE03 : 192.168.20.1/24</small></div>
 <div class="wire" id="wire2" title="Câble PC2 - GE03"></div><div class="node"><strong>PC2</strong><small id="pc2-label">192.168.20.10/24</small></div></div></section>
 <section class="lab-panel">
 <h2>Configuration des ordinateurs</h2>
@@ -39,8 +42,8 @@
 <div><strong>PC2</strong><label>Adresse IPv4<input id="pc2-ip" value="192.168.20.10"></label><label>Préfixe réseau<input id="pc2-prefix" type="number" min="1" max="30" value="24"></label><label>Passerelle<input id="pc2-gw" value="192.168.20.1"></label></div>
 </div>
 <div class="lab-actions">
-<button id="ping" type="button" class="primary">Ping PC1 → PC2</button>
-<button id="ping-reverse" type="button">Ping PC2 → PC1</button>
+<button id="ping" type="button" class="primary" aria-pressed="false">Ping PC1 → PC2</button>
+<button id="ping-reverse" type="button" aria-pressed="false">Ping PC2 → PC1</button>
 <button id="cable1" type="button">Débrancher câble PC1</button>
 <button id="cable2" type="button">Débrancher câble PC2</button>
 <button id="reset" type="button">Réinitialiser le scénario</button>
@@ -48,4 +51,4 @@
 <div id="ping-result" class="lab-result" role="status">Cliquer sur « Ping PC1 → PC2 » pour vérifier le routage.</div>
 </section>
 <section><div id="router-admin"></div></section>
-</main><script type="module" src="./router-routing-lab-v01.js?v=1.0"></script></body></html>
+</main><script type="module" src="./router-routing-lab-v01.js?v=1.1"></script></body></html>
