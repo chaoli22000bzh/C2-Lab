@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="fr">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>R2D3 - Routage direct entre deux LAN</title>
+<link rel="stylesheet" href="./switch-admin-ui-v1.css?v=6.18">
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f3f6f7;color:#293b43;font-family:system-ui,"Segoe UI",Arial,sans-serif}
+.lab-header{background:#193e60;color:#fff;padding:16px max(14px,calc((100% - 1050px)/2))}.lab-header h1{font-size:20px;margin:0 0 4px}.lab-header p{font-size:13px;color:#d6e4ed;margin:0}
+.lab-main{max-width:1050px;margin:14px auto;padding:0 10px}.lab-panel{border:1px solid #dce4e8;background:#fff;padding:14px 18px;border-radius:6px;margin-bottom:12px}.lab-panel h2{font-size:17px;margin:0 0 10px}
+.topology{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;font-size:13px;text-align:center}
+.topology .node{border:1px solid #9dbece;border-radius:6px;background:#f1f8fc;padding:9px;min-width:155px}
+.topology .router-node{background:#edf9f4;border-color:#89bba5;min-width:175px}
+.topology .wire{width:70px;flex:0 0 70px;border-top:3px solid #36a775;position:relative}.topology .wire.cut{border-color:#bd4a4a;border-top-style:dashed}
+.topology small{display:block;margin-top:3px;color:#52636a}
+.lab-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.lab-grid label{display:grid;gap:4px;font-size:13px;color:#52636a}
+.lab-grid input{font:inherit;border:1px solid #b8c7cd;border-radius:4px;padding:8px;min-width:0;width:100%;max-width:200px}
+.lab-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:12px 0}
+.lab-actions button{font:inherit;padding:8px 12px;border-radius:4px;cursor:pointer;border:1px solid #bbcbd0;background:#fff;color:#304a55}
+.lab-actions button.primary{background:#009b75;color:#fff;border-color:#009b75}
+.lab-result{padding:10px 12px;border-radius:5px;font-size:14px;background:#f2f5f7;color:#445963}
+.lab-result.success{background:#e5f7ef;color:#117351}.lab-result.failed{background:#fff0ec;color:#9a3832}.lab-result.unsupported{background:#fff9e3;color:#785f13}
+#router-admin{background:#fff;border:1px solid #dce4e8;border-radius:7px;overflow:hidden}
+.router-admin .mini-port{width:62px}.router-admin .mini-label{font-size:12px}
+.router-admin input[name="prefix"]{-moz-appearance:textfield;appearance:textfield}
+.router-admin input[name="prefix"]::-webkit-inner-spin-button,.router-admin input[name="prefix"]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+@media(max-width:640px){.lab-grid{grid-template-columns:1fr}.topology .wire{flex-basis:30px;width:30px}.lab-main{padding:0 6px}.router-admin .form-grid{grid-template-columns:minmax(0,1fr)!important}}
+</style></head>
+<body>
+<header class="lab-header"><h1>R2D3 : routage entre deux réseaux LAN</h1><p>Lot 2. Deux ordinateurs directement câblés au routeur. Aucun switch, aucun VLAN.</p></header>
+<main class="lab-main">
+<section class="lab-panel"><h2>Topologie physique</h2>
+<div class="topology"><div class="node"><strong>PC1</strong><small id="pc1-label">192.168.10.10/24</small></div><div class="wire" id="wire1" title="Câble PC1 - GE02"></div>
+<div class="node router-node"><strong>RTR-01</strong><small>GE02 : 192.168.10.1/24</small><small>GE03 : 192.168.20.1/24</small></div>
+<div class="wire" id="wire2" title="Câble PC2 - GE03"></div><div class="node"><strong>PC2</strong><small id="pc2-label">192.168.20.10/24</small></div></div></section>
+<section class="lab-panel">
+<h2>Configuration des ordinateurs</h2>
+<div class="lab-grid">
+<div><strong>PC1</strong><label>Adresse IPv4<input id="pc1-ip" value="192.168.10.10"></label><label>Préfixe réseau<input id="pc1-prefix" type="number" min="1" max="30" value="24"></label><label>Passerelle<input id="pc1-gw" value="192.168.10.1"></label></div>
+<div><strong>PC2</strong><label>Adresse IPv4<input id="pc2-ip" value="192.168.20.10"></label><label>Préfixe réseau<input id="pc2-prefix" type="number" min="1" max="30" value="24"></label><label>Passerelle<input id="pc2-gw" value="192.168.20.1"></label></div>
+</div>
+<div class="lab-actions">
+<button id="ping" type="button" class="primary">Ping PC1 → PC2</button>
+<button id="ping-reverse" type="button">Ping PC2 → PC1</button>
+<button id="cable1" type="button">Débrancher câble PC1</button>
+<button id="cable2" type="button">Débrancher câble PC2</button>
+<button id="reset" type="button">Réinitialiser le scénario</button>
+</div>
+<div id="ping-result" class="lab-result" role="status">Cliquer sur « Ping PC1 → PC2 » pour vérifier le routage.</div>
+</section>
+<section><div id="router-admin"></div></section>
+</main><script type="module" src="./router-routing-lab-v01.js?v=1.0"></script></body></html>
