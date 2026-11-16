@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>R2D3 - Routeur générique, lot 1</title>
+<link rel="stylesheet" href="./switch-admin-ui-v1.css?v=6.18">
+<style>
+*{box-sizing:border-box}body{font-family:system-ui,"Segoe UI",Arial,sans-serif;margin:0;background:#f3f6f7;color:#293b43}
+.lab-header{padding:16px max(14px,calc((100% - 1030px)/2));background:#193e60;color:white}
+.lab-header h1{font-size:20px;margin:0 0 5px}.lab-header p{font-size:13px;margin:0;color:#d6e4ed}
+.lab-frame{max-width:1030px;margin:16px auto;padding:0 12px}
+.lab-tools{background:#fff;border:1px solid #dce4e8;border-radius:7px;display:flex;align-items:end;gap:12px;flex-wrap:wrap;padding:12px;margin-bottom:12px}
+.lab-tools label{font-size:14px;display:grid;gap:4px}
+.lab-tools input{font:inherit;border:1px solid #b7c3c8;border-radius:4px;padding:7px 9px;width:90px;min-height:36px}
+.lab-tools button{font:inherit;border:0;color:white;background:#009b75;border-radius:4px;padding:9px 13px;cursor:pointer}
+.lab-msg{font-size:14px;color:#8c2830}
+#host{border:1px solid #dce4e8;background:white;border-radius:7px;overflow:hidden}
+.router-admin .mini-port{width:62px}
+.router-admin .mini-label{font-size:12px}
+.router-admin .form-grid input[name="prefix"]{-moz-appearance:textfield;appearance:textfield}
+.router-admin .form-grid input[name="prefix"]::-webkit-inner-spin-button,.router-admin .form-grid input[name="prefix"]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+@media(max-width:600px){.lab-frame{padding:0 6px}.router-admin .form-grid{grid-template-columns:minmax(0,1fr)!important}}
+</style>
+</head>
+<body>
+<header class="lab-header"><h1>R2D3 : administration du routeur générique</h1><p>Lot 1 : rôles WAN, LAN et DMZ, adresses IPv4 indépendantes. Aucun routage ni PAT simulé à ce stade.</p></header>
+<main class="lab-frame">
+<div class="lab-tools"><label>Nombre de ports à la création<input id="port-count" type="number" min="2" max="128" value="4"></label><button type="button" id="create">Créer / recommencer</button><span id="lab-status" class="lab-msg" role="status"></span></div>
+<div id="host"></div>
+</main>
+<script type="module" src="./router-admin-lab-v1.js?v=1.0"></script>
+</body></html>
