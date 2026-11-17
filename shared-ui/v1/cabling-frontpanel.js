@@ -55,7 +55,7 @@ export function mountCablingFrontpanel({root,registry,layout={},face="front",dev
       const {cableId,end}=pendingAttach;
       const result=attachExistingCable(registry,cableId,end,p.id);
       if(result.success){pendingAttach=null;chosenCable=cableId;}
-      render();say(result.message,result.success);return;
+      render();say(result.success?"Cordon déplacé sur la nouvelle prise.":result.message,result.success);return;
     }
     if(mode==="path"){
       if(!pathFrom){pathFrom=p.id;highlightedPorts=[p.id];render();say("Départ sélectionné. Choisis l'arrivée.");return;}
@@ -78,8 +78,15 @@ export function mountCablingFrontpanel({root,registry,layout={},face="front",dev
   }
   function cableAction(cableId,end){
     const result=detachExistingCable(registry,cableId,end);
-    if(result.success)chosenCable=cableId;
-    render();say(result.message,result.success);
+    if(result.success){
+      chosenCable=cableId;
+      first=null;
+      pendingAttach={cableId,end};
+    }
+    render();
+    say(result.success
+      ?"Extrémité débranchée. Clique directement sur une prise libre pour déplacer ce même cordon."
+      :result.message,result.success);
   }
   function getPointMap(){return new Map(registry.listCablePoints().map(x=>[x.portId,x]));}
   function drawCords(){
