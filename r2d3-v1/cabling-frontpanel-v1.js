@@ -1,5 +1,5 @@
 import {createAssetRegistry} from "./asset-profiles.js";
-import {mountCablingFrontpanel} from "../shared-ui/v1/cabling-frontpanel.js?v=1.3";
+import {mountCablingFrontpanel} from "../shared-ui/v1/cabling-frontpanel.js?v=1.4";
 const $=id=>document.getElementById(id);
 const must=r=>{if(!r.success)throw Error(r.message);return r;};
 const miniLabels=["A","B","C","D","E","F","A","B","C","D"];
