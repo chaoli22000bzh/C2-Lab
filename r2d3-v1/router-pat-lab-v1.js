@@ -62,7 +62,7 @@ $("probe").onclick=()=>{
 };
 $("service-enabled").onchange=()=>{
  const enabled=$("service-enabled").checked;
- const r=core.dispatch({id:"service-change-"+(++serial),type:"network.setApplicationService",targetId:server.id,params:{service:"http",enabled}});
+ const r=core.dispatch({commandVersion:1,id:"service-change-"+(++serial),type:"network.setApplicationService",targetId:server.id,params:{service:"http",enabled}});
  paint();say(r.status==="applied"?"État HTTP actualisé dans le Core.":"Modification refusée",r.status==="applied"?"success":"failed");
 };
 for(const side of ["wan","lan"])$("cable-"+side).onclick=()=>{
