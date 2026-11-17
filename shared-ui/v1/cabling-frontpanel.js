@@ -128,13 +128,19 @@ export function mountCablingFrontpanel({root,registry,layout={},face="front",dev
     for(const device of visibleDevices){
       const config=device.config;const card=elt("section","cf-device");
       const name=elt("h3","cf-device-name",device.name);
-      const meta=elt("span","cf-device-kind",device.kind);
+      const meta=elt("span","cf-device-kind",config.kindLabel||device.kind);
       const head=elt("header","cf-device-head");head.append(name,meta);card.append(head);
       const bank=elt("div","cf-bank");
       const columns=Math.max(1,Math.min(48,Number(config.columns)||12));
       bank.style.setProperty("--cf-columns",String(columns));
       const paired=!!config.switchPairs;
-      if(paired)bank.classList.add("cf-bank-paired");
+      if(paired){
+        bank.classList.add("cf-bank-paired");
+        if(config.switchGroups){
+          bank.classList.add("cf-bank-switch-groups");
+          bank.style.gridTemplateColumns="repeat(6, var(--cf-port-width)) var(--cf-group-gap) repeat(6, var(--cf-port-width))";
+        }
+      }
       device.slots.forEach((p,index)=>{
         if(!p){const blank=elt("span","cf-blank");blank.setAttribute("aria-hidden","true");bank.append(blank);return;}
         const node=elt("button","cf-port");
@@ -154,7 +160,8 @@ export function mountCablingFrontpanel({root,registry,layout={},face="front",dev
         node.append(numberLabel,socket);
         node.onclick=()=>pointClick(p);
         if(paired){
-          node.style.gridColumn=String(Math.floor(index/2)+1);
+          const groupColumn=Math.floor(index/2)+1;
+          node.style.gridColumn=String(config.switchGroups&&groupColumn>6?groupColumn+1:groupColumn);
           node.style.gridRow=String(index%2+1);
           if(index%2)node.classList.add("cf-upside-down");
         }
