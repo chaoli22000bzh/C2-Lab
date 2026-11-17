@@ -29,13 +29,13 @@ function setup(){
  // PC relié à la prise murale ; arrière de la prise relié à l'arrière du panneau.
  addCable(pcPort,outlet.ports[0].front.id);
  addCable(outlet.ports[0].back.id,panel.ports[0].back.id);
- // Exemples d'occupations existantes sur la façade du switch.
+ // Exemple de cordon préinstallé, visible sur les deux façades.
  addCable(sw.ports[2].id,panel.ports[2].front.id);
  view=mountCablingFrontpanel({
   root:$("frontpanel"),registry,
   layout:{"Panneau P1":{columns:6},"SW01":{columns:12,switchPairs:true},"PC élève":{columns:1},"F":{columns:1}},
  });
- $("verdict").textContent="Scénario réinitialisé. Branche la prise murale F au panneau 1, puis le panneau 1 à un port libre du switch.";
+ $("verdict").textContent="Scénario réinitialisé. Raccorde la prise 1 du panneau P1 à un port libre du switch. Le PC, la prise murale et le câble permanent sont déjà raccordés.";
 }
 $("reset").onclick=()=>{try{setup()}catch(e){$("verdict").textContent="Erreur : "+e.message}};
 $("test").onclick=()=>{
