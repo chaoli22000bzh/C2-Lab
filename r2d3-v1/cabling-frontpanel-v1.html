@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>R2D3 : façade RJ45 de câblage</title>
+<link rel="stylesheet" href="../shared-ui/v1/cabling-frontpanel.css">
+<style>
+:root{font-family:system-ui,Segoe UI,Arial,sans-serif;color-scheme:light dark}
+*{box-sizing:border-box}body{margin:0;background:light-dark(#f1f5f9,#101b26);color:light-dark(#24394a,#dce9f5)}
+header{background:#173953;color:#fff;padding:15px max(14px,calc((100vw - 900px)/2))}
+header h1{font-size:21px;margin:0}
+main{max-width:930px;margin:auto;padding:15px}
+p{line-height:1.5;font-size:14px}
+.test-box{background:light-dark(#fff,#172532);border:1px solid light-dark(#d0dae5,#3e556b);padding:14px;border-radius:10px}
+.controls{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
+.controls button{border:0;background:#17648e;color:white;border-radius:7px;padding:9px 12px;font:inherit;cursor:pointer}
+#verdict{font-size:14px;font-weight:600}
+</style></head>
+<body><header><h1>R2D3 · Brassage RJ45 interactif V1</h1></header>
+<main>
+<p>Page de recette d'un composant partagé. Sélectionne deux prises libres pour créer un cordon. Les prises et les câbles correspondent aux objets du registre physique R2D3. Dans un panneau, les faces avant et arrière sont indépendantes.</p>
+<section class="test-box">
+<div class="controls"><button id="reset" type="button">Réinitialiser le scénario</button><button id="test" type="button">Contrôler la continuité PC → switch</button></div>
+<div id="verdict" role="status">Un cordon préinstallé relie le PC à la prise murale. Les raccordements avant du panneau et du switch sont à réaliser.</div>
+<div id="frontpanel"></div>
+</section>
+<p><small>Pour contrôler la continuité : sur la face avant, raccorder la prise murale au panneau P1 et le panneau P1 au switch. Les câbles permanents de la face arrière sont préinstallés.</small></p>
+</main><script type="module" src="./cabling-frontpanel-v1.js"></script></body></html>
