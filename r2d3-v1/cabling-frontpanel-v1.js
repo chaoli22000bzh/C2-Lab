@@ -1,5 +1,5 @@
 import {createAssetRegistry} from "./asset-profiles.js";
-import {mountCablingFrontpanel} from "../shared-ui/v1/cabling-frontpanel.js?v=1.2";
+import {mountCablingFrontpanel} from "../shared-ui/v1/cabling-frontpanel.js?v=1.3";
 const $=id=>document.getElementById(id);
 const must=r=>{if(!r.success)throw Error(r.message);return r;};
 const miniLabels=["A","B","C","D","E","F","A","B","C","D"];
@@ -51,7 +51,7 @@ function setup(){
  mainView=mountCablingFrontpanel({
   root:$("main-frontpanel"),registry,devices:["Panneau grande baie","SW01"],
   layout:{"Panneau grande baie":{columns:12,labels:mainLabels},
-          "SW01":{columns:12,switchPairs:true}}
+          "SW01":{columns:12,switchPairs:true,switchGroups:true,kindLabel:"Switch"}}
  });
  $("verdict").textContent="À réaliser : mini-baie, F vers un départ A à D ; puis grande baie, prise correspondante de la ligne 5 vers un port libre du switch.";
 }
