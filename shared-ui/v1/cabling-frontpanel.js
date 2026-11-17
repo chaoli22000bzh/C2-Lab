@@ -138,7 +138,7 @@ export function mountCablingFrontpanel({root,registry,layout={},face="front"}={}
         const node=elt("button","cf-port");
         node.type="button";node.dataset.portId=p.id;
         const name=p.label.replace(/ (avant|arrière)$/,"");
-        const displayName=paired?String(Number(name.match(/(\\d+)$/)?.[1]||index+1)):name;
+        const displayName=paired?String(Number(name.match(/(\d+)$/)?.[1]||index+1)):name;
         node.setAttribute("aria-label",device.name+", prise "+p.label+(p.cableId?", occupée":", libre"));
         node.title=p.label+(p.cableId?" • raccordée":" • libre");
         node.setAttribute("aria-pressed",String(first===p.id||pathFrom===p.id));
