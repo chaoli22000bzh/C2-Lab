@@ -39,7 +39,7 @@ export function buildFrontpanelSnapshot(registry,face="front",layout={}){
  *          "SW01":{"switchPairs":true,"columns":12}}
  * L'affichage ne modifie pas le registre en dehors des actions partagées.
  */
-export function mountCablingFrontpanel({root,registry,layout={},face="front"}={}){
+export function mountCablingFrontpanel({root,registry,layout={},face="front",devices=null}={}){
   if(!root||!registry?.listCablePoints)throw Error("Façade ou registre R2D3 indisponible.");
   let currentFace=face==="back"?"back":"front",mode="connect",first=null,pathFrom=null,chosenCable=null;
   let highlightedPorts=[],highlightedCables=[],observer=null,disposed=false,pendingAttach=null;
@@ -122,8 +122,10 @@ export function mountCablingFrontpanel({root,registry,layout={},face="front"}={}
     el.status.setAttribute("role","status");
     el.board=elt("div","cf-board");
     const snapshot=buildFrontpanelSnapshot(registry,currentFace,layout);
+    const visibleDevices=Array.isArray(devices)?snapshot.devices.filter(d=>devices.includes(d.id)||devices.includes(d.name)):snapshot.devices;
+    const visiblePortIds=new Set(visibleDevices.flatMap(d=>d.slots.filter(Boolean).map(p=>p.id)));
     const portMap=getPointMap();
-    for(const device of snapshot.devices){
+    for(const device of visibleDevices){
       const config=device.config;const card=elt("section","cf-device");
       const name=elt("h3","cf-device-name",device.name);
       const meta=elt("span","cf-device-kind",device.kind);
@@ -138,17 +140,18 @@ export function mountCablingFrontpanel({root,registry,layout={},face="front"}={}
         const node=elt("button","cf-port");
         node.type="button";node.dataset.portId=p.id;
         const name=p.label.replace(/ (avant|arrière)$/,"");
-        const displayName=paired?String(Number(name.match(/(\d+)$/)?.[1]||index+1)):name;
+        const number=Number(name.match(/(\d+)$/)?.[1]||index+1);
+        const displayName=paired?String(number).padStart(2,"0"):(Array.isArray(config.labels)?config.labels[number-1]||name:name);
         node.setAttribute("aria-label",device.name+", prise "+p.label+(p.cableId?", occupée":", libre"));
         node.title=p.label+(p.cableId?" • raccordée":" • libre");
         node.setAttribute("aria-pressed",String(first===p.id||pathFrom===p.id));
         if(p.cableId)node.classList.add("cf-occupied");
         if(first===p.id||pathFrom===p.id)node.classList.add("cf-selected");
         if(highlightedPorts.includes(p.id))node.classList.add("cf-highlight");
-        const number=elt("span","cf-port-label",displayName);
+        const numberLabel=elt("span","cf-port-label",displayName);
         const socket=elt("span","cf-socket");
         const recess=elt("span","cf-recess");socket.append(recess);
-        node.append(number,socket);
+        node.append(numberLabel,socket);
         node.onclick=()=>pointClick(p);
         if(paired){
           node.style.gridColumn=String(Math.floor(index/2)+1);
@@ -164,7 +167,7 @@ export function mountCablingFrontpanel({root,registry,layout={},face="front"}={}
     el.board.append(el.svg);
     const summary=elt("div","cf-connections");
     const title=elt("h3","","Cordons de brassage");summary.append(title);
-    for(const cable of registry.listCables()){
+    for(const cable of registry.listCables().filter(c=>c.ends.some(e=>visiblePortIds.has(e?.portId)))){
       const row=elt("div","cf-connection"+(cable.id===chosenCable?" cf-connection-active":""));
       const text=elt("span","cf-connection-label",cable.id+" : "+cable.ends.map(e=>{
         const p=portMap.get(e?.portId);return p?caption(p.assetName,p.portName):"extrémité libre";
