@@ -57,3 +57,21 @@
 /* Les prises du switch restent compactes, même dans les deux rangées tête-bêche. */
 .cf-bank-paired .cf-port{min-height:35px;padding:2px 0}
 .cf-bank-paired .cf-upside-down{flex-direction:column-reverse}
+
+/* V1.3 : façades physiquement compactes, largeur dictée par les prises
+   plutôt que répartie artificiellement sur toute la largeur du bloc. */
+.cf-root{--cf-port-width:clamp(21px,6.2vw,27px);--cf-group-gap:12px}
+.cf-bank{grid-template-columns:repeat(var(--cf-columns,12),var(--cf-port-width));gap:0;width:max-content;max-width:100%}
+.cf-port{width:var(--cf-port-width);padding:3px 0}
+.cf-port-label{font-size:10px}
+.cf-socket{width:calc(var(--cf-port-width) - 3px);max-width:24px}
+.cf-bank-paired{grid-auto-rows:max-content;row-gap:0;column-gap:0}
+.cf-bank-paired .cf-port{min-height:32px;padding:2px 0;gap:1px}
+.cf-bank-switch-groups{column-gap:0}
+.cf-bank-switch-groups .cf-port:nth-child(12n + 1){/* Les positions sont définies par le JS, pas par l'ordre CSS. */}
+.cf-blank{min-height:34px}
+@media(max-width:570px){
+ .cf-bank{gap:0}
+ .cf-port{min-height:37px;padding:2px 0}
+ .cf-bank-paired .cf-port{min-height:31px}
+}
