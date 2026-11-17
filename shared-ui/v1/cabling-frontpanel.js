@@ -42,15 +42,21 @@ export function buildFrontpanelSnapshot(registry,face="front",layout={}){
 export function mountCablingFrontpanel({root,registry,layout={},face="front"}={}){
   if(!root||!registry?.listCablePoints)throw Error("Façade ou registre R2D3 indisponible.");
   let currentFace=face==="back"?"back":"front",mode="connect",first=null,pathFrom=null,chosenCable=null;
-  let highlightedPorts=[],highlightedCables=[],observer=null,disposed=false;
+  let highlightedPorts=[],highlightedCables=[],observer=null,disposed=false,pendingAttach=null;
   const el={};
   root.classList.add("cf-root");
   function say(message,ok=true){el.status.textContent=message;el.status.dataset.ok=ok?"1":"0";}
   function setMode(next){
-    mode=next;first=null;pathFrom=null;highlightedPorts=[];highlightedCables=[];
+    mode=next;first=null;pathFrom=null;pendingAttach=null;highlightedPorts=[];highlightedCables=[];
     render();say(next==="connect"?"Choisis deux prises libres pour poser un cordon.":"Choisis un départ puis une arrivée pour suivre le chemin.");
   }
   function pointClick(p){
+    if(pendingAttach){
+      const {cableId,end}=pendingAttach;
+      const result=attachExistingCable(registry,cableId,end,p.id);
+      if(result.success){pendingAttach=null;chosenCable=cableId;}
+      render();say(result.message,result.success);return;
+    }
     if(mode==="path"){
       if(!pathFrom){pathFrom=p.id;highlightedPorts=[p.id];render();say("Départ sélectionné. Choisis l'arrivée.");return;}
       const r=registry.explorePhysicalPath(pathFrom,p.id);
@@ -166,9 +172,11 @@ export function mountCablingFrontpanel({root,registry,layout={},face="front"}={}
       const select=elt("button","cf-small","Sélectionner");select.type="button";select.onclick=()=>{chosenCable=chosenCable===cable.id?null:cable.id;render();};row.append(select);
       if(chosenCable===cable.id){
         cable.ends.forEach((end,i)=>{
-          if(!end?.portId)return;
-          const button=elt("button","cf-small cf-disconnect","Débrancher "+(i?"B":"A"));
-          button.type="button";button.onclick=()=>cableAction(cable.id,i);row.append(button);
+          const button=elt("button","cf-small"+(end?.portId?" cf-disconnect":""),(end?.portId?"Débrancher ":"Raccorder ")+(i?"B":"A"));
+          button.type="button";button.onclick=()=>{
+            if(end?.portId){cableAction(cable.id,i);return;}
+            pendingAttach={cableId:cable.id,end:i};first=null;render();say("Choisis une prise libre pour raccorder l’extrémité "+(i?"B":"A")+".");
+          };row.append(button);
         });
       }
       summary.append(row);
