@@ -31,7 +31,7 @@
 <header class="lab-header"><h1>R2D3 : routage entre deux réseaux</h1><p>Lot 2. Deux PC directement câblés au routeur. Aucun switch, aucun VLAN.</p></header>
 <main class="lab-main">
 <section class="lab-panel"><h2>Topologie physique</h2>
-<label style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px;font-size:14px">Scénario <select id="scenario" style="font:inherit;padding:7px 9px;border:1px solid #bbcbd0;border-radius:4px"><option value="lan-lan">LAN vers LAN (GE02 ↔ GE03)</option><option value="lan-wan">LAN vers WAN (GE02 ↔ GE01)</option></select></label>
+<label style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px;font-size:14px">Scénario <select id="scenario" style="font:inherit;padding:7px 9px;border:1px solid #bbcbd0;border-radius:4px"><option value="lan-lan">LAN vers LAN (GE02 ↔ GE03)</option><option value="lan-wan">LAN vers WAN (GE02 ↔ GE01)</option><option value="lan-dmz">LAN vers DMZ (GE02 ↔ GE03)</option></select></label>
 <div class="topology"><div class="node"><strong>PC1</strong><small id="pc1-label">192.168.10.10/24</small></div><div class="wire" id="wire1" title="Câble PC1 - GE02"></div>
 <div class="node router-node"><strong>RTR-01</strong><small>GE02 : 192.168.10.1/24</small><small id="router-second-port">GE03 : 192.168.20.1/24</small></div>
 <div class="wire" id="wire2" title="Câble PC2 - GE03"></div><div class="node"><strong>PC2</strong><small id="pc2-label">192.168.20.10/24</small></div></div></section>
@@ -51,4 +51,4 @@
 <div id="ping-result" class="lab-result" role="status">Cliquer sur « Ping PC1 → PC2 » pour vérifier le routage.</div>
 </section>
 <section><div id="router-admin"></div></section>
-</main><script type="module" src="./router-routing-lab-v01.js?v=1.1"></script></body></html>
+</main><script type="module" src="./router-routing-lab-v01.js?v=1.2"></script></body></html>

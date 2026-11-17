@@ -21,6 +21,7 @@ function paintCables(){
 }
 function create(){
  const secondIsWan=$("scenario").value==="lan-wan";
+ const secondIsDmz=$("scenario").value==="lan-dmz";
  admin?.destroy();
  registry=createAssetRegistry();
  const result=createRouter(registry,{name:"RTR-01",ports:4});
@@ -31,9 +32,9 @@ function create(){
  pc1=registry.createAsset(p.id,{name:"PC1"}).asset;
  pc2=registry.createAsset(p.id,{name:"PC2"}).asset;
  cables={1:attach(pc1.ports[0].id,router.ports[1].id),2:attach(pc2.ports[0].id,router.ports[secondIsWan?0:2].id)};
- $("router-second-port").textContent=(secondIsWan?"GE01 (WAN)":"GE03 (LAN)")+" : 192.168.20.1/24";
+ $("router-second-port").textContent=(secondIsWan?"GE01 (WAN)":secondIsDmz?"GE03 (DMZ)":"GE03 (LAN)")+" : 192.168.20.1/24";
  $("wire2").title="Câble PC2 - "+(secondIsWan?"GE01":"GE03");
- for(const [port,addr,role] of [[router.ports[1],"192.168.10.1","lan"],[router.ports[secondIsWan?0:2],"192.168.20.1",secondIsWan?"wan":"lan"]]){
+ for(const [port,addr,role] of [[router.ports[1],"192.168.10.1","lan"],[router.ports[secondIsWan?0:2],"192.168.20.1",secondIsWan?"wan":secondIsDmz?"dmz":"lan"]]){
   const config=configureRouterPort(registry,router.id,port.id,{role,mode:"static",address:addr,prefix:24,gateway:""});
   if(!config.success)throw Error(config.message);
  }
@@ -42,7 +43,7 @@ function create(){
  }
  admin=mountRouterAdmin({root:$("router-admin"),registry,assetId:router.id});
  paintCables();paintLabels();selectPingButton(null);
- resultMessage("Cliquer sur « Ping PC1 → PC2 » pour tester le routage.","");
+ resultMessage(secondIsDmz?"Test DMZ : commencer par Ping PC1 → PC2, puis tester le sens inverse.":"Cliquer sur « Ping PC1 → PC2 » pour tester le routage.","");
 }
 function address(pc){
  const n=pc===pc1?1:2;
