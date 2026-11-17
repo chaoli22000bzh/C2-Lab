@@ -39,22 +39,23 @@ export function buildFrontpanelSnapshot(registry,face="front",layout={}){
  *          "SW01":{"switchPairs":true,"columns":12}}
  * L'affichage ne modifie pas le registre en dehors des actions partagées.
  */
-export function mountCablingFrontpanel({root,registry,layout={},face="front",devices=null}={}){
+export function mountCablingFrontpanel({root,registry,layout={},face="front",devices=null,showCableList=false}={}){
   if(!root||!registry?.listCablePoints)throw Error("Façade ou registre R2D3 indisponible.");
-  let currentFace=face==="back"?"back":"front",mode="connect",first=null,pathFrom=null,chosenCable=null;
+  let currentFace=face==="back"?"back":"front",mode="connect",first=null,pathFrom=null,chosenCable=null,activePort=null;
   let highlightedPorts=[],highlightedCables=[],observer=null,disposed=false,pendingAttach=null;
   const el={};
   root.classList.add("cf-root");
   function say(message,ok=true){el.status.textContent=message;el.status.dataset.ok=ok?"1":"0";}
   function setMode(next){
-    mode=next;first=null;pathFrom=null;pendingAttach=null;highlightedPorts=[];highlightedCables=[];
+    mode=next;first=null;pathFrom=null;activePort=null;pendingAttach=null;highlightedPorts=[];highlightedCables=[];
     render();say(next==="connect"?"Choisis deux prises libres pour poser un cordon.":"Choisis un départ puis une arrivée pour suivre le chemin.");
   }
   function pointClick(p){
     if(pendingAttach){
+      if(p.cableId){say("Cette prise est occupée. Choisis une prise libre ou annule.",false);return;}
       const {cableId,end}=pendingAttach;
       const result=attachExistingCable(registry,cableId,end,p.id);
-      if(result.success){pendingAttach=null;chosenCable=cableId;}
+      if(result.success){pendingAttach=null;chosenCable=cableId;activePort=null;}
       render();say(result.success?"Cordon déplacé sur la nouvelle prise.":result.message,result.success);return;
     }
     if(mode==="path"){
@@ -67,10 +68,10 @@ export function mountCablingFrontpanel({root,registry,layout={},face="front",dev
     if(p.cableId){
       const cable=registry.listCables().find(c=>c.id===p.cableId);
       if(first){say("La prise choisie est déjà occupée.",false);return;}
-      chosenCable=cable?.id||null;render();say("Prise occupée : consulte les actions du cordon.");return;
+      chosenCable=cable?.id||null;activePort=p.id;render();say("Prise occupée : utilise Débrancher pour déplacer ce cordon.");return;
     }
     if(first===p.id){first=null;render();say("Sélection annulée.");return;}
-    if(!first){first=p.id;chosenCable=null;render();say("Première prise sélectionnée. Choisis une deuxième prise libre.");return;}
+    if(!first){first=p.id;activePort=null;chosenCable=null;render();say("Première prise sélectionnée. Choisis une deuxième prise libre.");return;}
     const from=first;first=null;
     const result=connectNewCable(registry,from,p.id);
     if(result.success)chosenCable=result.cableId;
@@ -80,6 +81,7 @@ export function mountCablingFrontpanel({root,registry,layout={},face="front",dev
     const result=detachExistingCable(registry,cableId,end);
     if(result.success){
       chosenCable=cableId;
+      activePort=null;
       first=null;
       pendingAttach={cableId,end};
     }
@@ -127,6 +129,28 @@ export function mountCablingFrontpanel({root,registry,layout={},face="front",dev
     faceLabel.append(facePicker);toolbar.append(modes,faceLabel);
     el.status=elt("div","cf-status","Choisis deux prises libres pour poser un cordon.");
     el.status.setAttribute("role","status");
+    const actions=elt("div","cf-port-actions");
+    if(mode==="connect" && activePort){
+      const selectedCable=registry.listCables().find(c=>c.ends.some(e=>e?.portId===activePort));
+      const endIndex=selectedCable?.ends.findIndex(e=>e?.portId===activePort);
+      if(selectedCable && endIndex>=0){
+        const label=elt("span","cf-action-label","Cordon sélectionné : "+selectedCable.id);
+        const unplug=elt("button","cf-action-unplug","Débrancher cette prise");
+        unplug.type="button";unplug.onclick=()=>cableAction(selectedCable.id,endIndex);
+        const cancel=elt("button","cf-action-cancel","Annuler");
+        cancel.type="button";cancel.onclick=()=>{activePort=null;chosenCable=null;render();say("Sélection annulée.");};
+        actions.append(label,unplug,cancel);
+      }
+    }else if(pendingAttach){
+      const label=elt("span","cf-action-label","Cordon débranché : choisis sa nouvelle prise.");
+      const cancel=elt("button","cf-action-cancel","Annuler le déplacement");
+      cancel.type="button";cancel.onclick=()=>{pendingAttach=null;chosenCable=null;render();say("Déplacement annulé. Le cordon reste débranché et inventorié.");};
+      actions.append(label,cancel);
+    }else if(first){
+      const cancel=elt("button","cf-action-cancel","Annuler la sélection");
+      cancel.type="button";cancel.onclick=()=>{first=null;render();say("Sélection annulée.");};
+      actions.append(cancel);
+    }
     el.board=elt("div","cf-board");
     const snapshot=buildFrontpanelSnapshot(registry,currentFace,layout);
     const visibleDevices=Array.isArray(devices)?snapshot.devices.filter(d=>devices.includes(d.id)||devices.includes(d.name)):snapshot.devices;
@@ -159,7 +183,7 @@ export function mountCablingFrontpanel({root,registry,layout={},face="front",dev
         node.title=p.label+(p.cableId?" • raccordée":" • libre");
         node.setAttribute("aria-pressed",String(first===p.id||pathFrom===p.id));
         if(p.cableId)node.classList.add("cf-occupied");
-        if(first===p.id||pathFrom===p.id)node.classList.add("cf-selected");
+        if(first===p.id||pathFrom===p.id||activePort===p.id)node.classList.add("cf-selected");
         if(highlightedPorts.includes(p.id))node.classList.add("cf-highlight");
         const numberLabel=elt("span","cf-port-label",displayName);
         const socket=elt("span","cf-socket");
@@ -199,7 +223,8 @@ export function mountCablingFrontpanel({root,registry,layout={},face="front",dev
       }
       summary.append(row);
     }
-    root.append(toolbar,el.status,el.board,summary);
+    root.append(toolbar,el.status,actions,el.board);
+    if(showCableList)root.append(summary);
     requestAnimationFrame(drawCords);
   }
   observer=typeof ResizeObserver!=="undefined"?new ResizeObserver(drawCords):null;
