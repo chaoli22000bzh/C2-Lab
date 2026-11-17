@@ -13,7 +13,7 @@ const defaultOptions={columns:12,face:"front",switchPairs:false};
 export function arrangePorts(device,config={},face="front"){
   const opts={...defaultOptions,...config};
   let ports=device.ports;
-  if(device.kind==="Panneau de brassage")ports=ports.filter(p=>p.label.endsWith(face==="back"?" arrière":" avant"));
+  if(device.kind==="Panneau de brassage"||device.kind.startsWith("Prise murale"))ports=ports.filter(p=>p.label.endsWith(face==="back"?" arrière":" avant"));
   const indexes=new Map(ports.map(p=>[p.label.replace(/ (avant|arrière)$/,""),p]));
   if(Array.isArray(opts.slots)){
     const ordered=[],used=new Set();
@@ -89,15 +89,15 @@ export function mountCablingFrontpanel({root,registry,layout={},face="front"}={}
     svg.setAttribute("viewBox",`0 0 ${w} ${h}`);svg.replaceChildren();
     const anchors=new Map();
     board.querySelectorAll("[data-port-id]").forEach(node=>{
-      const r=node.getBoundingClientRect();
+      const r=(node.querySelector(".cf-socket")||node).getBoundingClientRect();
       anchors.set(node.dataset.portId,{x:r.left-rect.left+r.width/2,y:r.top-rect.top+r.height/2});
     });
     for(const cable of registry.listCables()){
       const a=anchors.get(cable.ends[0]?.portId),b=anchors.get(cable.ends[1]?.portId);
       if(!a||!b)continue;
-      const dx=Math.abs(b.x-a.x),dy=b.y-a.y,drop=Math.max(24,Math.min(78,Math.abs(dy)*.24+26));
+      const lane=Math.max(a.x,b.x)+13;
       const path=document.createElementNS("http://www.w3.org/2000/svg","path");
-      path.setAttribute("d",`M${a.x},${a.y} C${a.x},${a.y+drop} ${b.x},${b.y+drop} ${b.x},${b.y}`);
+      path.setAttribute("d",`M${a.x},${a.y} Q${a.x},${a.y+12} ${lane},${a.y+12} L${lane},${b.y-12} Q${lane},${b.y} ${b.x},${b.y}`);
       path.setAttribute("class","cf-cord"+(cable.id===chosenCable||highlightedCables.includes(cable.id)?" cf-cord-active":""));
       path.setAttribute("data-cable-id",cable.id);svg.append(path);
     }
@@ -138,13 +138,14 @@ export function mountCablingFrontpanel({root,registry,layout={},face="front"}={}
         const node=elt("button","cf-port");
         node.type="button";node.dataset.portId=p.id;
         const name=p.label.replace(/ (avant|arrière)$/,"");
+        const displayName=paired?String(Number(name.match(/(\\d+)$/)?.[1]||index+1)):name;
         node.setAttribute("aria-label",device.name+", prise "+p.label+(p.cableId?", occupée":", libre"));
         node.title=p.label+(p.cableId?" • raccordée":" • libre");
         node.setAttribute("aria-pressed",String(first===p.id||pathFrom===p.id));
         if(p.cableId)node.classList.add("cf-occupied");
         if(first===p.id||pathFrom===p.id)node.classList.add("cf-selected");
         if(highlightedPorts.includes(p.id))node.classList.add("cf-highlight");
-        const number=elt("span","cf-port-label",name);
+        const number=elt("span","cf-port-label",displayName);
         const socket=elt("span","cf-socket");
         const recess=elt("span","cf-recess");socket.append(recess);
         node.append(number,socket);
