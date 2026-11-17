@@ -16,4 +16,4 @@ jobs:
         with:
           node-version: '22'
       - name: Exécuter les tests de câblage
-        run: node --test tests/cabling-visual.test.mjs tests/cabling-interactive.test.mjs
+        run: node --test tests/cabling-visual.test.mjs tests/cabling-interactive.test.mjs tests/cabling-frontpanel.test.mjs
