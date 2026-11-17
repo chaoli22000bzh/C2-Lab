@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>R2D3 | PAT entrant HTTP V1</title>
+<link rel="stylesheet" href="./switch-admin-ui-v1.css?v=6.18">
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f3f6f7;color:#223747;font:14px system-ui,Arial,sans-serif}header{background:#193e60;color:white;padding:17px max(14px,calc((100% - 1040px)/2))}h1{margin:0 0 5px;font-size:21px}header p{margin:0;color:#d7e8f4}main{max-width:1040px;padding:12px;margin:auto}.panel{border:1px solid #d8e3e8;background:white;border-radius:7px;margin:0 0 12px;padding:14px}.panel h2{font-size:17px;margin:0 0 12px}.topology{display:flex;gap:9px;justify-content:center;align-items:center;flex-wrap:wrap}.node{border:1px solid #9db5bf;background:#eff6f8;border-radius:6px;padding:11px;min-width:155px;text-align:center}.node strong{display:block}.node small{display:block;color:#506873;margin-top:4px}.wire{width:65px;border-top:3px solid #238a70}.wire.cut{border-top:3px dashed #c64141}.cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}label{display:grid;gap:4px;color:#415b68}input,select,button{font:inherit}input,select{width:100%;padding:8px;border:1px solid #abbcc6;border-radius:5px;background:white;color:#223747}button{padding:8px 11px;border-radius:5px;border:1px solid #acbfc7;background:#fff;color:#244457;cursor:pointer}button.primary{background:#155f84;color:#fff;border-color:#155f84}.actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.rule-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:7px 0;padding:8px;border:1px solid #dae5e9;border-radius:5px}.rule-row span{flex:1;min-width:210px}.result{padding:12px;border-radius:5px;background:#eef3f6}.result.success{background:#dff5e9;color:#126b49}.result.failed{background:#ffebe7;color:#913a33}.result.unsupported{background:#fff3cf;color:#775d11}.compact{font-size:12px;color:#596d77}.state{display:flex;align-items:center;gap:9px;margin:12px 0}.state input{width:auto}.panel #router-admin{border:1px solid #e2e6ea;border-radius:7px;overflow:hidden}@media(max-width:680px){.cols,.fields{grid-template-columns:1fr}.wire{width:20px}.node{min-width:120px;padding:8px}main{padding:7px}}
+</style></head><body>
+<header><h1>R2D3 : PAT entrant HTTP</h1><p>Laboratoire V1.0 | TCP 8080 sur WAN redirigé vers HTTP 80 sur le LAN</p></header>
+<main>
+<section class="panel"><h2>Topologie physique</h2>
+<div class="topology"><div class="node"><strong>PC extérieur</strong><small>203.0.113.20/24</small></div><span class="wire" id="wire-wan"></span><div class="node"><strong>RTR-01</strong><small>GE01 WAN : 203.0.113.10</small><small>GE02 LAN : 192.168.10.1</small></div><span class="wire" id="wire-lan"></span><div class="node"><strong>Serveur HTTP</strong><small>192.168.10.10:80</small></div></div>
+<div class="actions"><button id="cable-wan">Débrancher câble WAN</button><button id="cable-lan">Débrancher câble LAN</button><button id="reset">Réinitialiser</button></div></section>
+<div class="cols">
+<section class="panel"><h2>1. Règle PAT entrant</h2><form id="create-rule" class="fields">
+<label>Protocole<select id="rule-protocol"><option value="tcp">TCP</option><option value="udp">UDP</option></select></label>
+<label>Port externe<input id="rule-external" type="number" min="1" max="65535"></label>
+<label>IPv4 de destination<input id="rule-dest"></label>
+<label>Port interne<input id="rule-internal" type="number" min="1" max="65535"></label>
+<div><button type="submit" class="primary">Ajouter la règle</button></div></form>
+<h3 style="font-size:14px;margin-top:16px">Règles enregistrées sur le routeur</h3><div id="rules">Aucune règle PAT.</div>
+</section>
+<section class="panel"><h2>2. Test HTTP depuis l'extérieur</h2><div class="fields">
+<label>IPv4 WAN demandée<input id="wan-ip"></label>
+<label>Port externe demandé<input id="wan-port" type="number" min="1" max="65535"></label>
+<label>Protocole<select id="request-protocol"><option value="tcp">TCP</option><option value="udp">UDP</option></select></label>
+</div>
+<div class="state"><label style="display:flex;align-items:center;gap:8px"><input id="service-enabled" type="checkbox" checked> Service HTTP actif</label><strong id="service-state">HTTP actif</strong></div>
+<button class="primary" id="probe" type="button">Tester l'accès HTTP</button>
+<p class="compact">Le test ne repose pas sur un ping vers le serveur : il vérifie la règle PAT, la connectivité WAN/LAN et l'état explicite du service HTTP dans le Core R2D3.</p>
+</section></div>
+<section class="panel"><h2>3. Configuration IPv4 (pour les tests de panne)</h2>
+<div class="cols"><div><strong>PC extérieur</strong><div class="fields"><label>Adresse<input id="outside-ip"></label><label>Préfixe<input id="outside-prefix" type="number"></label><label>Passerelle<input id="outside-gw"></label></div></div>
+<div><strong>Serveur HTTP</strong><div class="fields"><label>Adresse<input id="server-ip"></label><label>Préfixe<input id="server-prefix" type="number"></label><label>Passerelle<input id="server-gw"></label></div></div></div>
+</section>
+<section class="panel"><h2>Résultat</h2><div class="result" role="status" id="result">Créer une règle PAT.</div></section>
+<section class="panel"><h2>Administration du routeur partagé</h2><div id="router-admin"></div></section>
+</main><script type="module" src="./router-pat-lab-v1.js?v=1.0"></script></body></html>
