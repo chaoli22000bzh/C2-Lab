@@ -1,26 +1,38 @@
 <!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>R2D3 : façade RJ45 de câblage</title>
-<link rel="stylesheet" href="../shared-ui/v1/cabling-frontpanel.css?v=1.1">
+<title>R2D3 : recette de brassage en deux baies</title>
+<link rel="stylesheet" href="../shared-ui/v1/cabling-frontpanel.css?v=1.2">
 <style>
 :root{font-family:system-ui,Segoe UI,Arial,sans-serif;color-scheme:light dark}
 *{box-sizing:border-box}body{margin:0;background:light-dark(#f1f5f9,#101b26);color:light-dark(#24394a,#dce9f5)}
-header{background:#173953;color:#fff;padding:15px max(14px,calc((100vw - 900px)/2))}
-header h1{font-size:21px;margin:0}
-main{max-width:930px;margin:auto;padding:15px}
-p{line-height:1.5;font-size:14px}
-.test-box{background:light-dark(#fff,#172532);border:1px solid light-dark(#d0dae5,#3e556b);padding:14px;border-radius:10px}
-.controls{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
+header{background:#173953;color:#fff;padding:14px max(12px,calc((100vw - 900px)/2))}
+header h1{font-size:20px;margin:0}
+main{max-width:930px;margin:auto;padding:12px}
+p{line-height:1.4;font-size:14px}
+.controls{display:flex;gap:9px;flex-wrap:wrap;margin:10px 0}
 .controls button{border:0;background:#17648e;color:white;border-radius:7px;padding:9px 12px;font:inherit;cursor:pointer}
-#verdict{font-size:14px;font-weight:600}
+#verdict{font-size:14px;line-height:1.4}
+.rack{background:light-dark(#fff,#172532);border:1px solid light-dark(#c9d6e2,#516779);padding:10px;border-radius:9px;margin:14px 0}
+.rack h2{font-size:18px;margin:0 0 7px}
+.rack p{margin:4px 0 9px;color:light-dark(#51667a,#b8cbdc)}
+#mini-frontpanel .cf-device,#main-frontpanel .cf-device{margin:0}
+.connection-note{font-size:13px;padding:7px 9px;border-left:3px solid #3692b6;background:light-dark(#e8f2fa,#203849)}
 </style></head>
-<body><header><h1>R2D3 · Brassage RJ45 interactif V1</h1></header>
+<body><header><h1>R2D3 · Brassage graphique : deux baies</h1></header>
 <main>
-<p>Page de recette d'un composant partagé. Sélectionne deux prises libres pour créer un cordon. Les prises et les câbles correspondent aux objets du registre physique R2D3. Dans un panneau, les faces avant et arrière sont indépendantes.</p>
-<section class="test-box">
-<div class="controls"><button id="reset" type="button">Réinitialiser le scénario</button><button id="test" type="button">Contrôler la continuité PC → switch</button></div>
-<div id="verdict" role="status">Les cordons du PC et de la liaison permanente sont préinstallés. Le brassage entre P1 et le switch reste à effectuer.</div>
-<div id="frontpanel"></div>
+<p>Deux baies indépendantes, chacune avec son panneau RJ45. Le PC est déjà raccordé à la prise murale F ; les câbles permanents entre les baies sont installés.</p>
+<div class="controls"><button id="reset" type="button">Recommencer</button><button id="test" type="button">Tester la continuité PC → switch</button></div>
+<p id="verdict" role="status">Initialisation du scénario R2D3…</p>
+<section class="rack" aria-labelledby="mini-title">
+ <h2 id="mini-title">Mini-baie n°5</h2>
+ <p>Un seul panneau : prises A à F à gauche, deux emplacements vides, départs A à D à droite.</p>
+ <div id="mini-frontpanel"></div>
 </section>
-<p><small>Pour contrôler la continuité : sur la face avant, raccorde la prise 1 du panneau P1 à un port libre du switch. La liaison permanente à l’arrière est déjà installée.</small></p>
-</main><script type="module" src="./cabling-frontpanel-v1.js?v=1.1"></script></body></html>
+<section class="rack" aria-labelledby="main-title">
+ <h2 id="main-title">Grande baie</h2>
+ <p>Un panneau de 28 prises, puis un switch 24 ports. Certains ports sont déjà raccordés.</p>
+ <div id="main-frontpanel"></div>
+ <div class="connection-note">Port 01 du switch : liaison existante vers Internet. Cette liaison n'est pas à modifier.</div>
+</section>
+<p><small>Page de recette du composant partagé R2D3. Les câbles sont enregistrés dans le moteur physique commun. Les prises occupées ne peuvent pas recevoir un second cordon.</small></p>
+</main><script type="module" src="./cabling-frontpanel-v1.js?v=1.2"></script></body></html>
