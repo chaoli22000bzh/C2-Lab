@@ -75,3 +75,15 @@
  .cf-port{min-height:37px;padding:2px 0}
  .cf-bank-paired .cf-port{min-height:31px}
 }
+
+/* V1.5 : actions contextuelles directement sur les ports RJ45 */
+.cf-port-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 9px}
+.cf-port-actions:empty{display:none}
+.cf-port-actions button{border:1px solid #91a7ba;border-radius:7px;padding:7px 10px;font:inherit;font-size:13px;cursor:pointer}
+.cf-action-label{font-size:13px;font-weight:600}
+.cf-action-unplug{background:#fff0e8;color:#8a3922}
+.cf-action-cancel{background:#f1f5f9;color:#25475e}
+@media(prefers-color-scheme:dark){
+ .cf-action-unplug{background:#59372b;color:#ffe2d4;border-color:#946451}
+ .cf-action-cancel{background:#263d4f;color:#edf7ff;border-color:#638097}
+}
