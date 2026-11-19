@@ -1,6 +1,7 @@
 import {createAssetRegistry} from "./asset-profiles.js";
 import {createRouter,configureRouterPort} from "./router-interfaces-v1.js";
-import {configureRemoteVpn,getRemoteVpnConfig,setRemoteVpnEnabled,connectRemoteVpn,disconnectRemoteVpn,observeRemoteVpnPing} from "./router-vpn-remote-v1.js";
+import {createEngine} from "./r2d3-core.js";
+import {configureRemoteVpn,getRemoteVpnConfig,setRemoteVpnEnabled,connectRemoteVpn,disconnectRemoteVpn,observeRemoteVpnPing,observeRemoteVpnPingName} from "./router-vpn-remote-v1.js";
 const $=id=>document.getElementById(id);
 let registry,router,nomad,server,wan,lan,cables,session=null;
 const input=id=>$(id).value.trim();
@@ -27,7 +28,7 @@ function configure(){
  return configureRemoteVpn(registry,router.id,{
   wanPortId:wan,lanPortId:lan,vpnNetwork:input("vpn-network"),
   vpnPrefix:Number(input("vpn-prefix")),username:input("server-user"),
-  password:input("server-password"),enabled:$("server-enabled").checked
+  password:input("server-password"),dnsServer:input("dns-server"),enabled:$("server-enabled").checked
  });
 }
 function paint(){
@@ -35,6 +36,7 @@ function paint(){
  $("connection-state").textContent=connected?"Connecté":"Déconnecté";
  $("connection-state").className="status "+(connected?"ok":"off");
  $("assigned-ip").textContent=connected?session.vpnAddress:"Aucune";
+ $("assigned-dns").textContent=connected?(session.dnsServer||"Aucun"):"Aucun";
  for(const side of ["wan","lan"]){
   const cableData=registry.getCable(cables[side]);
   const linked=!!cableData.ends[1];
@@ -60,9 +62,10 @@ function initialize(){
  configureRouterPort(registry,router.id,lan,{role:"lan",mode:"static",address:"192.168.10.1",prefix:24});
  for(const [id,value] of Object.entries({
   "vpn-network":"10.8.0.0","vpn-prefix":"24","server-user":"eleve",
-  "server-password":"demo","client-server":"203.0.113.10",
+  "server-password":"demo","dns-server":"192.168.10.10","client-server":"203.0.113.10",
   "client-user":"eleve","client-password":"demo",
-  "target-ip":"192.168.10.10","client-gateway":"203.0.113.10"
+  "target-ip":"192.168.10.10","client-gateway":"203.0.113.10",
+  "dns-name":"srv-local.entreprise.test","dns-record-name":"srv-local.entreprise.test"
  }))$(id).value=value;
  $("server-enabled").checked=true;
  const configured=configure();if(!configured.success)throw Error(configured.message);
@@ -93,6 +96,37 @@ $("connect").addEventListener("click",()=>{
 $("disconnect").addEventListener("click",()=>{
  session=disconnectRemoteVpn(session);
  paint();say("VPN déconnecté.",true);
+});
+// Le Core DNS résout les enregistrements sur le LAN. Le moteur VPN
+// vérifie d'abord l'accès au serveur DNS à travers le tunnel.
+function makeDnsEngine(){
+ const clientId="dns-proxy";
+ const name=input("dns-record-name");
+ const records=name?[{name,type:"A",value:"192.168.10.10",ttl:300}]:[];
+ return {clientId,engine:createEngine({
+  format:"r2d3-scenario",schemaVersion:1,scenarioId:"vpn-nomad-dns-lab",
+  scenarioVersion:"1.0.0",capabilities:{network:true},
+  objects:[
+   {id:clientId,kind:"ethernet-endpoint",name:"Résolution côté LAN",
+    ports:[{id:"eth0",type:"rj45"}],
+    config:{ipv4:{interfaceId:"eth0",mode:"static",address:"192.168.10.1",prefix:24},
+     networkOptions:{gateway:null,dns:session?.dnsServer?[session.dnsServer]:[]}},runtime:{}},
+   {id:"dns-local",kind:"ethernet-endpoint",name:"Serveur DNS",
+    ports:[{id:"eth0",type:"rj45"}],
+    config:{ipv4:{interfaceId:"eth0",mode:"static",address:"192.168.10.10",prefix:24},
+     dnsEnabled:$("dns-enabled").checked,dnsZone:{domain:"entreprise.test",negativeTtl:60,records}},runtime:{}}
+  ],
+  links:[{id:"lan-dns",kind:"ethernet-cable",connected:true,
+   endpoints:[{objectId:clientId,portId:"eth0"},{objectId:"dns-local",portId:"eth0"}]}]
+ })};
+}
+$("probe-name").addEventListener("click",()=>{
+ try{
+  const dns=makeDnsEngine();
+  const r=observeRemoteVpnPingName(registry,session,input("dns-name"),server.id,addresses(),
+   {dnsEngine:dns.engine,dnsClientId:dns.clientId,dnsAssetId:server.id});
+  say(r.success?"DNS : "+input("dns-name")+" = "+r.resolvedAddress+". Ping réussi.":"Échec : "+(r.message||"Nom DNS non résolu"),r.success);
+ }catch(error){say("Configuration DNS invalide : "+error.message,false);}
 });
 $("probe").addEventListener("click",()=>{
  const r=observeRemoteVpnPing(registry,session,server.id,addresses());
