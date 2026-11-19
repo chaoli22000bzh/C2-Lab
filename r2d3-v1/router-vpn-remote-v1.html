@@ -30,6 +30,7 @@ button.primary{background:var(--main);border-color:var(--main);color:#fff}button
 <label>Préfixe réseau<input id="vpn-prefix" type="number" min="1" max="30" value="24"></label>
 <label>Identifiant autorisé<input id="server-user" autocomplete="off" value="eleve"></label>
 <label>Mot de passe fictif<input id="server-password" autocomplete="off" value="demo"></label>
+<label class="full">DNS fourni au client VPN<input id="dns-server" inputmode="decimal" value="192.168.10.10"></label>
 <label class="full" style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="server-enabled" checked> Activer le VPN</label>
 <div class="full"><button type="submit" class="primary">Enregistrer le serveur VPN</button></div>
 </form><p class="testhint">WAN et LAN du routeur sont déjà configurés pour ce laboratoire.</p>
@@ -43,15 +44,20 @@ button.primary{background:var(--main);border-color:var(--main);color:#fff}button
 <div class="actions"><button id="connect" class="primary" type="button">Se connecter</button><button id="disconnect" type="button">Se déconnecter</button></div>
 <p class="state"><span>État :</span><span id="connection-state" class="status off">Déconnecté</span></p>
 <p class="state"><span>IPv4 VPN :</span><strong id="assigned-ip">Aucune</strong></p>
+<p class="state"><span>DNS reçu :</span><strong id="assigned-dns">Aucun</strong></p>
 </section>
 </div>
 <section class="panel"><h2>3. Test de communication</h2>
 <div class="fields"><label>Adresse IPv4 du serveur à tester<input id="target-ip" inputmode="decimal" value="192.168.10.10"></label><label>Passerelle du PC extérieur<input id="client-gateway" inputmode="decimal" value="203.0.113.10"></label></div>
-<div class="actions"><button id="probe" type="button" class="primary">Tester le ping</button></div>
-<p class="testhint">Test limité au ping entre le PC nomade connecté et le serveur du LAN.</p>
+<div class="actions"><button id="probe" type="button" class="primary">Tester le ping IPv4</button></div>
+<h3>Test DNS</h3><div class="fields"><label>Nom à tester<input id="dns-name" value="srv-local.entreprise.test" autocomplete="off"></label>
+<label>Nom enregistré sur le DNS<input id="dns-record-name" value="srv-local.entreprise.test" autocomplete="off"></label></div>
+<label style="display:flex;align-items:center;gap:8px;margin-top:10px"><input id="dns-enabled" type="checkbox" checked> Service DNS actif sur le serveur</label>
+<div class="actions"><button id="probe-name" type="button" class="primary">Tester le ping par nom</button></div>
+<p class="testhint">DNS et destination sont sur le serveur 192.168.10.10 dans ce laboratoire. Le moteur DNS R2D3 résout le nom ; le VPN contrôle l’accès.</p>
 </section>
 <section class="panel"><h2>Résultat du test</h2><div id="result" role="status" aria-live="polite">Le VPN est configuré. Connecte le PC nomade.</div></section>
 <section class="panel"><h2>Scénarios à valider ensemble</h2>
-<p class="testhint">1. Connexion et ping | 2. Mauvais mot de passe | 3. VPN désactivé | 4. Mauvaise adresse WAN | 5. Coupure LAN | 6. Coupure WAN | 7. Déconnexion et remise en service | 8. Redémarrage d'un équipement.</p>
+<p class="testhint">Les 8 tests VPN V1 ont été validés. Extension DNS à vérifier : DNS transmis, nom correct, nom inconnu, DNS arrêté et VPN/LAN coupé.</p>
 </section>
-</main><script type="module" src="./router-vpn-remote-lab-v1.js?v=1.1"></script></body></html>
+</main><script type="module" src="./router-vpn-remote-lab-v1.js?v=2.0"></script></body></html>
