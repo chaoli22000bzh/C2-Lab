@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>R2D3 | VPN nomade à site V1</title>
+<style>
+:root{color-scheme:light dark;--bg:#f2f5f7;--panel:#fff;--text:#213847;--muted:#516b78;--line:#c9d8df;--main:#155f84;--good:#0f7750;--bad:#a43636}
+@media(prefers-color-scheme:dark){:root{--bg:#131b23;--panel:#1c2a36;--text:#e8f2f8;--muted:#bbd0da;--line:#3a5361;--main:#26749a;--good:#80dcb4;--bad:#ffb2ab}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,Arial,sans-serif}
+header{background:#193e60;color:white;padding:16px max(12px,calc((100% - 990px)/2))}header h1{margin:0;font-size:21px}header p{margin:3px 0 0;color:#dceaf3;font-size:13px}
+main{max-width:990px;margin:auto;padding:12px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:14px;margin-bottom:12px}
+h2{font-size:17px;margin:0 0 12px}h3{font-size:14px;margin:12px 0 6px}.layout{display:grid;grid-template-columns:1fr 1fr;gap:12px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:9px}.full{grid-column:1/-1}
+label{display:grid;gap:4px;font-size:13px;color:var(--muted)}input,button{font:inherit}input{width:100%;min-width:0;border:1px solid var(--line);border-radius:5px;padding:9px;background:var(--panel);color:var(--text)}
+input[type=checkbox]{width:auto}button{border:1px solid var(--line);color:var(--text);background:var(--panel);border-radius:6px;padding:9px 12px;cursor:pointer;min-height:40px}
+button.primary{background:var(--main);border-color:var(--main);color:#fff}button:focus-visible,input:focus-visible{outline:3px solid #58adf0;outline-offset:1px}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:11px}.state{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.small{font-size:12px;color:var(--muted)}
+.network{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}.node{border:1px solid var(--line);border-radius:6px;padding:9px;text-align:center;min-width:125px;background:var(--bg)}.node strong,.node small{display:block}.node small{font-size:11px;color:var(--muted)}.link{flex:1;min-width:14px;max-width:65px;height:0;border-top:3px solid var(--good)}.link.cut{border-top:3px dashed var(--bad)}
+#result{padding:12px;border-radius:6px;background:var(--bg);border:1px solid var(--line);overflow-wrap:anywhere}#result.success{border-color:var(--good)}#result.failed{border-color:var(--bad)}.status{font-weight:700}.status.ok{color:var(--good)}.status.off{color:var(--bad)}.testhint{margin:6px 0;font-size:13px;color:var(--muted)}
+@media(max-width:700px){main{padding:7px}.panel{padding:11px}.layout,.fields{grid-template-columns:1fr}.node{min-width:96px;padding:6px}.link{max-width:20px}.actions button{flex:1 1 auto}header{padding:13px}h1{font-size:19px}}
+</style></head><body>
+<header><h1>R2D3 : VPN nomade à site</h1><p>Laboratoire de recette V1 | réseau et ping simulés</p></header>
+<main>
+<section class="panel"><h2>Réseau du laboratoire</h2>
+<div class="network"><div class="node"><strong>PC nomade</strong><small>203.0.113.20</small></div><span class="link" id="wire-wan"></span><div class="node"><strong>Routeur</strong><small>WAN 203.0.113.10</small><small>LAN 192.168.10.1</small></div><span class="link" id="wire-lan"></span><div class="node"><strong>Serveur</strong><small>192.168.10.10</small></div></div>
+<p class="small">Les câbles représentent le réseau simplifié du test. Le VPN lui-même est une liaison logique.</p>
+<div class="actions"><button id="cable-wan" type="button">Couper WAN</button><button id="cable-lan" type="button">Couper LAN</button><button id="router-state" type="button">Arrêter routeur</button><button id="server-state" type="button">Arrêter serveur</button><button id="reset" type="button">Tout réinitialiser</button></div>
+</section>
+<div class="layout">
+<section class="panel"><h2>1. Serveur VPN (routeur)</h2>
+<form id="server-form" class="fields">
+<label>Réseau VPN<input id="vpn-network" inputmode="decimal" value="10.8.0.0"></label>
+<label>Préfixe réseau<input id="vpn-prefix" type="number" min="1" max="30" value="24"></label>
+<label>Identifiant autorisé<input id="server-user" autocomplete="off" value="eleve"></label>
+<label>Mot de passe fictif<input id="server-password" autocomplete="off" value="demo"></label>
+<label class="full" style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="server-enabled" checked> Activer le VPN</label>
+<div class="full"><button type="submit" class="primary">Enregistrer le serveur VPN</button></div>
+</form><p class="testhint">WAN et LAN du routeur sont déjà configurés pour ce laboratoire.</p>
+</section>
+<section class="panel"><h2>2. Client VPN (PC nomade)</h2>
+<div class="fields">
+<label class="full">Adresse du serveur VPN<input id="client-server" inputmode="decimal" value="203.0.113.10"></label>
+<label>Identifiant<input id="client-user" autocomplete="off" value="eleve"></label>
+<label>Mot de passe<input id="client-password" autocomplete="off" value="demo"></label>
+</div>
+<div class="actions"><button id="connect" class="primary" type="button">Se connecter</button><button id="disconnect" type="button">Se déconnecter</button></div>
+<p class="state"><span>État :</span><span id="connection-state" class="status off">Déconnecté</span></p>
+<p class="state"><span>IPv4 VPN :</span><strong id="assigned-ip">Aucune</strong></p>
+</section>
+</div>
+<section class="panel"><h2>3. Test de communication</h2>
+<div class="fields"><label>Adresse IPv4 du serveur à tester<input id="target-ip" inputmode="decimal" value="192.168.10.10"></label><label>Passerelle du PC extérieur<input id="client-gateway" inputmode="decimal" value="203.0.113.10"></label></div>
+<div class="actions"><button id="probe" type="button" class="primary">Tester le ping</button></div>
+<p class="testhint">Test limité au ping entre le PC nomade connecté et le serveur du LAN.</p>
+</section>
+<section class="panel"><h2>Résultat du test</h2><div id="result" role="status" aria-live="polite">Le VPN est configuré. Connecte le PC nomade.</div></section>
+<section class="panel"><h2>Scénarios à valider ensemble</h2>
+<p class="testhint">1. Connexion et ping | 2. Mauvais mot de passe | 3. VPN désactivé | 4. Mauvaise adresse WAN | 5. Coupure LAN | 6. Coupure WAN | 7. Déconnexion et remise en service | 8. Redémarrage d'un équipement.</p>
+</section>
+</main><script type="module" src="./router-vpn-remote-lab-v1.js?v=1.0"></script></body></html>
