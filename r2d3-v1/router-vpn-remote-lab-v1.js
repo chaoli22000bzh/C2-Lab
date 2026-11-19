@@ -95,7 +95,7 @@ $("disconnect").addEventListener("click",()=>{
 });
 $("probe").addEventListener("click",()=>{
  const r=observeRemoteVpnPing(registry,session,server.id,addresses());
- say(r.success?"Ping réussi : "+input("target-ip")+" répond.":"Ping échoué : "+r.message,true===r.success);
+ say(r.success?"Ping réussi : "+input("target-ip")+" répond.":"Ping échoué : "+(r.reason||r.message||"Connexion impossible"),r.success);
 });
 for(const side of ["wan","lan"])$("cable-"+side).addEventListener("click",()=>{
  const c=registry.getCable(cables[side]),port=side==="wan"?wan:lan;
