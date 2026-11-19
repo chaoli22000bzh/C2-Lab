@@ -77,6 +77,7 @@ $("server-enabled").addEventListener("change",()=>{
  const cfg=getRemoteVpnConfig(registry,router.id);
  if(!cfg)return;
  const r=setRemoteVpnEnabled(registry,router.id,$("server-enabled").checked);
+ if(r.success&&!$("server-enabled").checked)session=null;
  say(r.success?($("server-enabled").checked?"VPN activé.":"VPN désactivé."):(r.message||"Erreur VPN"),r.success);
  paint();
 });
@@ -107,6 +108,9 @@ for(const [id,assetName] of [["router-state","router"],["server-state","server"]
   const asset=assetName==="router"?router:server,old=registry.getAsset(asset.id);
   const next=old.status==="En service"?"Hors service":"En service";
   const r=registry.updateAsset(asset.id,{status:next});
+  // Arrêter le routeur coupe définitivement la session du PC.
+  // Son redémarrage ne reconnecte pas automatiquement le client.
+  if(r.success&&assetName==="router"&&next==="Hors service")session=null;
   paint();say((assetName==="router"?"Routeur":"Serveur")+(next==="En service"?" redémarré.":" arrêté."),r.success);
  });
 }
