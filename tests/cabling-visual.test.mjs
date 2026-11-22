@@ -4,7 +4,7 @@ import {readFile} from "node:fs/promises";
 
 const load = async relative => import("data:text/javascript;base64," +
   Buffer.from(await readFile(new URL(relative, import.meta.url))).toString("base64"));
-const {createAssetRegistry} = await load("../r2d3-v1/asset-profiles.js");
+const {createAssetRegistry} = await import("../r2d3-v1/asset-profiles.js");
 const {buildCablingViewModel} = await load("../shared-ui/v1/cabling-visual.js");
 
 function fixture() {
