@@ -214,6 +214,38 @@ function describePoint(end,ports){
  const p=ports.find(x=>x.portId===end.portId);
  return p?p.assetName+" / "+p.portName:"port absent";
 }
+const capabilityChoices=[
+ ["ethernet-switching","Commutation Ethernet"],
+ ["vlan","VLAN"],
+ ["inter-vlan-routing","Routage inter-VLAN"],
+ ["ip-helper","IP Helper"],
+ ["dhcp-server","Serveur DHCP"],
+ ["ipv4-router","Routeur IPv4"],
+ ["wifi-ap","Point d'accès Wi-Fi"]
+];
+function renderCapabilities(){
+ const profile=selectedProfile(),host=id("profile-capabilities"),poe=id("profile-poe");
+ host.replaceChildren();
+ for(const [value,title] of capabilityChoices){
+  const label=document.createElement("label"),control=document.createElement("input");
+  control.type="checkbox";control.value=value;
+  control.checked=!!profile?.networkCapabilities?.includes(value);
+  control.disabled=!profile;
+  control.onchange=()=>{
+   const r=engine.setProfileNetworkCapability(profile.id,value,control.checked);
+   status("profile-status",r);refresh();
+  };
+  label.append(control,document.createTextNode(title));host.append(label);
+ }
+ poe.disabled=!profile;
+ poe.checked=!!profile?.poe;
+}
+id("profile-poe").onchange=e=>{
+ const profile=selectedProfile();
+ if(!profile)return;
+ const r=engine.setProfilePoe(profile.id,e.currentTarget.checked);
+ status("profile-status",r);refresh();
+};
 function renderPortGroups(){
  const p=selectedProfile(),host=id("port-groups");host.replaceChildren();
  if(!p)return;
@@ -260,6 +292,7 @@ function renderFieldEditor(){
 }
 function renderFields(){
  const p=selectedProfile(),host=id("fields");host.replaceChildren();
+ renderCapabilities();
  id("profile-rename").elements.name.value=p?.name||"";
  if(!p){host.textContent="Crée un profil pour commencer.";renderFieldEditor();renderPortGroups();return}
  if(!p.fields.length){host.textContent="Aucun champ personnalisé.";renderFieldEditor();renderPortGroups();return}
