@@ -313,13 +313,13 @@ const switchAdminRoot=()=>id("switch-admin-root");
 function closeSwitchAdmin(){
  if(switchAdmin){switchAdmin.destroy();switchAdmin=null;}
  switchAdminAssetId=null;
- switchAdminRoot().hidden=true;
+ id("switch-admin-section").hidden=true;
  id("switch-admin-open").textContent="Ouvrir l'administration du switch";
  id("switch-admin-message").textContent="";
 }
 function updateSwitchAdminSelection(asset){
  const available=!!asset?.networkCapabilities?.includes("vlan");
- id("switch-admin-section").hidden=!available;
+ id("switch-admin-controls").hidden=!available;
  if(!available||switchAdminAssetId!==asset.id)closeSwitchAdmin();
  else if(switchAdmin)switchAdmin.refresh();
 }
@@ -336,7 +336,8 @@ id("switch-admin-open").onclick=async()=>{
   closeSwitchAdmin();
   switchAdmin=switchAdminModule.mountSwitchAdmin({root:switchAdminRoot(),registry:engine,assetId:asset.id});
   switchAdminAssetId=asset.id;
-  switchAdminRoot().hidden=false;
+  id("switch-admin-section").hidden=false;
+  id("switch-admin-section").scrollIntoView({behavior:"smooth",block:"start"});
   button.textContent="Fermer l'administration du switch";
  }catch(error){
   closeSwitchAdmin();
