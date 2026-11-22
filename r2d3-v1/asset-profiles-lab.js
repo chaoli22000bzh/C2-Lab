@@ -307,41 +307,51 @@ function renderFields(){
  });
  renderFieldEditor();renderPortGroups();
 }
-// Interface partagée chargée depuis R2D3 ; même registre et mêmes identifiants d'actifs.
-let switchAdmin=null,switchAdminAssetId=null,switchAdminModule=null;
-const switchAdminRoot=()=>id("switch-admin-root");
-function closeSwitchAdmin(){
- if(switchAdmin){switchAdmin.destroy();switchAdmin=null;}
- switchAdminAssetId=null;
+// Administrations réseau : mêmes composants publiés R2D3, même registre métier.
+const administrationKinds={
+ switch:{title:"Administration du switch",moduleUrl:"https://chaoli22000bzh.github.io/R2D3/src/switch-admin-ui-v1.js",mount:"mountSwitchAdmin"},
+ router:{title:"Administration du routeur",moduleUrl:"https://chaoli22000bzh.github.io/R2D3/src/router-admin-ui-v1.js",mount:"mountRouterAdmin"}
+};
+let networkAdmin=null,networkAdminAssetId=null,networkAdminKind=null;
+const adminModules={};
+const networkAdminRoot=()=>id("switch-admin-root");
+function kindForAsset(asset){
+ if(asset?.networkCapabilities?.includes("ipv4-router"))return "router";
+ if(asset?.networkCapabilities?.includes("vlan"))return "switch";
+ return null;
+}
+function closeNetworkAdmin(){
+ if(networkAdmin){networkAdmin.destroy();networkAdmin=null;}
+ networkAdminAssetId=null;networkAdminKind=null;
  id("switch-admin-section").hidden=true;
- id("switch-admin-open").textContent="Ouvrir l'administration du switch";
+ id("switch-admin-open").textContent="Ouvrir l'administration";
  id("switch-admin-message").textContent="";
 }
-function updateSwitchAdminSelection(asset){
- const available=!!asset?.networkCapabilities?.includes("vlan");
- id("switch-admin-controls").hidden=!available;
- if(!available||switchAdminAssetId!==asset.id)closeSwitchAdmin();
- else if(switchAdmin)switchAdmin.refresh();
+function updateNetworkAdminSelection(asset){
+ const kind=kindForAsset(asset);
+ id("switch-admin-controls").hidden=!kind;
+ if(kind)id("network-admin-control-title").textContent=administrationKinds[kind].title;
+ if(!kind||networkAdminAssetId!==asset?.id||networkAdminKind!==kind)closeNetworkAdmin();
 }
 id("switch-admin-open").onclick=async()=>{
- const asset=selectedAsset();
- if(!asset?.networkCapabilities?.includes("vlan"))return;
- if(switchAdmin&&switchAdminAssetId===asset.id){closeSwitchAdmin();return;}
- const button=id("switch-admin-open");
+ const asset=selectedAsset(),kind=kindForAsset(asset);
+ if(!kind)return;
+ if(networkAdmin&&networkAdminAssetId===asset.id&&networkAdminKind===kind){closeNetworkAdmin();return;}
+ const button=id("switch-admin-open"),config=administrationKinds[kind];
  button.disabled=true;
  id("switch-admin-message").textContent="Chargement de l'interface R2D3…";
  try{
-  switchAdminModule??=await import("https://chaoli22000bzh.github.io/R2D3/src/switch-admin-ui-v1.js");
+  adminModules[kind]??=await import(config.moduleUrl);
   if(selectedAsset()?.id!==asset.id)return;
-  closeSwitchAdmin();
-  switchAdmin=switchAdminModule.mountSwitchAdmin({root:switchAdminRoot(),registry:engine,assetId:asset.id});
-  switchAdminAssetId=asset.id;
+  closeNetworkAdmin();
+  networkAdmin=adminModules[kind][config.mount]({root:networkAdminRoot(),registry:engine,assetId:asset.id});
+  networkAdminAssetId=asset.id;networkAdminKind=kind;
   id("switch-admin-section").hidden=false;
   id("switch-admin-section").scrollIntoView({behavior:"smooth",block:"start"});
-  button.textContent="Fermer l'administration du switch";
+  button.textContent="Fermer l'administration";
  }catch(error){
-  closeSwitchAdmin();
-  id("switch-admin-message").textContent="Impossible d'ouvrir l'interface du switch : "+(error?.message||String(error));
+  closeNetworkAdmin();
+  id("switch-admin-message").textContent="Impossible d'ouvrir l'interface : "+(error?.message||String(error));
  }finally{button.disabled=false;}
 };
 function renderAsset(){
@@ -350,7 +360,7 @@ function renderAsset(){
  id("asset-remove").disabled=!a;
  id("extension-create").querySelectorAll("input,select,button").forEach(control=>control.disabled=!a);
  renderAssetPorts();renderPlaces();
- updateSwitchAdminSelection(a);
+ updateNetworkAdminSelection(a);
  if(a){
   for(const key of ["name","manufacturer","model","serialNumber","status","location"])form.elements[key].value=a[key]??"";
   form.elements.reservable.checked=!!a.reservable;
@@ -487,7 +497,7 @@ id("asset-edit").onsubmit=e=>{
  status("asset-status",r);refresh();
 };
 id("profiles").onchange=renderFields;id("assets").onchange=renderAsset;
-id("reset").onclick=()=>{closeSwitchAdmin();engine=createAssetRegistry();visualPathPorts=[];visualPathCableIds=[];visualSelectedPort=null;visualSelectedCable=null;visualPendingAttach=null;id("cabling-visual-status").textContent="";refresh();id("asset-status").textContent="";id("profile-status").textContent="";id("cable-status").textContent="";id("infrastructure-status").textContent="";id("place-status").textContent="";id("path-result").textContent=""};
+id("reset").onclick=()=>{closeNetworkAdmin();engine=createAssetRegistry();visualPathPorts=[];visualPathCableIds=[];visualSelectedPort=null;visualSelectedCable=null;visualPendingAttach=null;id("cabling-visual-status").textContent="";refresh();id("asset-status").textContent="";id("profile-status").textContent="";id("cable-status").textContent="";id("infrastructure-status").textContent="";id("place-status").textContent="";id("path-result").textContent=""};
 id("cabling-visual-place").onchange=()=>{visualSelectedPort=null;visualPendingAttach=null;drawCablingVisual()};
 id("cabling-mode-connect").onclick=()=>{visualPathMode=false;visualPathPorts=[];visualPathCableIds=[];visualSelectedPort=null;id("cabling-mode-connect").setAttribute("aria-pressed","true");id("cabling-mode-path").setAttribute("aria-pressed","false");visualMessage("Mode branchement : sélectionne deux ports libres.");drawCablingVisual()};
 id("cabling-mode-path").onclick=()=>{visualPathMode=true;visualPathPorts=[];visualPathCableIds=[];visualSelectedPort=null;visualPendingAttach=null;id("cabling-mode-path").setAttribute("aria-pressed","true");id("cabling-mode-connect").setAttribute("aria-pressed","false");visualMessage("Mode chemin : sélectionne un départ et une arrivée.");drawCablingVisual()};
