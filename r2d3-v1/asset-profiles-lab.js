@@ -310,7 +310,8 @@ function renderFields(){
 // Administrations réseau : mêmes composants publiés R2D3, même registre métier.
 const administrationKinds={
  switch:{title:"Administration du switch",moduleUrl:"https://chaoli22000bzh.github.io/R2D3/src/switch-admin-ui-v1.js",mount:"mountSwitchAdmin"},
- router:{title:"Administration du routeur",moduleUrl:"https://chaoli22000bzh.github.io/R2D3/src/router-admin-ui-v1.js",mount:"mountRouterAdmin"}
+ router:{title:"Administration du routeur",moduleUrl:"https://chaoli22000bzh.github.io/R2D3/src/router-admin-ui-v1.js",mount:"mountRouterAdmin"},
+ wifi:{title:"Administration de la borne Wi-Fi",moduleUrl:"https://chaoli22000bzh.github.io/R2D3/src/wifi-admin-ui-v1.js",mount:"mountWifiAdmin"}
 };
 let networkAdmin=null,networkAdminAssetId=null,networkAdminKind=null;
 const adminModules={};
@@ -318,10 +319,19 @@ const networkAdminRoot=()=>id("switch-admin-root");
 function kindForAsset(asset){
  if(asset?.networkCapabilities?.includes("ipv4-router"))return "router";
  if(asset?.networkCapabilities?.includes("vlan"))return "switch";
+ if(asset?.networkCapabilities?.includes("wifi-ap"))return "wifi";
  return null;
 }
 function closeNetworkAdmin(){
- if(networkAdmin){networkAdmin.destroy();networkAdmin=null;}
+ if(networkAdmin){
+  if(typeof networkAdmin.destroy==="function")networkAdmin.destroy();
+  else { // L'interface Wi-Fi V1 expose render/save mais pas destroy.
+   networkAdminRoot().onclick=null;
+   networkAdminRoot().replaceChildren();
+   networkAdminRoot().classList.remove("wifi-admin");
+  }
+  networkAdmin=null;
+ }
  networkAdminAssetId=null;networkAdminKind=null;
  id("switch-admin-section").hidden=true;
  id("switch-admin-open").textContent="Ouvrir l'administration";
