@@ -38,7 +38,6 @@ function run(test){
    a=request(f.a.id);
    good(f.registry.disconnectCableEnd(f.cables[0],1));
    a=request(f.a.id);b=request(f.b.id);
-   valid===false;
    valid=!a.success&&a.code==="link_down"&&b.success;
    notes="Le PC-01 perd son accès après débranchement LAN, PC-02 reste connecté.";
   }else if(test==="service"){
