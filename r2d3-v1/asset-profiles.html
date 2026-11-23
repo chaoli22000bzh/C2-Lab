@@ -140,10 +140,12 @@ button.cv-attach{background:#dcefe4;color:#17613d}
 <label id="box-internet-ssid-field" hidden>Réseau Wi-Fi (SSID)<select name="ssidId" id="box-internet-ssid"></select></label>
 <label id="box-internet-password-field" hidden>Mot de passe Wi-Fi<input name="wifiPassword" id="box-internet-password" type="text" autocomplete="off" placeholder="Exemple BOX-WIFI : 12345678"></label>
 <div id="box-internet-bridge-fields" class="full" hidden>
-<p class="note">Mode Bridge : seul LAN 1 est actif. Configure manuellement le PC sur le réseau WAN. Exemple avec la première box : 90.14.10.21/24, passerelle 90.14.10.1.</p>
+<p class="note">Mode Bridge : seul LAN 1 est actif. Configure manuellement le PC sur le réseau WAN. Le PC reprend l’adresse WAN de la box, son préfixe, sa passerelle et ses DNS. Exemple pour la première box : 90.14.10.20/24, passerelle 90.14.10.1.</p>
 <label>IPv4 statique du PC<input name="bridgeAddress" id="box-internet-bridge-address" inputmode="decimal" placeholder="90.14.10.21"></label>
 <label>Préfixe réseau du PC<input name="bridgePrefix" id="box-internet-bridge-prefix" inputmode="numeric" type="number" min="1" max="30" placeholder="24"></label>
 <label>Passerelle du PC<input name="bridgeGateway" id="box-internet-bridge-gateway" inputmode="decimal" placeholder="90.14.10.1"></label>
+<label>DNS 1 du PC<input name="bridgeDns1" id="box-internet-bridge-dns1" inputmode="decimal" placeholder="80.10.246.2"></label>
+<label>DNS 2 du PC<input name="bridgeDns2" id="box-internet-bridge-dns2" inputmode="decimal" placeholder="80.10.246.129"></label>
 </div>
 <label>Service Internet simulé<select name="service" required>
 <option value="http">Serveur Web HTTP (80.10.246.50:80)</option>
