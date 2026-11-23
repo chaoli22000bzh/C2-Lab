@@ -1,5 +1,5 @@
 import {createAssetRegistry} from "./asset-profiles.js";
-import {createBoxLanDhcpSession} from "https://chaoli22000bzh.github.io/R2D3/src/box-lan-dhcp-v1.js";
+import {createBoxLanDhcpSession} from "https://chaoli22000bzh.github.io/R2D3/src/box-lan-dhcp-v1.js?box-fix=11a2118";
 const output=document.getElementById("out");
 const must=r=>{if(!r.success)throw Error(r.message||r.code);return r};
 const client=(r,name,type)=>{
