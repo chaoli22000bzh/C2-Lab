@@ -16,7 +16,7 @@ function refresh(){
  else if(ps.some(p=>p.id===oldP))id("asset-profile").value=oldP;
  id("assets").replaceChildren(...as.map(a=>opt(a.name+" ("+(ps.find(p=>p.id===a.profileId)?.name||"?")+")",a.id)));
  if(as.some(a=>a.id===oldA))id("assets").value=oldA;
- renderPlaces();renderInfrastructure();renderCables();renderPathChoices();renderFields();renderAsset();refreshCablingVisual();
+ renderPlaces();renderInfrastructure();renderCables();renderPathChoices();renderFields();renderAsset();renderBoxInternetChoices();refreshCablingVisual();
 }
 let visualSelectedPort=null,visualSelectedCable=null,visualPendingAttach=null;
 let visualPathMode=false,visualPathPorts=[],visualPathCableIds=[];
@@ -307,6 +307,56 @@ function renderFields(){
  });
  renderFieldEditor();renderPortGroups();
 }
+// Recette d'intégration Internet sur les actifs du même registre R2D3.
+const internetServices={
+ http:{id:"http-internet",address:"80.10.246.50",kind:"http",available:true},
+ dns:{id:"dns-orange",address:"80.10.246.2",kind:"dns",available:true}
+};
+let internetModule=null;
+function renderBoxInternetChoices(){
+ const boxes=engine.listAssets().filter(a=>a.boxConfig);
+ const clients=engine.listAssets().filter(a=>!a.boxConfig&&
+  a.ports.filter(p=>p.type==="ethernet-rj45").length===1);
+ for(const [target,values] of [["box-internet-box",boxes],["box-internet-client",clients]]){
+  const select=id(target),previous=select.value;
+  select.replaceChildren(...values.map(a=>opt(a.name,a.id)));
+  if(values.some(a=>a.id===previous))select.value=previous;
+ }
+ id("box-internet-integration-form").querySelector("button").disabled=!boxes.length||!clients.length;
+}
+id("box-internet-integration-form").onsubmit=async e=>{
+ e.preventDefault();
+ const form=e.currentTarget,boxId=form.elements.boxId.value,clientId=form.elements.clientId.value;
+ const type=form.elements.service.value,service=internetServices[type];
+ const output=id("box-internet-integration-result");
+ output.textContent="Vérification des paramètres et du raccordement réseau…";
+ if(!engine.getAsset(boxId)?.boxConfig||!engine.getAsset(clientId)||!service){
+  output.textContent="Sélection de box, PC ou service invalide.";output.className="notice bad";return;
+ }
+ try{
+  internetModule??=await import("https://chaoli22000bzh.github.io/R2D3/src/box-internet-v1.js?integration=378ed91");
+  // L'adaptateur n'invente aucune connexion physique : le moteur valide le câble réel.
+  const session=internetModule.createBoxInternetSession({registry:engine,boxId,
+   clients:[{assetId:clientId,medium:"ethernet"}],services:Object.values(internetServices)});
+  if(!session.success){output.textContent="ÉCHEC : "+(session.message||session.code);output.className="notice bad";return;}
+  const result=session.request({clientId,targetAddress:service.address,service:service.kind});
+  if(!result.success){
+   output.textContent="ACCÈS REFUSÉ : "+result.code+" : "+(result.message||"Communication impossible.");
+   output.className="notice bad";return;
+  }
+  output.textContent="ACCÈS INTERNET SIMULÉ CONFORME\\n"+
+   "PC : "+result.nat.internalAddress+":"+result.nat.internalPort+"\\n"+
+   "Passerelle LAN : "+result.route.gateway+"\\n"+
+   "PAT : "+result.nat.externalAddress+":"+result.nat.externalPort+"\\n"+
+   "Service Internet : "+result.target.address+":"+result.target.port+" ("+result.service+")\\n"+
+   "Passerelle WAN : "+result.route.wanGateway+"\\n"+
+   "Translations de cette session : "+session.listNat().length;
+  output.className="notice good";
+ }catch(error){
+  output.textContent="Impossible d'exécuter le moteur Internet : "+(error?.message||String(error));
+  output.className="notice bad";
+ }
+};
 // Administrations réseau : mêmes composants publiés R2D3, même registre métier.
 const administrationKinds={
  box:{title:"Administration de la box Internet",moduleUrl:"https://chaoli22000bzh.github.io/R2D3/src/box-admin-ui-v1.js?wan-v1=bc9f1c0",mount:"mountBoxAdmin"},
