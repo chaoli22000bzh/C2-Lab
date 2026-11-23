@@ -492,6 +492,11 @@ id("field-edit").onsubmit=e=>{
  status("profile-status",r);refresh();
 };
 id("field-create").onsubmit=e=>{e.preventDefault();const data=Object.fromEntries(new FormData(e.currentTarget));if(data.type==="select")data.options=data.options.split(",").map(x=>x.trim()).filter(Boolean);const r=engine.addField(id("profiles").value,data);status("profile-status",r);refresh()};
+id("box-create").onclick=()=>{
+ const result=engine.createBoxComposite("BOX-01");
+ status("asset-status",result);refresh();
+ if(result.success){id("assets").value=result.asset.id;renderAsset();}
+};
 id("asset-create").onsubmit=e=>{e.preventDefault();const data=Object.fromEntries(new FormData(e.currentTarget));const r=engine.createAsset(data.profileId,data);status("asset-status",r);refresh();if(r.success){id("assets").value=r.asset.id;renderAsset()}};
 id("asset-remove").onclick=()=>{
  const a=selectedAsset();if(!a)return;
