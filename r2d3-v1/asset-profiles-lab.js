@@ -365,8 +365,11 @@ function refreshInternetWifiConfig(){
  if(bridge&&[...medium.options].some(o=>o.value==="ethernet"))medium.value="ethernet";
  id("box-internet-ssid-field").hidden=bridge||medium.value!=="wifi";
  id("box-internet-password-field").hidden=bridge||medium.value!=="wifi";
+ const staticBridge=bridge&&box.boxConfig.wan.mode==="static";
  id("box-internet-bridge-fields").hidden=!bridge;
- if(bridge){
+ id("box-internet-bridge-static-fields").hidden=!staticBridge;
+ id("box-internet-bridge-dhcp-note").hidden=!bridge||staticBridge;
+ if(staticBridge){
   const wan=engine.getBoxWanEffective?.(box.id);
   const expected={
    "box-internet-bridge-address":wan?.address??"",
@@ -378,8 +381,8 @@ function refreshInternetWifiConfig(){
   for(const [name,value] of Object.entries(expected))id(name).value=String(value);
  }
  for(const name of ["box-internet-bridge-address","box-internet-bridge-prefix","box-internet-bridge-gateway","box-internet-bridge-dns1","box-internet-bridge-dns2"]){
-  id(name).required=bridge;
-  id(name).disabled=!bridge;
+  id(name).required=staticBridge;
+  id(name).disabled=!staticBridge;
  }
 }
 id("box-internet-box").onchange=refreshInternetWifiConfig;
@@ -403,7 +406,7 @@ id("box-internet-integration-form").onsubmit=async e=>{
   output.textContent="Sélection de box, PC ou service invalide.";output.className="notice bad";return;
  }
  try{
-  internetModule??=await import("https://chaoli22000bzh.github.io/R2D3/src/box-internet-v1.js?bridge=64e5466");
+  internetModule??=await import("https://chaoli22000bzh.github.io/R2D3/src/box-internet-v1.js?dhcp-bridge=f369f76");
   // Aucun faux câble Wi-Fi : association à la vraie borne interne et contrôle
   // des radios/SSID/sécurité par le module partagé, puis bail du Core DHCP.
   const bridge=engine.getAsset(boxId).boxConfig.mode==="bridge";
@@ -414,8 +417,8 @@ id("box-internet-integration-form").onsubmit=async e=>{
     clients:[clientEntry],services:Object.values(internetServices)});
   if(!session.success){output.textContent="ÉCHEC : "+(session.message||session.code);output.className="notice bad";updateInternetAdmin(boxId);return;}
   const result=session.request({clientId,targetAddress:service.address,service:service.kind,
-   ...(bridge?{clientIpv4:{
-    address:form.elements.bridgeAddress.value.trim(),
+   ...(bridge&&engine.getAsset(boxId).boxConfig.wan.mode==="static"?{clientIpv4:{
+    mode:"static",address:form.elements.bridgeAddress.value.trim(),
     prefix:Number(form.elements.bridgePrefix.value),
     gateway:form.elements.bridgeGateway.value.trim(),
     dns:[form.elements.bridgeDns1.value.trim(),form.elements.bridgeDns2.value.trim()].filter(Boolean)}}:{})});
@@ -428,7 +431,7 @@ id("box-internet-integration-form").onsubmit=async e=>{
   if(bridge){
    output.textContent="ACCÈS INTERNET BRIDGE CONFORME\n"+
     "Connexion du PC : Ethernet, LAN 1 vers WAN\n"+
-    "PC : "+result.client.address+"/"+result.client.prefix+" (IPv4 statique)\n"+
+    "PC : "+result.client.address+"/"+result.client.prefix+" ("+(result.client.mode==="dhcp"?"DHCP Internet":"IPv4 statique")+")\n"+
     "Passerelle : "+result.route.gateway+"\n"+
     "DNS : "+result.client.dns.join(", ")+"\n"+
     "Service Internet : "+result.target.address+":"+result.target.port+" ("+result.service+")\n"+
@@ -500,7 +503,10 @@ id("switch-admin-open").onclick=async()=>{
   if(selectedAsset()?.id!==asset.id)return;
   closeNetworkAdmin();
   networkAdmin=adminModules[kind][config.mount]({root:networkAdminRoot(),registry:engine,assetId:asset.id,
-   getInternetStatus:internetObservation});
+   getInternetStatus:internetObservation,onChange:()=>{
+     refreshInternetWifiConfig();
+     verifiedInternet.delete(asset.id);
+    }});
   networkAdminAssetId=asset.id;networkAdminKind=kind;
   id("switch-admin-section").hidden=false;
   id("switch-admin-section").scrollIntoView({behavior:"smooth",block:"start"});
