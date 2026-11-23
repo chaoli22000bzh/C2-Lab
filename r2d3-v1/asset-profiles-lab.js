@@ -17,6 +17,7 @@ function refresh(){
  id("assets").replaceChildren(...as.map(a=>opt(a.name+" ("+(ps.find(p=>p.id===a.profileId)?.name||"?")+")",a.id)));
  if(as.some(a=>a.id===oldA))id("assets").value=oldA;
  renderPlaces();renderInfrastructure();renderCables();renderPathChoices();renderFields();renderAsset();renderBoxInternetChoices();refreshCablingVisual();
+ if(networkAdmin&&networkAdminKind==="box")networkAdmin.render();
 }
 let visualSelectedPort=null,visualSelectedCable=null,visualPendingAttach=null;
 let visualPathMode=false,visualPathPorts=[],visualPathCableIds=[];
