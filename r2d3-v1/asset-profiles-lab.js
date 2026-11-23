@@ -313,6 +313,19 @@ const internetServices={
  dns:{id:"dns-orange",address:"80.10.246.2",kind:"dns",available:true}
 };
 let internetModule=null;
+const verifiedInternet=new Map();
+function internetObservation(boxId){
+ const evidence=verifiedInternet.get(boxId);
+ if(!evidence||evidence.revision!==engine.exportState().revision)return null;
+ const box=engine.getAsset(boxId);
+ if(!box||box.status!=="En service")return null;
+ const wan=engine.getBoxWanEffective?.(boxId);
+ if(!wan||wan.address!==evidence.wanAddress)return null;
+ return {connected:true,wanAddress:evidence.wanAddress};
+}
+function updateInternetAdmin(boxId){
+ if(networkAdmin&&networkAdminAssetId===boxId&&networkAdminKind==="box")networkAdmin.render();
+}
 function renderBoxInternetChoices(){
  const boxes=engine.listAssets().filter(a=>a.boxConfig);
  const clients=engine.listAssets().filter(a=>!a.boxConfig&&
@@ -328,6 +341,7 @@ id("box-internet-integration-form").onsubmit=async e=>{
  e.preventDefault();
  const form=e.currentTarget,boxId=form.elements.boxId.value,clientId=form.elements.clientId.value;
  const type=form.elements.service.value,service=internetServices[type];
+ verifiedInternet.delete(boxId);
  const output=id("box-internet-integration-result");
  output.textContent="Vérification des paramètres et du raccordement réseau…";
  if(!engine.getAsset(boxId)?.boxConfig||!engine.getAsset(clientId)||!service){
@@ -338,12 +352,14 @@ id("box-internet-integration-form").onsubmit=async e=>{
   // L'adaptateur n'invente aucune connexion physique : le moteur valide le câble réel.
   const session=internetModule.createBoxInternetSession({registry:engine,boxId,
    clients:[{assetId:clientId,medium:"ethernet"}],services:Object.values(internetServices)});
-  if(!session.success){output.textContent="ÉCHEC : "+(session.message||session.code);output.className="notice bad";return;}
+  if(!session.success){output.textContent="ÉCHEC : "+(session.message||session.code);output.className="notice bad";updateInternetAdmin(boxId);return;}
   const result=session.request({clientId,targetAddress:service.address,service:service.kind});
   if(!result.success){
    output.textContent="ACCÈS REFUSÉ : "+result.code+" : "+(result.message||"Communication impossible.");
-   output.className="notice bad";return;
+   output.className="notice bad";updateInternetAdmin(boxId);return;
   }
+  verifiedInternet.set(boxId,{revision:engine.exportState().revision,wanAddress:result.nat.externalAddress});
+  updateInternetAdmin(boxId);
   output.textContent="ACCÈS INTERNET SIMULÉ CONFORME\n"+
    "PC : "+result.nat.internalAddress+":"+result.nat.internalPort+"\n"+
    "Passerelle LAN : "+result.route.gateway+"\n"+
@@ -406,7 +422,8 @@ id("switch-admin-open").onclick=async()=>{
   adminModules[kind]??=await import(config.moduleUrl);
   if(selectedAsset()?.id!==asset.id)return;
   closeNetworkAdmin();
-  networkAdmin=adminModules[kind][config.mount]({root:networkAdminRoot(),registry:engine,assetId:asset.id});
+  networkAdmin=adminModules[kind][config.mount]({root:networkAdminRoot(),registry:engine,assetId:asset.id,
+   getInternetStatus:internetObservation});
   networkAdminAssetId=asset.id;networkAdminKind=kind;
   id("switch-admin-section").hidden=false;
   id("switch-admin-section").scrollIntoView({behavior:"smooth",block:"start"});
@@ -564,7 +581,7 @@ id("asset-edit").onsubmit=e=>{
  status("asset-status",r);refresh();
 };
 id("profiles").onchange=renderFields;id("assets").onchange=renderAsset;
-id("reset").onclick=()=>{closeNetworkAdmin();engine=createAssetRegistry();visualPathPorts=[];visualPathCableIds=[];visualSelectedPort=null;visualSelectedCable=null;visualPendingAttach=null;id("cabling-visual-status").textContent="";refresh();id("asset-status").textContent="";id("profile-status").textContent="";id("cable-status").textContent="";id("infrastructure-status").textContent="";id("place-status").textContent="";id("path-result").textContent=""};
+id("reset").onclick=()=>{closeNetworkAdmin();verifiedInternet.clear();engine=createAssetRegistry();visualPathPorts=[];visualPathCableIds=[];visualSelectedPort=null;visualSelectedCable=null;visualPendingAttach=null;id("cabling-visual-status").textContent="";refresh();id("asset-status").textContent="";id("profile-status").textContent="";id("cable-status").textContent="";id("infrastructure-status").textContent="";id("place-status").textContent="";id("path-result").textContent=""};
 id("cabling-visual-place").onchange=()=>{visualSelectedPort=null;visualPendingAttach=null;drawCablingVisual()};
 id("cabling-mode-connect").onclick=()=>{visualPathMode=false;visualPathPorts=[];visualPathCableIds=[];visualSelectedPort=null;id("cabling-mode-connect").setAttribute("aria-pressed","true");id("cabling-mode-path").setAttribute("aria-pressed","false");visualMessage("Mode branchement : sélectionne deux ports libres.");drawCablingVisual()};
 id("cabling-mode-path").onclick=()=>{visualPathMode=true;visualPathPorts=[];visualPathCableIds=[];visualSelectedPort=null;visualPendingAttach=null;id("cabling-mode-path").setAttribute("aria-pressed","true");id("cabling-mode-connect").setAttribute("aria-pressed","false");visualMessage("Mode chemin : sélectionne un départ et une arrivée.");drawCablingVisual()};
