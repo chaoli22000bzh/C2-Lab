@@ -2,7 +2,7 @@
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>R2D3 : profils matériels personnalisés</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#f0f3f7;color:#1c3852;font:15px/1.45 "Segoe UI",Arial,sans-serif}
+*{box-sizing:border-box}[hidden]{display:none!important}body{margin:0;background:#f0f3f7;color:#1c3852;font:15px/1.45 "Segoe UI",Arial,sans-serif}
 header{background:#193e60;color:white;padding:22px max(16px,calc((100vw - 1100px)/2))}
 h1{font-size:24px;margin:0 0 6px}header p{margin:0;color:#d5e2ee}main{max-width:1130px;margin:auto;padding:16px}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}section{background:white;border:1px solid #d5dde9;border-radius:10px;padding:18px}
@@ -132,13 +132,13 @@ button.cv-attach{background:#dcefe4;color:#17613d}
 </section>
 <section class="full" id="box-internet-integration-section">
 <h2>Accès Internet depuis les équipements du parc</h2>
-<p>Recette d’intégration : choisis une box et un PC du parc. Un PC Ethernet doit être raccordé à un LAN de la box ; un PC Wi-Fi doit être associé à un SSID actif. Le DHCP, le routage et le PAT utilisent les moteurs R2D3 communs.</p>
+<p>Recette d’intégration : choisis une box et un PC du parc. Un PC Ethernet doit être raccordé à un LAN de la box ; un PC Wi-Fi doit être associé à un SSID actif. Pour le réseau BOX-WIFI initial, le mot de passe est 12345678. Le DHCP, le routage et le PAT utilisent les moteurs R2D3 communs.</p>
 <form id="box-internet-integration-form">
 <label>Box Internet<select name="boxId" id="box-internet-box" required></select></label>
 <label>PC du LAN<select name="clientId" id="box-internet-client" required></select></label>
 <label>Connexion du PC<select name="medium" id="box-internet-medium"><option value="ethernet">Ethernet</option><option value="wifi">Wi-Fi</option></select></label>
 <label id="box-internet-ssid-field" hidden>Réseau Wi-Fi (SSID)<select name="ssidId" id="box-internet-ssid"></select></label>
-<label id="box-internet-password-field" hidden>Mot de passe Wi-Fi<input name="wifiPassword" id="box-internet-password" type="text" autocomplete="off" placeholder="Si le SSID est sécurisé"></label>
+<label id="box-internet-password-field" hidden>Mot de passe Wi-Fi<input name="wifiPassword" id="box-internet-password" type="text" autocomplete="off" placeholder="Exemple BOX-WIFI : 12345678"></label>
 <label>Service Internet simulé<select name="service" required>
 <option value="http">Serveur Web HTTP (80.10.246.50:80)</option>
 <option value="dns">DNS Orange (80.10.246.2:53)</option>
