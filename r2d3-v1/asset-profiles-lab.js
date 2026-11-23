@@ -1,4 +1,4 @@
-import {createAssetRegistry} from "./asset-profiles.js";
+import {createAssetRegistry} from "./asset-profiles.js?box-wan-virtual=1c10f63";
 import {buildCablingViewModel, renderCablingVisual} from "../shared-ui/v1/cabling-visual.js";
 import {connectNewCable,attachExistingCable,detachExistingCable} from "../shared-ui/v1/cabling-actions.js";
 let engine=createAssetRegistry();
