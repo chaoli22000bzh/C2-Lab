@@ -37,7 +37,7 @@ test("Profil Wi-Fi : ports requis et configuration radio initiale",()=>{
  const a=e.createAsset(p.id,{name:"AP01"}).asset;
  assert.equal(a.wifiConfig.enabled,true);
  assert.equal(a.wifiConfig.radios["6"].enabled,false);
- assert.equal(a.wifiConfig.ssids[0].name,"R2D3-WIFI");
+ assert.equal(a.wifiConfig.ssids[0].name,"WIFI-01");
  assert.deepEqual(restoreAssetRegistry(e.exportState()).getAsset(a.id).wifiConfig,a.wifiConfig);
 });
 
