@@ -366,7 +366,18 @@ function refreshInternetWifiConfig(){
  id("box-internet-ssid-field").hidden=bridge||medium.value!=="wifi";
  id("box-internet-password-field").hidden=bridge||medium.value!=="wifi";
  id("box-internet-bridge-fields").hidden=!bridge;
- for(const name of ["box-internet-bridge-address","box-internet-bridge-prefix","box-internet-bridge-gateway"]){
+ if(bridge){
+  const wan=engine.getBoxWanEffective?.(box.id);
+  const expected={
+   "box-internet-bridge-address":wan?.address??"",
+   "box-internet-bridge-prefix":wan?.prefix??"",
+   "box-internet-bridge-gateway":wan?.gateway??"",
+   "box-internet-bridge-dns1":wan?.dns?.[0]??"",
+   "box-internet-bridge-dns2":wan?.dns?.[1]??""
+  };
+  for(const [name,value] of Object.entries(expected))id(name).value=String(value);
+ }
+ for(const name of ["box-internet-bridge-address","box-internet-bridge-prefix","box-internet-bridge-gateway","box-internet-bridge-dns1","box-internet-bridge-dns2"]){
   id(name).required=bridge;
   id(name).disabled=!bridge;
  }
@@ -392,7 +403,7 @@ id("box-internet-integration-form").onsubmit=async e=>{
   output.textContent="Sélection de box, PC ou service invalide.";output.className="notice bad";return;
  }
  try{
-  internetModule??=await import("https://chaoli22000bzh.github.io/R2D3/src/box-internet-v1.js?bridge=f89afb4");
+  internetModule??=await import("https://chaoli22000bzh.github.io/R2D3/src/box-internet-v1.js?bridge=64e5466");
   // Aucun faux câble Wi-Fi : association à la vraie borne interne et contrôle
   // des radios/SSID/sécurité par le module partagé, puis bail du Core DHCP.
   const bridge=engine.getAsset(boxId).boxConfig.mode==="bridge";
@@ -406,7 +417,8 @@ id("box-internet-integration-form").onsubmit=async e=>{
    ...(bridge?{clientIpv4:{
     address:form.elements.bridgeAddress.value.trim(),
     prefix:Number(form.elements.bridgePrefix.value),
-    gateway:form.elements.bridgeGateway.value.trim()}}:{})});
+    gateway:form.elements.bridgeGateway.value.trim(),
+    dns:[form.elements.bridgeDns1.value.trim(),form.elements.bridgeDns2.value.trim()].filter(Boolean)}}:{})});
   if(!result.success){
    output.textContent="ACCÈS REFUSÉ : "+result.code+" : "+(result.message||"Communication impossible.");
    output.className="notice bad";updateInternetAdmin(boxId);return;
@@ -418,6 +430,7 @@ id("box-internet-integration-form").onsubmit=async e=>{
     "Connexion du PC : Ethernet, LAN 1 vers WAN\n"+
     "PC : "+result.client.address+"/"+result.client.prefix+" (IPv4 statique)\n"+
     "Passerelle : "+result.route.gateway+"\n"+
+    "DNS : "+result.client.dns.join(", ")+"\n"+
     "Service Internet : "+result.target.address+":"+result.target.port+" ("+result.service+")\n"+
     "NAT/PAT : inactif, aucune translation\n"+
     "Translations de cette session : "+session.listNat().length;
@@ -439,7 +452,7 @@ id("box-internet-integration-form").onsubmit=async e=>{
 };
 // Administrations réseau : mêmes composants publiés R2D3, même registre métier.
 const administrationKinds={
- box:{title:"Administration de la box Internet",moduleUrl:"https://chaoli22000bzh.github.io/R2D3/src/box-admin-ui-v1.js?bridge=fac4b77",mount:"mountBoxAdmin"},
+ box:{title:"Administration de la box Internet",moduleUrl:"https://chaoli22000bzh.github.io/R2D3/src/box-admin-ui-v1.js?wan=c91705e",mount:"mountBoxAdmin"},
  switch:{title:"Administration du switch",moduleUrl:"https://chaoli22000bzh.github.io/R2D3/src/switch-admin-ui-v1.js",mount:"mountSwitchAdmin"},
  router:{title:"Administration du routeur",moduleUrl:"https://chaoli22000bzh.github.io/R2D3/src/router-admin-ui-v1.js?pat-actions=28454a0",mount:"mountRouterAdmin"},
  wifi:{title:"Administration de la borne Wi-Fi",moduleUrl:"https://chaoli22000bzh.github.io/R2D3/src/wifi-admin-ui-v1.js",mount:"mountWifiAdmin"}
