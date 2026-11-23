@@ -1,0 +1,26 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>R2D3 : recette PAT entrant de la box</title>
+<style>:root{color-scheme:light dark;font:16px system-ui}
+body{max-width:900px;margin:0 auto;padding:20px;line-height:1.5}
+h1{font-size:1.5rem}h2{font-size:1.1rem}
+section{border:1px solid #8888;border-radius:10px;padding:18px;margin:16px 0}
+button{font:inherit;padding:10px 13px;border:1px solid #8888;border-radius:8px;background:Canvas;color:CanvasText;cursor:pointer;margin:4px}
+button:hover{background:ButtonFace}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:16px;min-height:125px;background:#8882;border-radius:8px}
+.good{color:#198550}.bad{color:#c44739}.note{opacity:.8;font-size:.91rem}
+</style></head><body>
+<h1>R2D3 : PAT entrant sur une box Internet</h1>
+<p>Recette du moteur commun de redirection de port. Un client situé sur l’Internet simulé tente d’accéder à un serveur Web du LAN de la box.</p>
+<section><h2>Configuration du scénario</h2>
+<p>Client Internet : <code>90.14.20.22</code>. Box : <code>90.14.10.20</code>. Règle PAT : TCP <code>8080</code> → <code>192.168.1.110:80</code>. Serveur Web <strong>SRV-WEB</strong> du registre R2D3 raccordé sur LAN 1, avec HTTP activé dans le Core commun.</p>
+<p class="note">Aucun modem, FAI ni câble WAN. Chaque bouton reconstruit un scénario indépendant.</p>
+<button id="normal">1. Tester le PAT HTTP entrant</button>
+<button id="disabled">2. Désactiver la règle</button>
+<button id="wrongport">3. Tester un mauvais port</button>
+<button id="offline">4. Arrêter le serveur Web</button>
+<button id="cable">5. Débrancher le serveur LAN</button>
+<pre id="out" role="status">Sélectionne un test.</pre></section>
+<p class="note">Le test interroge le moteur d’état des services R2D3. Il simule le routage et l'accès HTTP, sans véritables sockets, sans Internet réel et sans requête HTTP transmise sur le réseau. L'administration de la box sera intégrée dans un lot séparé.</p>
+<script type="module" src="./box-pat-test.js?lot=6a249f3"></script>
+</body></html>
