@@ -411,9 +411,9 @@ id("box-internet-integration-form").onsubmit=async e=>{
 };
 // Administrations réseau : mêmes composants publiés R2D3, même registre métier.
 const administrationKinds={
- box:{title:"Administration de la box Internet",moduleUrl:"https://chaoli22000bzh.github.io/R2D3/src/box-admin-ui-v1.js?wan-indicator=83d5abf",mount:"mountBoxAdmin"},
+ box:{title:"Administration de la box Internet",moduleUrl:"https://chaoli22000bzh.github.io/R2D3/src/box-admin-ui-v1.js?pat-ui=de6ae72",mount:"mountBoxAdmin"},
  switch:{title:"Administration du switch",moduleUrl:"https://chaoli22000bzh.github.io/R2D3/src/switch-admin-ui-v1.js",mount:"mountSwitchAdmin"},
- router:{title:"Administration du routeur",moduleUrl:"https://chaoli22000bzh.github.io/R2D3/src/router-admin-ui-v1.js",mount:"mountRouterAdmin"},
+ router:{title:"Administration du routeur",moduleUrl:"https://chaoli22000bzh.github.io/R2D3/src/router-admin-ui-v1.js?pat-ui=c181382",mount:"mountRouterAdmin"},
  wifi:{title:"Administration de la borne Wi-Fi",moduleUrl:"https://chaoli22000bzh.github.io/R2D3/src/wifi-admin-ui-v1.js",mount:"mountWifiAdmin"}
 };
 let networkAdmin=null,networkAdminAssetId=null,networkAdminKind=null;
