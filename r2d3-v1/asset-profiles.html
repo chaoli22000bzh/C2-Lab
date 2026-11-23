@@ -132,13 +132,19 @@ button.cv-attach{background:#dcefe4;color:#17613d}
 </section>
 <section class="full" id="box-internet-integration-section">
 <h2>Accès Internet depuis les équipements du parc</h2>
-<p>Recette d’intégration : choisis une box et un PC du parc. Un PC Ethernet doit être raccordé à un LAN de la box ; un PC Wi-Fi doit être associé à un SSID actif. Pour le réseau BOX-WIFI initial, le mot de passe est 12345678. Le DHCP, le routage et le PAT utilisent les moteurs R2D3 communs.</p>
+<p>Recette d’intégration : choisis une box et un PC du parc. Un PC Ethernet doit être raccordé à un LAN de la box ; un PC Wi-Fi doit être associé à un SSID actif. Pour le réseau BOX-WIFI initial, le mot de passe est 12345678. En mode Routeur, le DHCP et le PAT utilisent les moteurs R2D3 communs. En mode Bridge, renseigne une IPv4 statique du réseau WAN sur le PC raccordé à LAN 1 ; la box ne fait ni DHCP ni NAT.</p>
 <form id="box-internet-integration-form">
 <label>Box Internet<select name="boxId" id="box-internet-box" required></select></label>
 <label>PC du LAN<select name="clientId" id="box-internet-client" required></select></label>
 <label>Connexion du PC<select name="medium" id="box-internet-medium"><option value="ethernet">Ethernet</option><option value="wifi">Wi-Fi</option></select></label>
 <label id="box-internet-ssid-field" hidden>Réseau Wi-Fi (SSID)<select name="ssidId" id="box-internet-ssid"></select></label>
 <label id="box-internet-password-field" hidden>Mot de passe Wi-Fi<input name="wifiPassword" id="box-internet-password" type="text" autocomplete="off" placeholder="Exemple BOX-WIFI : 12345678"></label>
+<div id="box-internet-bridge-fields" class="full" hidden>
+<p class="note">Mode Bridge : seul LAN 1 est actif. Configure manuellement le PC sur le réseau WAN. Exemple avec la première box : 90.14.10.21/24, passerelle 90.14.10.1.</p>
+<label>IPv4 statique du PC<input name="bridgeAddress" id="box-internet-bridge-address" inputmode="decimal" placeholder="90.14.10.21"></label>
+<label>Préfixe réseau du PC<input name="bridgePrefix" id="box-internet-bridge-prefix" inputmode="numeric" type="number" min="1" max="30" placeholder="24"></label>
+<label>Passerelle du PC<input name="bridgeGateway" id="box-internet-bridge-gateway" inputmode="decimal" placeholder="90.14.10.1"></label>
+</div>
 <label>Service Internet simulé<select name="service" required>
 <option value="http">Serveur Web HTTP (80.10.246.50:80)</option>
 <option value="dns">DNS Orange (80.10.246.2:53)</option>
@@ -146,7 +152,7 @@ button.cv-attach{background:#dcefe4;color:#17613d}
 <button type="submit">Tester l’accès Internet du PC</button>
 </form>
 <pre id="box-internet-integration-result" class="notice" role="status">Crée une box et un PC Ethernet ou Wi-Fi, puis lance le test adapté.</pre>
-<p class="note">L’Internet et les services distants sont virtuels, sans FAI ni modem. Ce test vérifie l’adressage DHCP du PC, le raccordement Ethernet ou l’association Wi-Fi, le routage IPv4 et le PAT sortant. Il n’exécute pas de protocole HTTP ou DNS réel. Le rechargement de la page réinitialise le parc de ce laboratoire.</p>
+<p class="note">L’Internet et les services distants sont virtuels, sans FAI ni modem. En mode Routeur, ce test vérifie le DHCP, le routage et le PAT sortant. En mode Bridge, il vérifie le passage LAN 1 vers WAN avec l'IPv4 statique saisie pour le PC, sans NAT/PAT ; les données saisies restent propres à cette recette et ne changent pas la fiche du PC. Il n’exécute pas de protocole HTTP ou DNS réel. Le rechargement de la page réinitialise le parc de ce laboratoire.</p>
 </section>
 <section class="full"><h2>Lieux (recette R2D3)</h2>
 <p>Un lieu peut contenir des sous-lieux. Aucun lieu n'est obligatoire pour créer un équipement.</p>
