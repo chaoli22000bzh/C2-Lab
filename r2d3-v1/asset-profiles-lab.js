@@ -309,6 +309,7 @@ function renderFields(){
 }
 // Administrations réseau : mêmes composants publiés R2D3, même registre métier.
 const administrationKinds={
+ box:{title:"Administration de la box Internet",moduleUrl:"https://chaoli22000bzh.github.io/R2D3/src/box-admin-ui-v1.js",mount:"mountBoxAdmin"},
  switch:{title:"Administration du switch",moduleUrl:"https://chaoli22000bzh.github.io/R2D3/src/switch-admin-ui-v1.js",mount:"mountSwitchAdmin"},
  router:{title:"Administration du routeur",moduleUrl:"https://chaoli22000bzh.github.io/R2D3/src/router-admin-ui-v1.js",mount:"mountRouterAdmin"},
  wifi:{title:"Administration de la borne Wi-Fi",moduleUrl:"https://chaoli22000bzh.github.io/R2D3/src/wifi-admin-ui-v1.js",mount:"mountWifiAdmin"}
@@ -317,6 +318,7 @@ let networkAdmin=null,networkAdminAssetId=null,networkAdminKind=null;
 const adminModules={};
 const networkAdminRoot=()=>id("switch-admin-root");
 function kindForAsset(asset){
+ if(asset?.boxConfig)return "box";
  if(asset?.networkCapabilities?.includes("ipv4-router"))return "router";
  if(asset?.networkCapabilities?.includes("vlan"))return "switch";
  if(asset?.networkCapabilities?.includes("wifi-ap"))return "wifi";
