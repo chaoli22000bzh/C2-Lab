@@ -330,18 +330,50 @@ function updateInternetAdmin(boxId){
 function renderBoxInternetChoices(){
  const boxes=engine.listAssets().filter(a=>a.boxConfig);
  const clients=engine.listAssets().filter(a=>!a.boxConfig&&
-  a.ports.some(p=>p.type==="ethernet-rj45"));
+  a.ports.some(p=>["ethernet-rj45","wifi"].includes(p.type)));
  for(const [target,values] of [["box-internet-box",boxes],["box-internet-client",clients]]){
   const select=id(target),previous=select.value;
   select.replaceChildren(...values.map(a=>opt(a.name,a.id)));
   if(values.some(a=>a.id===previous))select.value=previous;
  }
+ refreshInternetClientConfig();
  id("box-internet-integration-form").querySelector("button").disabled=!boxes.length||!clients.length;
 }
+function refreshInternetClientConfig(){
+ const client=engine.getAsset(id("box-internet-client").value);
+ const medium=id("box-internet-medium"),previous=medium.value;
+ const optionsMedium=[];
+ if(client?.ports.some(p=>p.type==="ethernet-rj45"))optionsMedium.push(["ethernet","Ethernet"]);
+ if(client?.ports.some(p=>p.type==="wifi"))optionsMedium.push(["wifi","Wi-Fi"]);
+ medium.replaceChildren(...optionsMedium.map(([value,label])=>opt(label,value)));
+ if(optionsMedium.some(([value])=>value===previous))medium.value=previous;
+ refreshInternetWifiConfig();
+}
+function refreshInternetWifiConfig(){
+ const isWifi=id("box-internet-medium").value==="wifi";
+ id("box-internet-ssid-field").hidden=!isWifi;
+ id("box-internet-password-field").hidden=!isWifi;
+ const box=engine.getAsset(id("box-internet-box").value);
+ const ssids=box?.boxConfig?.wifi?.ssids??[];
+ const field=id("box-internet-ssid"),previous=field.value;
+ field.replaceChildren(...ssids.map(ssid=>opt(ssid.name+(ssid.enabled?"":" (désactivé)"),ssid.id)));
+ if(ssids.some(x=>x.id===previous))field.value=previous;
+ id("box-internet-password").disabled=!isWifi;
+ field.disabled=!isWifi;
+}
+id("box-internet-box").onchange=refreshInternetWifiConfig;
+id("box-internet-client").onchange=refreshInternetClientConfig;
+id("box-internet-medium").onchange=refreshInternetWifiConfig;
 id("box-internet-integration-form").onsubmit=async e=>{
  e.preventDefault();
  const form=e.currentTarget,boxId=form.elements.boxId.value,clientId=form.elements.clientId.value;
  const type=form.elements.service.value,service=internetServices[type];
+ const medium=form.elements.medium.value;
+ const clientEntry={assetId:clientId,medium};
+ if(medium==="wifi"){
+  clientEntry.ssidId=form.elements.ssidId.value;
+  clientEntry.password=form.elements.wifiPassword.value;
+ }
  verifiedInternet.delete(boxId);
  updateInternetAdmin(boxId);
  const output=id("box-internet-integration-result");
@@ -351,9 +383,10 @@ id("box-internet-integration-form").onsubmit=async e=>{
  }
  try{
   internetModule??=await import("https://chaoli22000bzh.github.io/R2D3/src/box-internet-v1.js?integration=477731d");
-  // L'adaptateur n'invente aucune connexion physique : le moteur valide le câble réel.
+  // Aucun faux câble Wi-Fi : association à la vraie borne interne et contrôle
+  // des radios/SSID/sécurité par le module partagé, puis bail du Core DHCP.
   const session=internetModule.createBoxInternetSession({registry:engine,boxId,
-   clients:[{assetId:clientId,medium:"ethernet"}],services:Object.values(internetServices)});
+   clients:[clientEntry],services:Object.values(internetServices)});
   if(!session.success){output.textContent="ÉCHEC : "+(session.message||session.code);output.className="notice bad";updateInternetAdmin(boxId);return;}
   const result=session.request({clientId,targetAddress:service.address,service:service.kind});
   if(!result.success){
@@ -363,6 +396,7 @@ id("box-internet-integration-form").onsubmit=async e=>{
   verifiedInternet.set(boxId,{revision:engine.exportState().revision,wanAddress:result.nat.externalAddress});
   updateInternetAdmin(boxId);
   output.textContent="ACCÈS INTERNET SIMULÉ CONFORME\n"+
+   "Connexion du PC : "+(medium==="wifi"?"Wi-Fi (SSID "+(session.lanSession.clients[0]?.association?.ssid??"?")+")":"Ethernet")+"\n"+
    "PC : "+result.nat.internalAddress+":"+result.nat.internalPort+"\n"+
    "Passerelle LAN : "+result.route.gateway+"\n"+
    "PAT : "+result.nat.externalAddress+":"+result.nat.externalPort+"\n"+
@@ -567,6 +601,25 @@ id("box-create").onclick=()=>{
  const result=engine.createBoxComposite("BOX-01");
  status("asset-status",result);refresh();
  if(result.success){id("assets").value=result.asset.id;renderAsset();}
+};
+id("wifi-pc-create").onclick=()=>{
+ // Profil dédié et réutilisable ; aucune modification des profils existants.
+ let profile=engine.listProfiles().find(p=>p.name==="PC Wi-Fi (recette Internet)"&&
+  p.portGroups.some(g=>g.type==="wifi"));
+ if(!profile){
+  const created=engine.createProfile("PC Wi-Fi (recette Internet)");
+  if(!created.success){status("asset-status",created);return;}
+  profile=created.profile;
+  const port=engine.addPortGroup(profile.id,{type:"wifi",prefix:"WIFI",start:1,count:1});
+  if(!port.success){status("asset-status",port);return;}
+ }
+ const index=engine.listAssets().filter(a=>a.name.startsWith("PC-WIFI-")).length+1;
+ const created=engine.createAsset(profile.id,{name:"PC-WIFI-"+String(index).padStart(2,"0")});
+ status("asset-status",created);refresh();
+ if(created.success){
+  id("assets").value=created.asset.id;renderAsset();
+  id("box-internet-client").value=created.asset.id;refreshInternetClientConfig();
+ }
 };
 id("asset-create").onsubmit=e=>{e.preventDefault();const data=Object.fromEntries(new FormData(e.currentTarget));const r=engine.createAsset(data.profileId,data);status("asset-status",r);refresh();if(r.success){id("assets").value=r.asset.id;renderAsset()}};
 id("asset-remove").onclick=()=>{
