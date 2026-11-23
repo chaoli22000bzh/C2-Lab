@@ -4,4 +4,4 @@
 <p>Premier test fonctionnel : deux PC branchés sur LAN 1 et LAN 2 et un PC Wi-Fi doivent recevoir des adresses différentes, attribuées par <strong>le même routeur DHCP</strong>.</p>
 <section><h2>Topologie fixe</h2><p>Routeur LAN 192.168.1.1/24 → switch port 6. Point d'accès Wi-Fi → switch port 5. PC-A → LAN 1. PC-B → LAN 2. PC-Wi-Fi → SSID BOX-WIFI.</p><p class="note">DHCP : 192.168.1.100 à 192.168.1.200. Aucun VLAN. Les liaisons internes sont permanentes.</p>
 <button id="run">Exécuter le test</button><button id="off">Tester DHCP arrêté</button><button id="cut">Tester câble LAN 1 débranché</button><pre id="out" role="status">Choisir un test.</pre></section>
-<p class="note">Ce banc de recette utilise le registre R2D3 et le Core DHCP commun. Il ne simule pas encore le WAN, NAT/PAT, VPN ou le mode bridge.</p><script type="module" src="./box-lan-test.js"></script></body></html>
+<p class="note">Ce banc de recette utilise le registre R2D3 et le Core DHCP commun. Il ne simule pas encore le WAN, NAT/PAT, VPN ou le mode bridge.</p><script type="module" src="./box-lan-test.js?box-fix=11a2118"></script></body></html>
