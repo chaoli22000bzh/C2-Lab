@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>R2D3 : recette Internet depuis la box</title><style>
+:root{color-scheme:light dark;font:16px system-ui}
+body{max-width:940px;margin:0 auto;padding:22px;line-height:1.5}
+h1{font-size:1.45rem}h2{font-size:1.12rem}
+section{border:1px solid #8888;border-radius:10px;padding:18px;margin:16px 0}
+button{font:inherit;cursor:pointer;padding:10px 13px;margin:5px 5px 5px 0;border:1px solid #8888;border-radius:7px;background:Canvas;color:CanvasText}
+button:hover{background:ButtonFace}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#8882;border-radius:8px;padding:16px;min-height:100px}
+.good{color:#168443}.bad{color:#d1503f}.note{opacity:.8}
+</style></head><body><h1>R2D3 : routage Internet et PAT sortant de la box</h1>
+<p>Recette autonome du moteur commun. Deux PC reçoivent leur IPv4 du DHCP LAN de la box, puis accèdent à un service Internet simulé via l'IPv4 publique <strong>90.14.10.20</strong>.</p>
+<section><h2>Topologie et paramètres</h2>
+<p>PC-01 → LAN 1 ; PC-02 → LAN 2 ; routeur interne : 192.168.1.1/24 ; WAN : 90.14.10.20/24, passerelle simulée 90.14.10.1. Aucune représentation de modem/FAI.</p>
+<p>Services Internet du scénario : HTTP <code>80.10.246.50:80</code>, DNS <code>80.10.246.2:53</code>. Ces services sont virtuels et explicitement configurés ; ce ne sont pas des requêtes réseau réelles.</p>
+<button id="normal">1. Tester les deux PC et le PAT</button>
+<button id="cut">2. Tester la coupure LAN 1</button>
+<button id="service">3. Tester le serveur Web arrêté</button>
+<button id="dns">4. Tester le service DNS</button>
+<pre id="out" role="status">Sélectionne un test.</pre></section>
+<p class="note">Limites : la simulation vérifie routage et translation PAT pour des services définis par le scénario, sans Internet réel, sans pile TCP/HTTP complète ni serveur DNS réel. Chaque test reconstruit un scénario propre.</p>
+<script type="module" src="./box-internet-test.js?v=378ed91"></script></body></html>
