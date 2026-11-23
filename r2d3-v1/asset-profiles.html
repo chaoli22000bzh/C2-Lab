@@ -140,12 +140,15 @@ button.cv-attach{background:#dcefe4;color:#17613d}
 <label id="box-internet-ssid-field" hidden>Réseau Wi-Fi (SSID)<select name="ssidId" id="box-internet-ssid"></select></label>
 <label id="box-internet-password-field" hidden>Mot de passe Wi-Fi<input name="wifiPassword" id="box-internet-password" type="text" autocomplete="off" placeholder="Exemple BOX-WIFI : 12345678"></label>
 <div id="box-internet-bridge-fields" class="full" hidden>
+<p id="box-internet-bridge-dhcp-note" class="note" hidden>Mode Bridge et WAN DHCP : le PC obtient automatiquement son adresse IPv4, sa passerelle et ses DNS depuis le DHCP de l’Internet simulé, par le Core R2D3. Aucun paramètre IPv4 à saisir.</p>
+<div id="box-internet-bridge-static-fields" hidden>
 <p class="note">Mode Bridge : seul LAN 1 est actif. Configure manuellement le PC sur le réseau WAN. Le PC reprend l’adresse WAN de la box, son préfixe, sa passerelle et ses DNS. Exemple pour la première box : 90.14.10.20/24, passerelle 90.14.10.1.</p>
 <label>IPv4 statique du PC<input name="bridgeAddress" id="box-internet-bridge-address" inputmode="decimal" placeholder="90.14.10.21"></label>
 <label>Préfixe réseau du PC<input name="bridgePrefix" id="box-internet-bridge-prefix" inputmode="numeric" type="number" min="1" max="30" placeholder="24"></label>
 <label>Passerelle du PC<input name="bridgeGateway" id="box-internet-bridge-gateway" inputmode="decimal" placeholder="90.14.10.1"></label>
 <label>DNS 1 du PC<input name="bridgeDns1" id="box-internet-bridge-dns1" inputmode="decimal" placeholder="80.10.246.2"></label>
 <label>DNS 2 du PC<input name="bridgeDns2" id="box-internet-bridge-dns2" inputmode="decimal" placeholder="80.10.246.129"></label>
+</div>
 </div>
 <label>Service Internet simulé<select name="service" required>
 <option value="http">Serveur Web HTTP (80.10.246.50:80)</option>
@@ -154,7 +157,7 @@ button.cv-attach{background:#dcefe4;color:#17613d}
 <button type="submit">Tester l’accès Internet du PC</button>
 </form>
 <pre id="box-internet-integration-result" class="notice" role="status">Crée une box et un PC Ethernet ou Wi-Fi, puis lance le test adapté.</pre>
-<p class="note">L’Internet et les services distants sont virtuels, sans FAI ni modem. En mode Routeur, ce test vérifie le DHCP, le routage et le PAT sortant. En mode Bridge, il vérifie le passage LAN 1 vers WAN avec l'IPv4 statique saisie pour le PC, sans NAT/PAT ; les données saisies restent propres à cette recette et ne changent pas la fiche du PC. Il n’exécute pas de protocole HTTP ou DNS réel. Le rechargement de la page réinitialise le parc de ce laboratoire.</p>
+<p class="note">L’Internet et les services distants sont virtuels, sans FAI ni modem. En mode Routeur, ce test vérifie le DHCP, le routage et le PAT sortant. En mode Bridge, il vérifie le passage LAN 1 vers WAN, avec DHCP Internet si le WAN était en DHCP ou IPv4 manuelle si le WAN était statique, sans NAT/PAT ; les données saisies restent propres à cette recette et ne changent pas la fiche du PC. Il n’exécute pas de protocole HTTP ou DNS réel. Le rechargement de la page réinitialise le parc de ce laboratoire.</p>
 </section>
 <section class="full"><h2>Lieux (recette R2D3)</h2>
 <p>Un lieu peut contenir des sous-lieux. Aucun lieu n'est obligatoire pour créer un équipement.</p>
