@@ -360,6 +360,16 @@ function refreshInternetWifiConfig(){
  if(ssids.some(x=>x.id===previous))field.value=previous;
  id("box-internet-password").disabled=!isWifi;
  field.disabled=!isWifi;
+ const bridge=box?.boxConfig?.mode==="bridge";
+ const medium=id("box-internet-medium");
+ if(bridge&&[...medium.options].some(o=>o.value==="ethernet"))medium.value="ethernet";
+ id("box-internet-ssid-field").hidden=bridge||medium.value!=="wifi";
+ id("box-internet-password-field").hidden=bridge||medium.value!=="wifi";
+ id("box-internet-bridge-fields").hidden=!bridge;
+ for(const name of ["box-internet-bridge-address","box-internet-bridge-prefix","box-internet-bridge-gateway"]){
+  id(name).required=bridge;
+  id(name).disabled=!bridge;
+ }
 }
 id("box-internet-box").onchange=refreshInternetWifiConfig;
 id("box-internet-client").onchange=refreshInternetClientConfig;
@@ -382,27 +392,45 @@ id("box-internet-integration-form").onsubmit=async e=>{
   output.textContent="Sélection de box, PC ou service invalide.";output.className="notice bad";return;
  }
  try{
-  internetModule??=await import("https://chaoli22000bzh.github.io/R2D3/src/box-internet-v1.js?bridge=c5b7890");
+  internetModule??=await import("https://chaoli22000bzh.github.io/R2D3/src/box-internet-v1.js?bridge=f89afb4");
   // Aucun faux câble Wi-Fi : association à la vraie borne interne et contrôle
   // des radios/SSID/sécurité par le module partagé, puis bail du Core DHCP.
-  const session=internetModule.createBoxInternetSession({registry:engine,boxId,
-   clients:[clientEntry],services:Object.values(internetServices)});
+  const bridge=engine.getAsset(boxId).boxConfig.mode==="bridge";
+  const session=bridge?
+   internetModule.createBoxBridgeInternetSession({registry:engine,boxId,
+    clients:[clientEntry],services:Object.values(internetServices)}):
+   internetModule.createBoxInternetSession({registry:engine,boxId,
+    clients:[clientEntry],services:Object.values(internetServices)});
   if(!session.success){output.textContent="ÉCHEC : "+(session.message||session.code);output.className="notice bad";updateInternetAdmin(boxId);return;}
-  const result=session.request({clientId,targetAddress:service.address,service:service.kind});
+  const result=session.request({clientId,targetAddress:service.address,service:service.kind,
+   ...(bridge?{clientIpv4:{
+    address:form.elements.bridgeAddress.value.trim(),
+    prefix:Number(form.elements.bridgePrefix.value),
+    gateway:form.elements.bridgeGateway.value.trim()}}:{})});
   if(!result.success){
    output.textContent="ACCÈS REFUSÉ : "+result.code+" : "+(result.message||"Communication impossible.");
    output.className="notice bad";updateInternetAdmin(boxId);return;
   }
-  verifiedInternet.set(boxId,{revision:engine.exportState().revision,wanAddress:result.nat.externalAddress});
+  verifiedInternet.set(boxId,{revision:engine.exportState().revision,wanAddress:bridge?engine.getBoxWanEffective(boxId)?.address:result.nat.externalAddress});
   updateInternetAdmin(boxId);
-  output.textContent="ACCÈS INTERNET SIMULÉ CONFORME\n"+
-   "Connexion du PC : "+(medium==="wifi"?"Wi-Fi (SSID "+(session.lanSession.clients[0]?.association?.ssid??"?")+")":"Ethernet")+"\n"+
-   "PC : "+result.nat.internalAddress+":"+result.nat.internalPort+"\n"+
-   "Passerelle LAN : "+result.route.gateway+"\n"+
-   "PAT : "+result.nat.externalAddress+":"+result.nat.externalPort+"\n"+
-   "Service Internet : "+result.target.address+":"+result.target.port+" ("+result.service+")\n"+
-   "Passerelle WAN : "+result.route.wanGateway+"\n"+
-   "Translations de cette session : "+session.listNat().length;
+  if(bridge){
+   output.textContent="ACCÈS INTERNET BRIDGE CONFORME\n"+
+    "Connexion du PC : Ethernet, LAN 1 vers WAN\n"+
+    "PC : "+result.client.address+"/"+result.client.prefix+" (IPv4 statique)\n"+
+    "Passerelle : "+result.route.gateway+"\n"+
+    "Service Internet : "+result.target.address+":"+result.target.port+" ("+result.service+")\n"+
+    "NAT/PAT : inactif, aucune translation\n"+
+    "Translations de cette session : "+session.listNat().length;
+  }else{
+   output.textContent="ACCÈS INTERNET SIMULÉ CONFORME\n"+
+    "Connexion du PC : "+(medium==="wifi"?"Wi-Fi (SSID "+(session.lanSession.clients[0]?.association?.ssid??"?")+")":"Ethernet")+"\n"+
+    "PC : "+result.nat.internalAddress+":"+result.nat.internalPort+"\n"+
+    "Passerelle LAN : "+result.route.gateway+"\n"+
+    "PAT : "+result.nat.externalAddress+":"+result.nat.externalPort+"\n"+
+    "Service Internet : "+result.target.address+":"+result.target.port+" ("+result.service+")\n"+
+    "Passerelle WAN : "+result.route.wanGateway+"\n"+
+    "Translations de cette session : "+session.listNat().length;
+  }
   output.className="notice good";
  }catch(error){
   output.textContent="Impossible d'exécuter le moteur Internet : "+(error?.message||String(error));
