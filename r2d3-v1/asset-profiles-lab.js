@@ -344,12 +344,12 @@ id("box-internet-integration-form").onsubmit=async e=>{
    output.textContent="ACCÈS REFUSÉ : "+result.code+" : "+(result.message||"Communication impossible.");
    output.className="notice bad";return;
   }
-  output.textContent="ACCÈS INTERNET SIMULÉ CONFORME\\n"+
-   "PC : "+result.nat.internalAddress+":"+result.nat.internalPort+"\\n"+
-   "Passerelle LAN : "+result.route.gateway+"\\n"+
-   "PAT : "+result.nat.externalAddress+":"+result.nat.externalPort+"\\n"+
-   "Service Internet : "+result.target.address+":"+result.target.port+" ("+result.service+")\\n"+
-   "Passerelle WAN : "+result.route.wanGateway+"\\n"+
+  output.textContent="ACCÈS INTERNET SIMULÉ CONFORME\n"+
+   "PC : "+result.nat.internalAddress+":"+result.nat.internalPort+"\n"+
+   "Passerelle LAN : "+result.route.gateway+"\n"+
+   "PAT : "+result.nat.externalAddress+":"+result.nat.externalPort+"\n"+
+   "Service Internet : "+result.target.address+":"+result.target.port+" ("+result.service+")\n"+
+   "Passerelle WAN : "+result.route.wanGateway+"\n"+
    "Translations de cette session : "+session.listNat().length;
   output.className="notice good";
  }catch(error){
