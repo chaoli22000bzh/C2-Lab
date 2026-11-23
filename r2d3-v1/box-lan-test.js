@@ -35,7 +35,7 @@ function run(mode){
    name:pc.name,...session.request(pc.id)}));
   const leases=session.engine.query({type:"dhcp.leases",serverId:session.routerId});
   const valid=mode==="off"?results.every(x=>x.code==="apipa"):
-   mode==="cut"?!results[0].success&&results.slice(1).every(x=>x.code==="lease"):
+   mode==="cut"?results[0].code==="apipa"&&results[0].gateway===null&&results.slice(1).every(x=>x.code==="lease")&&leases.leases.length===2:
    results.every(x=>x.code==="lease")&&new Set(results.map(x=>x.address)).size===3&&
     results.every(x=>x.gateway==="192.168.1.1")&&leases.leases.length===3;
   output.textContent=(valid?"VALIDÉ":"ÉCHEC")+"\n\n"+results.map(x=>
