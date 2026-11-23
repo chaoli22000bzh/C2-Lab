@@ -343,6 +343,7 @@ id("box-internet-integration-form").onsubmit=async e=>{
  const form=e.currentTarget,boxId=form.elements.boxId.value,clientId=form.elements.clientId.value;
  const type=form.elements.service.value,service=internetServices[type];
  verifiedInternet.delete(boxId);
+ updateInternetAdmin(boxId);
  const output=id("box-internet-integration-result");
  output.textContent="Vérification des paramètres et du raccordement réseau…";
  if(!engine.getAsset(boxId)?.boxConfig||!engine.getAsset(clientId)||!service){
@@ -371,7 +372,7 @@ id("box-internet-integration-form").onsubmit=async e=>{
   output.className="notice good";
  }catch(error){
   output.textContent="Impossible d'exécuter le moteur Internet : "+(error?.message||String(error));
-  output.className="notice bad";
+  output.className="notice bad";updateInternetAdmin(boxId);
  }
 };
 // Administrations réseau : mêmes composants publiés R2D3, même registre métier.
