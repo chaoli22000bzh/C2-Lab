@@ -330,7 +330,7 @@ function updateInternetAdmin(boxId){
 function renderBoxInternetChoices(){
  const boxes=engine.listAssets().filter(a=>a.boxConfig);
  const clients=engine.listAssets().filter(a=>!a.boxConfig&&
-  a.ports.filter(p=>p.type==="ethernet-rj45").length===1);
+  a.ports.some(p=>p.type==="ethernet-rj45"));
  for(const [target,values] of [["box-internet-box",boxes],["box-internet-client",clients]]){
   const select=id(target),previous=select.value;
   select.replaceChildren(...values.map(a=>opt(a.name,a.id)));
