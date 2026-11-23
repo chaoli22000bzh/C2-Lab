@@ -350,7 +350,7 @@ id("box-internet-integration-form").onsubmit=async e=>{
   output.textContent="Sélection de box, PC ou service invalide.";output.className="notice bad";return;
  }
  try{
-  internetModule??=await import("https://chaoli22000bzh.github.io/R2D3/src/box-internet-v1.js?integration=378ed91");
+  internetModule??=await import("https://chaoli22000bzh.github.io/R2D3/src/box-internet-v1.js?integration=477731d");
   // L'adaptateur n'invente aucune connexion physique : le moteur valide le câble réel.
   const session=internetModule.createBoxInternetSession({registry:engine,boxId,
    clients:[{assetId:clientId,medium:"ethernet"}],services:Object.values(internetServices)});
