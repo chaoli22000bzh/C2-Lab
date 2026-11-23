@@ -265,7 +265,7 @@ function renderAssetPorts(){
  if(!a){host.textContent="Crée un actif pour afficher ses ports.";return}
  if(!a.ports.length){host.textContent="Aucun port ni interface.";return}
  const extensions=new Map();
- for(const p of a.ports){
+ for(const p of a.ports.filter(p=>!a.boxConfig?.internalPortIds?.includes(p.id)&&p.type!=="wifi")){
   const row=document.createElement("div");row.className="item";
   const caption=document.createElement("span");
   caption.textContent=p.name+" : "+p.type+(p.origin==="integrated"?" (intégré)":" (extension)");
