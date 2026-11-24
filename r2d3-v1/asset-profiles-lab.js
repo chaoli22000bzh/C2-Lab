@@ -598,7 +598,9 @@ function cableConnectorLabel(code){
  return (connectorLabels[family]||family)+" "+type;
 }
 for(const select of document.querySelectorAll("#cable-create select")){
- select.replaceChildren(...engine.cableConnectors().map(c=>opt(cableConnectorLabel(c),c)));
+ const supported=new Set(["rj45","lc","usb-a","usb-b","usb-c","hdmi","vga","dvi","displayport","mini-displayport","db9"]);
+ const connectorFamily=c=>c.replace(/-(male|female|plug|socket)$/,"");
+ select.replaceChildren(...engine.cableConnectors().filter(c=>supported.has(connectorFamily(c))).map(c=>opt(cableConnectorLabel(c),c)));
  select.value="rj45-male";
 }
 id("cable-create").onsubmit=e=>{
