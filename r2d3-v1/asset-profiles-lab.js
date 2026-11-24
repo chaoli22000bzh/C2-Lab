@@ -1,4 +1,4 @@
-import {createAssetRegistry} from "./asset-profiles.js?wan-bridge=646d554";
+import {createAssetRegistry} from "./asset-profiles.js?connectique-v1=39421c3";
 import {buildCablingViewModel, renderCablingVisual} from "../shared-ui/v1/cabling-visual.js";
 import {connectNewCable,attachExistingCable,detachExistingCable} from "../shared-ui/v1/cabling-actions.js";
 let engine=createAssetRegistry();
