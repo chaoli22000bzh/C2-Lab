@@ -408,7 +408,7 @@ function wifiInternetDiagnostic(boxId,clientEntry,session){
   "Égalité stricte des deux mots de passe : "+(ssid?ssid.password===clientEntry.password?"oui":"non":"non vérifiable"),
   "Résultat de la session : "+(session?.success?"succès":session?.code??"inconnu")
  ];
- id("box-internet-wifi-diagnostic-result").textContent=lines.join("\\n");
+ id("box-internet-wifi-diagnostic-result").textContent=lines.join("\n");
 }
 id("box-internet-integration-form").onsubmit=async e=>{
  e.preventDefault();
@@ -416,6 +416,8 @@ id("box-internet-integration-form").onsubmit=async e=>{
  const type=form.elements.service.value,service=internetServices[type];
  const medium=form.elements.medium.value;
  const clientEntry={assetId:clientId,medium};
+ const diagnostic=id("box-internet-wifi-diagnostic-result");
+ diagnostic.textContent=medium==="wifi"?"Diagnostic Wi-Fi en cours…":"Diagnostic réservé aux connexions Wi-Fi.";
  if(medium==="wifi"){
   clientEntry.ssidId=form.elements.ssidId.value;
   clientEntry.password=form.elements.wifiPassword.value;
@@ -437,6 +439,7 @@ id("box-internet-integration-form").onsubmit=async e=>{
     clients:[clientEntry],services:Object.values(internetServices)}):
    internetModule.createBoxInternetSession({registry:engine,boxId,
     clients:[clientEntry],services:Object.values(internetServices)});
+  if(medium==="wifi")wifiInternetDiagnostic(boxId,clientEntry,session);
   if(!session.success){output.textContent="ÉCHEC : "+(session.message||session.code);output.className="notice bad";updateInternetAdmin(boxId);return;}
   const result=session.request({clientId,targetAddress:service.address,service:service.kind,
    ...(bridge&&engine.getAsset(boxId).boxConfig.wan.mode==="static"?{clientIpv4:{
