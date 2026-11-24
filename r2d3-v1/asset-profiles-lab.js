@@ -388,6 +388,28 @@ function refreshInternetWifiConfig(){
 id("box-internet-box").onchange=refreshInternetWifiConfig;
 id("box-internet-client").onchange=refreshInternetClientConfig;
 id("box-internet-medium").onchange=refreshInternetWifiConfig;
+// Diagnostic temporaire de recette : valeurs et comparaisons, jamais les mots de passe.
+function wifiInternetDiagnostic(boxId,clientEntry,session){
+ const box=engine.getAsset(boxId);
+ const wifi=box?.boxConfig?.wifi;
+ const ssid=wifi?.ssids?.find(x=>x.id===clientEntry.ssidId);
+ const selected=id("box-internet-ssid");
+ const current=engine.exportState();
+ const lines=[
+  "DIAGNOSTIC Wi-Fi V1 (temporaire, sans divulgation des mots de passe)",
+  "Révision du registre : "+current.revision,
+  "Box trouvée : "+(!!box?.boxConfig?"oui":"non")+" | mode : "+(box?.boxConfig?.mode??"absent"),
+  "Wi-Fi global actif : "+(wifi?.enabled===true?"oui":"non"),
+  "SSID sélectionné / dans le registre : "+(ssid?"identifiants concordants":"introuvable"),
+  "SSID actif : "+(ssid?.enabled===true?"oui":"non")+" | sécurité : "+(ssid?.security??"absente"),
+  "Identifiant de sélection valide : "+(selected.value===clientEntry.ssidId?"oui":"non"),
+  "Longueur du mot de passe dans le registre : "+(ssid?.password?.length??"absent"),
+  "Longueur du mot de passe transmis au moteur : "+(clientEntry.password?.length??"absent"),
+  "Égalité stricte des deux mots de passe : "+(ssid?ssid.password===clientEntry.password?"oui":"non":"non vérifiable"),
+  "Résultat de la session : "+(session?.success?"succès":session?.code??"inconnu")
+ ];
+ id("box-internet-wifi-diagnostic-result").textContent=lines.join("\\n");
+}
 id("box-internet-integration-form").onsubmit=async e=>{
  e.preventDefault();
  const form=e.currentTarget,boxId=form.elements.boxId.value,clientId=form.elements.clientId.value;
