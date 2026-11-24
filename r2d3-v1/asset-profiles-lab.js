@@ -1,4 +1,4 @@
-import {createAssetRegistry,installScreenProfile} from "./asset-profiles.js?ecran-v1=b989273";
+import {createAssetRegistry,installScreenProfile} from "./asset-profiles.js?ecran-v1=e5a3f43";
 import {buildCablingViewModel, renderCablingVisual} from "../shared-ui/v1/cabling-visual.js";
 import {connectNewCable,attachExistingCable,detachExistingCable} from "../shared-ui/v1/cabling-actions.js?connectique-v1=6e89bdd";
 let engine=createAssetRegistry();
@@ -542,6 +542,10 @@ function renderAsset(){
   }else{
    input=document.createElement("input");input.type=f.type==="number"?"number":f.type==="date"?"date":"text";
    input.value=a.values[f.key]??"";if(f.type==="number")input.step="any";
+   if(p.name==="Écran"){
+    const examples={resolution:"1920 × 1080",haut_parleurs:"Non ou 2x3W",pied_reglable:"Non ou 150mm",vesa:"Non ou 150x150mm"};
+    if(examples[f.key])input.placeholder=examples[f.key];
+   }
   }
   input.onchange=()=>{
    const v=input.value===""?null:f.type==="number"?Number(input.value):f.type==="boolean"?input.value==="true":input.value;
