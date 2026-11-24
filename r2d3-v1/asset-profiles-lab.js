@@ -586,6 +586,21 @@ id("panel-delete").onclick=()=>{
  const r=engine.removePanel(id("panels").value);
  status("infrastructure-status",r);refresh();
 };
+const connectorLabels={
+ "rj45":"RJ45","usb-a":"USB-A","usb-b":"USB-B","usb-c":"USB-C",
+ "hdmi":"HDMI","vga":"VGA","dvi":"DVI","displayport":"DisplayPort",
+ "mini-displayport":"Mini DisplayPort","db9":"DB9 (série)",
+ "db25":"DB25","lc":"Fibre LC","sc":"Fibre SC"
+};
+function cableConnectorLabel(code){
+ const ending=code.match(/-(male|female|plug|socket)$/)?.[1],family=ending?code.slice(0,-ending.length-1):code;
+ const type=ending==="male"||ending==="plug"?"mâle":"femelle";
+ return (connectorLabels[family]||family)+" "+type;
+}
+for(const select of document.querySelectorAll("#cable-create select")){
+ select.replaceChildren(...engine.cableConnectors().map(c=>opt(cableConnectorLabel(c),c)));
+ select.value="rj45-male";
+}
 id("cable-create").onsubmit=e=>{
  e.preventDefault();const data=Object.fromEntries(new FormData(e.currentTarget));
  const r=engine.createCable({connectors:[data.a,data.b]});
