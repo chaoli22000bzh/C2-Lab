@@ -406,7 +406,7 @@ id("box-internet-integration-form").onsubmit=async e=>{
   output.textContent="Sélection de box, PC ou service invalide.";output.className="notice bad";return;
  }
  try{
-  internetModule??=await import("https://chaoli22000bzh.github.io/R2D3/src/box-internet-v1.js?dhcp-bridge=f369f76");
+  internetModule??=await import("https://chaoli22000bzh.github.io/R2D3/src/box-internet-v1.js?dhcp-bridge=eb57b13");
   // Aucun faux câble Wi-Fi : association à la vraie borne interne et contrôle
   // des radios/SSID/sécurité par le module partagé, puis bail du Core DHCP.
   const bridge=engine.getAsset(boxId).boxConfig.mode==="bridge";
