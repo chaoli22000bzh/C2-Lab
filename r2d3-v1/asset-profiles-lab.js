@@ -1,4 +1,4 @@
-import {createAssetRegistry,installScreenProfile} from "./asset-profiles.js?ecran-v1=bfd0f23";
+import {createAssetRegistry,installScreenProfile} from "./asset-profiles.js?champs-auto=83b86c5";
 import {buildCablingViewModel, renderCablingVisual} from "../shared-ui/v1/cabling-visual.js";
 import {connectNewCable,attachExistingCable,detachExistingCable} from "../shared-ui/v1/cabling-actions.js?connectique-v1=6e89bdd";
 let engine=createAssetRegistry();
