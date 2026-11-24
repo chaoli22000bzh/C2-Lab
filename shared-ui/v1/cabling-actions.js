@@ -4,7 +4,9 @@ export function connectorsForPoints(registry,fromPortId,toPortId){
  const points=registry.listCablePoints(),a=points.find(p=>p.portId===fromPortId),b=points.find(p=>p.portId===toPortId);
  if(!a||!b)return null;
  const plug=socket=>socket?.endsWith("-female")?socket.slice(0,-7)+"-male":
-  socket?.endsWith("-socket")?socket.slice(0,-7)+"-plug":null;
+  socket?.endsWith("-male")?socket.slice(0,-5)+"-female":
+  socket?.endsWith("-socket")?socket.slice(0,-7)+"-plug":
+  socket?.endsWith("-plug")?socket.slice(0,-5)+"-socket":null;
  const connectors=[plug(a.socket),plug(b.socket)];
  return connectors.every(Boolean)&&connectors.every(c=>registry.cableConnectors().includes(c))?connectors:null;
 }
