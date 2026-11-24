@@ -1,6 +1,6 @@
 import {createAssetRegistry} from "./asset-profiles.js?connectique-v1=39421c3";
 import {buildCablingViewModel, renderCablingVisual} from "../shared-ui/v1/cabling-visual.js";
-import {connectNewCable,attachExistingCable,detachExistingCable} from "../shared-ui/v1/cabling-actions.js";
+import {connectNewCable,attachExistingCable,detachExistingCable} from "../shared-ui/v1/cabling-actions.js?connectique-v1=6e89bdd";
 let engine=createAssetRegistry();
 const id=x=>document.getElementById(x);
 const opt=(label,value)=>{const e=document.createElement("option");e.value=value;e.textContent=label;return e};
