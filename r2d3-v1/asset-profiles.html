@@ -80,7 +80,7 @@ button.cv-attach{background:#dcefe4;color:#17613d}
 <p>Ces ports seront générés sur les futurs équipements. Les ports déjà créés ne changent pas.</p>
 <div id="port-groups"></div>
 <form id="portgroup-create">
-<label>Type de port<select name="type"><option value="ethernet-rj45">Ethernet RJ45</option><option value="ethernet-fibre">Ethernet fibre</option><option value="wifi">Wi-Fi</option><option value="bluetooth">Bluetooth</option><option value="usb-a">USB-A</option><option value="usb-c">USB-C</option><option value="hdmi">HDMI</option></select></label>
+<label>Type de port<select name="type"><option value="ethernet-rj45">Ethernet RJ45</option><option value="ethernet-fibre">Ethernet fibre (LC)</option><option value="wifi">Wi-Fi</option><option value="bluetooth">Bluetooth</option><option value="usb-a">USB-A</option><option value="usb-b">USB-B</option><option value="usb-c">USB-C</option><option value="hdmi">HDMI</option><option value="vga">VGA</option><option value="dvi">DVI</option><option value="displayport">DisplayPort</option><option value="mini-displayport">Mini DisplayPort</option><option value="db9">DB9 (série)</option></select></label>
 <label>Préfixe<input name="prefix" value="LAN" pattern="[A-Za-z][A-Za-z0-9_-]*" required></label>
 <label>Premier numéro<input name="start" type="number" value="1" min="0" max="9999" required></label>
 <label>Quantité<input name="count" type="number" value="5" min="1" max="128" required></label>
@@ -115,7 +115,7 @@ button.cv-attach{background:#dcefe4;color:#17613d}
 <div id="asset-ports"></div>
 <h3>Ajouter une carte ou interface d'extension</h3>
 <form id="extension-create">
-<label>Type<select name="type"><option value="ethernet-rj45">Ethernet RJ45</option><option value="ethernet-fibre">Ethernet fibre</option><option value="wifi">Wi-Fi</option><option value="bluetooth">Bluetooth</option><option value="usb-a">USB-A</option><option value="usb-c">USB-C</option><option value="hdmi">HDMI</option></select></label>
+<label>Type<select name="type"><option value="ethernet-rj45">Ethernet RJ45</option><option value="ethernet-fibre">Ethernet fibre (LC)</option><option value="wifi">Wi-Fi</option><option value="bluetooth">Bluetooth</option><option value="usb-a">USB-A</option><option value="usb-b">USB-B</option><option value="usb-c">USB-C</option><option value="hdmi">HDMI</option><option value="vga">VGA</option><option value="dvi">DVI</option><option value="displayport">DisplayPort</option><option value="mini-displayport">Mini DisplayPort</option><option value="db9">DB9 (série)</option></select></label>
 <label>Préfixe<input name="prefix" value="SFP" required></label><label>Premier numéro<input name="start" type="number" value="1" min="0" max="9999" required></label>
 <label>Quantité<input name="count" type="number" value="1" min="1" max="128" required></label><button class="subtle">Ajouter l'extension</button></form>
 <h3>Caractéristiques du profil</h3><div id="asset-values"></div>
@@ -221,4 +221,4 @@ button.cv-attach{background:#dcefe4;color:#17613d}
 <div id="path-result" class="notice" role="status"></div>
 </section>
 <section class="full"><h2>Périmètre de cette première version</h2><p>Création, duplication et modification des profils, édition des champs descriptifs et des fiches des actifs, protection des valeurs existantes. La génération des ports intégrés et des extensions est disponible. Le premier moteur de câbles à deux extrémités est disponible pour recette sur RJ45. Prises et panneaux de brassage disposent maintenant de points avant et arrière. Une vue graphique du câblage en lecture seule est disponible ; les autres connecteurs ne sont pas encore opérationnels et la recherche de chemin physique reste disponible en mode textuel ; les comportements réseau viendront ensuite. Le rechargement réinitialise cet exemple, sans sauvegarde locale.</p><button type="button" id="reset" class="subtle">Recommencer</button></section>
-</div></main><script type="module" src="./asset-profiles-lab.js?ssid-clean=bba947f"></script></body></html>
+</div></main><script type="module" src="./asset-profiles-lab.js?connectique-v1=39421c3"></script></body></html>
