@@ -571,7 +571,7 @@ function renderAsset(){
 
 
 const componentFields={
- cpu:[["marque","Marque","text"],["modele","Modèle","text"],["frequenceMHz","Fréquence (MHz)","number"],["coeurs","Cœurs","number"],["threads","Threads","number"]],
+ cpu:[["marque","Marque","text"],["modele","Modèle","text"],["quantite","Quantité","number"],["frequenceMHz","Fréquence (MHz)","number"],["coeurs","Cœurs","number"],["threads","Threads","number"]],
  ram:[["marque","Marque","text"],["modele","Modèle","text"],["type","Type (DDR4, DDR5...)","text"],["frequenceMHz","Fréquence (MHz)","number"],["capaciteGo","Capacité unitaire (Go)","number"],["quantite","Quantité","number"]],
  disk:[["marque","Marque","text"],["modele","Modèle","text"],["type","Type (SSD, HDD...)","text"],["interface","Interface (SATA, NVMe...)","text"],["capaciteGo","Capacité unitaire (Go)","number"],["quantite","Quantité","number"],["numeroSerie","N° de série","text"]]
 };
@@ -580,7 +580,7 @@ const computerProfile=p=>!!p&&(p.name==="PC fixe"||p.name.startsWith("PC fixe -"
 const componentItems=(a,kind)=>kind==="cpu"?(a.processors||[]):kind==="ram"?(a.ramModules||[]):(a.disks||[]);
 const componentSummary=(c,kind)=>{
  const main=(c.marque+" "+c.modele).trim();
- if(kind==="cpu")return main+" · "+(c.frequenceMHz??"—")+" MHz · "+(c.coeurs??"—")+" cœurs · "+(c.threads??"—")+" threads";
+ if(kind==="cpu")return c.quantite+" × "+(main||"Processeur")+" · "+(c.frequenceMHz??"—")+" MHz · "+(c.coeurs??"—")+" cœurs · "+(c.threads??"—")+" threads";
  if(kind==="ram")return main+" · "+c.quantite+" × "+c.capaciteGo+" Go · "+c.type+" · "+(c.frequenceMHz??"—")+" MHz";
  return main+" · "+c.quantite+" × "+c.capaciteGo+" Go · "+c.type+" · "+c.interface+(c.numeroSerie?" · S/N "+c.numeroSerie:"");
 };
@@ -627,7 +627,7 @@ function componentOpenForm(edit=false){
   const label=document.createElement("label");label.textContent=title;
   const input=document.createElement("input");input.name=key;input.type=type;input.value=current?.[key]??(key==="quantite"?"1":"");
   if(type==="number"){input.min="1";input.step=["frequenceMHz","capaciteGo"].includes(key)?"any":"1";}
-  input.required=kind==="ram"?["quantite","capaciteGo"].includes(key):["marque","modele","quantite","capaciteGo"].includes(key);
+  input.required=kind==="cpu"?key==="quantite":kind==="ram"?["quantite","capaciteGo"].includes(key):["marque","modele","quantite","capaciteGo"].includes(key);
   label.append(input);host.append(label);
  }
  id("component-form").hidden=false;
