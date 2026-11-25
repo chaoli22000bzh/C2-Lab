@@ -627,7 +627,7 @@ function componentOpenForm(edit=false){
   const label=document.createElement("label");label.textContent=title;
   const input=document.createElement("input");input.name=key;input.type=type;input.value=current?.[key]??(key==="quantite"?"1":"");
   if(type==="number"){input.min="1";input.step=["frequenceMHz","capaciteGo"].includes(key)?"any":"1";}
-  if(["marque","modele"].includes(key)||["quantite","capaciteGo"].includes(key))input.required=true;
+  input.required=kind==="ram"?["quantite","capaciteGo"].includes(key):["marque","modele","quantite","capaciteGo"].includes(key);
   label.append(input);host.append(label);
  }
  id("component-form").hidden=false;
