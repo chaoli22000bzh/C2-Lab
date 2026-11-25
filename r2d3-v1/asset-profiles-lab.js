@@ -1,4 +1,4 @@
-import {createAssetRegistry,installScreenProfile,installDesktopProfile} from "./asset-profiles.js?cpu-detail-v1=7913ecf";
+import {createAssetRegistry,installScreenProfile,installDesktopProfile} from "./asset-profiles.js?computer-tabs-v1=a2543a0";
 import {buildCablingViewModel, renderCablingVisual} from "../shared-ui/v1/cabling-visual.js";
 import {connectNewCable,attachExistingCable,detachExistingCable} from "../shared-ui/v1/cabling-actions.js?connectique-v1=6e89bdd";
 let engine=createAssetRegistry();
@@ -294,9 +294,6 @@ function renderFieldEditor(){
  form.elements.options.value=f?.options?.join(", ")||"";
 }
 function renderFields(){
- const cpuToggle=id("processor-inventory-toggle"),profile=selectedProfile();
- cpuToggle.disabled=!profile||profile.name==="PC fixe";
- cpuToggle.textContent=profile?.processorInventory?"Désactiver les processeurs détaillés":"Activer les processeurs détaillés";
  const p=selectedProfile(),host=id("fields");host.replaceChildren();
  renderCapabilities();
  id("profile-rename").elements.name.value=p?.name||"";
@@ -534,7 +531,7 @@ function renderAsset(){
  }else{
   form.reset();
  }
- if(!a){host.textContent="Crée un actif.";renderProcessors();return}
+ if(!a){host.textContent="Crée un actif.";renderComputerTabs();return}
  const p=engine.getProfile(a.profileId);
  for(const f of p.fields){
   const label=document.createElement("label");label.textContent=f.label+(f.unit?" ("+f.unit+")":"");
@@ -557,44 +554,99 @@ function renderAsset(){
   };
   label.append(input);host.append(label);
  }
- renderProcessors();
+ renderComputerTabs();
 }
 
-function renderProcessors(){
- const a=selectedAsset(),p=a&&engine.getProfile(a.profileId);
- const section=id("processor-inventory"),list=id("processor-list");
- section.hidden=!p?.processorInventory;
- list.replaceChildren();
- if(!p?.processorInventory)return;
- const items=a.processors||[];
- if(!items.length){const empty=document.createElement("p");empty.textContent="Aucun processeur détaillé renseigné.";list.append(empty);}
- for(const cpu of items){
-  const form=document.createElement("form");
-  form.className="item";form.style.flexWrap="wrap";
-  for(const [key,label,kind] of [["marque","Marque","text"],["modele","Modèle","text"],["frequenceMHz","Fréquence (MHz)","number"],["coeurs","Cœurs","number"],["threads","Threads","number"]]){
-   const wrap=document.createElement("label");wrap.textContent=label;
-   const input=document.createElement("input");input.name=key;input.type=kind;input.value=cpu[key]??"";
-   if(kind==="number"){input.min="1";input.step=key==="frequenceMHz"?"any":"1";}
-   if(key==="marque"||key==="modele")input.required=true;
-   wrap.append(input);form.append(wrap);
-  }
-  const save=document.createElement("button");save.type="submit";save.textContent="Enregistrer";
-  const remove=document.createElement("button");remove.type="button";remove.className="subtle";remove.textContent="Retirer";
-  remove.onclick=()=>{const r=engine.removeAssetProcessor(a.id,cpu.id);status("asset-status",r);if(r.success)renderProcessors();};
-  form.onsubmit=e=>{e.preventDefault();const data=Object.fromEntries(new FormData(form));const r=engine.updateAssetProcessor(a.id,cpu.id,data);status("asset-status",r);if(r.success)renderProcessors();};
-  form.append(save,remove);list.append(form);
- }
-}
-id("processor-inventory-toggle").onclick=()=>{
- const p=selectedProfile();if(!p||p.name==="PC fixe")return;
- const r=engine.setProfileProcessorInventory(p.id,!p.processorInventory);
- status("profile-status",r);if(r.success)refresh();
+
+const componentFields={
+ cpu:[["marque","Marque","text"],["modele","Modèle","text"],["frequenceMHz","Fréquence (MHz)","number"],["coeurs","Cœurs","number"],["threads","Threads","number"]],
+ ram:[["marque","Marque","text"],["modele","Modèle","text"],["type","Type (DDR4, DDR5...)","text"],["frequenceMHz","Fréquence (MHz)","number"],["capaciteGo","Capacité unitaire (Go)","number"],["quantite","Quantité","number"]],
+ disk:[["marque","Marque","text"],["modele","Modèle","text"],["type","Type (SSD, HDD...)","text"],["interface","Interface (SATA, NVMe...)","text"],["capaciteGo","Capacité unitaire (Go)","number"],["quantite","Quantité","number"],["numeroSerie","N° de série","text"]]
 };
-id("processor-create").onsubmit=e=>{
- e.preventDefault();const a=selectedAsset();if(!a)return;
- const r=engine.addAssetProcessor(a.id,Object.fromEntries(new FormData(e.currentTarget)));
+let computerTab="general",componentSelected=null,componentEditing=null;
+const computerProfile=p=>!!p&&(p.name==="PC fixe"||p.name.startsWith("PC fixe -"));
+const componentItems=(a,kind)=>kind==="cpu"?(a.processors||[]):kind==="ram"?(a.ramModules||[]):(a.disks||[]);
+const componentSummary=(c,kind)=>{
+ const main=(c.marque+" "+c.modele).trim();
+ if(kind==="cpu")return main+" · "+(c.frequenceMHz??"—")+" MHz · "+(c.coeurs??"—")+" cœurs · "+(c.threads??"—")+" threads";
+ if(kind==="ram")return main+" · "+c.quantite+" × "+c.capaciteGo+" Go · "+c.type+" · "+(c.frequenceMHz??"—")+" MHz";
+ return main+" · "+c.quantite+" × "+c.capaciteGo+" Go · "+c.type+" · "+c.interface+(c.numeroSerie?" · S/N "+c.numeroSerie:"");
+};
+function renderComputerTabs(){
+ const a=selectedAsset(),p=a&&engine.getProfile(a.profileId),eligible=computerProfile(p);
+ id("computer-tabs").hidden=!eligible;
+ id("computer-general").hidden=eligible&&computerTab!=="general";
+ id("computer-components").hidden=!eligible||computerTab!=="components";
+ for(const tab of ["general","components"])id("computer-tab-"+tab).setAttribute("aria-pressed",String(computerTab===tab));
+ if(eligible)renderComponents();
+}
+function renderComponents(){
+ const a=selectedAsset(),kind=id("component-kind").value,list=id("component-list");
+ list.replaceChildren();
+ if(!a)return;
+ const items=componentItems(a,kind);
+ if(!items.some(x=>x.id===componentSelected))componentSelected=null;
+ if(items.length===0){const p=document.createElement("p");p.textContent="Aucun composant renseigné.";list.append(p);}
+ for(const component of items){
+  const button=document.createElement("button");button.type="button";button.className="component-row";
+  button.setAttribute("role","radio");button.setAttribute("aria-checked",String(component.id===componentSelected));
+  const symbol=document.createElement("span");symbol.textContent=component.id===componentSelected?"◉":"○";
+  const details=document.createElement("span");details.textContent=componentSummary(component,kind);
+  button.append(symbol,details);
+  button.onclick=()=>{componentSelected=component.id;hideComponentForms();renderComponents();};
+  list.append(button);
+ }
+ id("component-edit").disabled=!componentSelected;
+ id("component-delete").disabled=!componentSelected;
+}
+function hideComponentForms(){
+ id("component-form").hidden=true;id("component-confirm").hidden=true;componentEditing=null;
+}
+function componentOpenForm(edit=false){
+ const a=selectedAsset();if(!a)return;
+ const kind=id("component-kind").value;
+ const current=edit?componentItems(a,kind).find(x=>x.id===componentSelected):null;
+ if(edit&&!current)return;
+ hideComponentForms();
+ componentEditing=current?.id??null;
+ id("component-form-title").textContent=edit?"Modifier le composant":"Ajouter un composant";
+ const host=id("component-form-fields");host.replaceChildren();
+ for(const [key,title,type] of componentFields[kind]){
+  const label=document.createElement("label");label.textContent=title;
+  const input=document.createElement("input");input.name=key;input.type=type;input.value=current?.[key]??(key==="quantite"?"1":"");
+  if(type==="number"){input.min="1";input.step=["frequenceMHz","capaciteGo"].includes(key)?"any":"1";}
+  if(["marque","modele"].includes(key)||["quantite","capaciteGo"].includes(key))input.required=true;
+  label.append(input);host.append(label);
+ }
+ id("component-form").hidden=false;
+}
+id("computer-tab-general").onclick=()=>{computerTab="general";hideComponentForms();renderAsset();};
+id("computer-tab-components").onclick=()=>{computerTab="components";hideComponentForms();renderAsset();};
+id("component-kind").onchange=()=>{componentSelected=null;hideComponentForms();renderComponents();};
+id("component-add").onclick=()=>componentOpenForm(false);
+id("component-edit").onclick=()=>componentOpenForm(true);
+id("component-cancel").onclick=hideComponentForms;
+id("component-delete").onclick=()=>{
+ const a=selectedAsset(),kind=id("component-kind").value;
+ const component=a&&componentItems(a,kind).find(x=>x.id===componentSelected);if(!component)return;
+ hideComponentForms();id("component-confirm-label").textContent="Supprimer « "+componentSummary(component,kind)+" » ?";
+ id("component-confirm").hidden=false;
+};
+id("component-delete-cancel").onclick=hideComponentForms;
+id("component-delete-confirm").onclick=()=>{
+ const a=selectedAsset(),kind=id("component-kind").value;if(!a||!componentSelected)return;
+ const r=kind==="cpu"?engine.removeAssetProcessor(a.id,componentSelected):engine.removeAssetComponent(a.id,kind,componentSelected);
  status("asset-status",r);
- if(r.success){e.currentTarget.reset();renderProcessors();}
+ if(r.success){componentSelected=null;hideComponentForms();renderAsset();}
+};
+id("component-form").onsubmit=e=>{
+ e.preventDefault();
+ const a=selectedAsset();if(!a)return;
+ const kind=id("component-kind").value,raw=Object.fromEntries(new FormData(e.currentTarget));
+ const r=kind==="cpu"?(componentEditing?engine.updateAssetProcessor(a.id,componentEditing,raw):engine.addAssetProcessor(a.id,raw)):
+    (componentEditing?engine.updateAssetComponent(a.id,kind,componentEditing,raw):engine.addAssetComponent(a.id,kind,raw));
+ status("asset-status",r);
+ if(r.success){hideComponentForms();renderAsset();}
 };
 
 id("path-search").onsubmit=e=>{
