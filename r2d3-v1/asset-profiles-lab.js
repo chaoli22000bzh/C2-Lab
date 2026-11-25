@@ -1,4 +1,4 @@
-import {createAssetRegistry,installScreenProfile,installDesktopProfile} from "./asset-profiles.js?computer-tabs-v1=a2543a0";
+import {createAssetRegistry,installScreenProfile,installDesktopProfile} from "./asset-profiles.js?computer-tabs-v1=ec692d9";
 import {buildCablingViewModel, renderCablingVisual} from "../shared-ui/v1/cabling-visual.js";
 import {connectNewCable,attachExistingCable,detachExistingCable} from "../shared-ui/v1/cabling-actions.js?connectique-v1=6e89bdd";
 let engine=createAssetRegistry();
@@ -534,6 +534,18 @@ function renderAsset(){
  if(!a){host.textContent="Crée un actif.";renderComputerTabs();return}
  const p=engine.getProfile(a.profileId);
  for(const f of p.fields){
+  if(computerProfile(p)){
+   const cpu=a.processors||[],ram=a.ramModules||[],disks=a.disks||[];
+   if(f.key==="processeur_modele"&&cpu.length)continue;
+   const summary=f.key==="processeur_marque"&&cpu.length?cpu.map(c=>(c.marque+" "+c.modele).trim()).join(" ; "):
+    f.key==="ram_go"&&ram.length?ram.reduce((sum,c)=>sum+c.capaciteGo*c.quantite,0)+" Go":
+    f.key==="stockage_go"&&disks.length?disks.reduce((sum,c)=>sum+c.capaciteGo*c.quantite,0)+" Go":null;
+   if(summary!==null){
+    const wrap=document.createElement("label");wrap.textContent=f.key==="processeur_marque"?"Processeur":f.label;
+    const line=document.createElement("span");line.textContent=summary;line.className="component-derived";
+    wrap.append(line);host.append(wrap);continue;
+   }
+  }
   const label=document.createElement("label");label.textContent=f.label+(f.unit?" ("+f.unit+")":"");
   let input;if(f.type==="select"||f.type==="boolean"){
    input=document.createElement("select");input.append(opt("Non renseigné",""));
