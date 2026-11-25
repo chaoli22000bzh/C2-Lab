@@ -59,13 +59,14 @@ button.cv-attach{background:#dcefe4;color:#17613d}
 <link rel="stylesheet" href="https://chaoli22000bzh.github.io/R2D3/src/wifi-admin-ui-v1.css">
 <link rel="stylesheet" href="https://chaoli22000bzh.github.io/R2D3/src/box-admin-ui-v1.css?wan-indicator=ec72f05">
 </head><body>
-<header><h1>R2D3 : constructeur de profils matériels <span class="lab-version">V1.1.0</span></h1><p>Créer un profil, ajouter des caractéristiques et inventorier des équipements</p></header>
+<header><h1>R2D3 : constructeur de profils matériels <span class="lab-version">V1.2.0</span></h1><p>Créer un profil, ajouter des caractéristiques et inventorier des équipements</p></header>
 <main><div class="grid">
 <section><h2>1. Profils</h2><p>Un profil décrit les champs d'un type d'équipement, sans imposer un modèle commercial.</p>
 <form id="profile-create"><label>Nom du profil<input name="name" value="Caméra réseau" required></label><button>Créer le profil</button></form>
 <h3>Modifier le profil</h3><div class="fields"><label>Profil<select id="profiles"></select></label><button id="duplicate" type="button" class="subtle">Dupliquer</button></div>
 <form id="profile-rename"><label>Nouveau nom du profil<input name="name" required></label><button class="subtle">Renommer</button></form>
 <div id="fields"></div>
+<div class="cpu-profile-option"><button id="processor-inventory-toggle" type="button" class="subtle">Activer les processeurs détaillés</button><p>Option du profil sélectionné. Les processeurs restent des composants de l’équipement, pas des actifs distincts.</p></div>
 <h3>Modifier un champ existant</h3>
 <form id="field-edit"><label>Champ<select id="edit-field-key" required></select></label><label>Libellé<input name="label" required></label>
 <label>Type<select name="type"><option value="text">Texte</option><option value="number">Nombre</option><option value="boolean">Oui / Non</option><option value="select">Liste</option><option value="date">Date</option></select></label>
@@ -118,6 +119,8 @@ button.cv-attach{background:#dcefe4;color:#17613d}
 <label>Préfixe<input name="prefix" value="SFP" required></label><label>Premier numéro<input name="start" type="number" value="1" min="0" max="9999" required></label>
 <label>Quantité<input name="count" type="number" value="1" min="1" max="128" required></label><button class="subtle">Ajouter l'extension</button></form>
 <h3>Caractéristiques du profil</h3><div id="asset-values"></div>
+<div id="processor-inventory" hidden><h3>Processeurs détaillés</h3><div id="processor-list"></div>
+<form id="processor-create"><label>Marque<input name="marque" placeholder="Intel" required></label><label>Modèle<input name="modele" placeholder="Core i7-1260P" required></label><label>Fréquence (MHz)<input name="frequenceMHz" type="number" min="1" step="any" placeholder="2079"></label><label>Cœurs<input name="coeurs" type="number" min="1" step="1"></label><label>Threads<input name="threads" type="number" min="1" step="1"></label><button type="submit">Ajouter le processeur</button></form></div>
 <div id="switch-admin-controls" hidden>
 <h3 id="network-admin-control-title">Administration réseau</h3>
 <button type="button" id="switch-admin-open" class="subtle">Ouvrir l'administration</button>
@@ -220,4 +223,4 @@ button.cv-attach{background:#dcefe4;color:#17613d}
 <div id="path-result" class="notice" role="status"></div>
 </section>
 <section class="full"><h2>Périmètre du laboratoire</h2><p>Profils personnalisables, équipements avec zéro ou plusieurs ports et extensions, et câbles à deux extrémités. Raccordement et débranchement physiques des connectiques retenues, avec contrôle des prises compatibles et conservation des câbles dans l'inventaire. Les prises murales et panneaux de brassage sont réservés au RJ45. Les ports Wi-Fi et Bluetooth ne sont pas câblables. Les protocoles vidéo, USB et série ne sont pas simulés. Le rechargement réinitialise cet exemple, sans sauvegarde locale.</p><button type="button" id="reset" class="subtle">Recommencer</button></section>
-</div></main><script type="module" src="./asset-profiles-lab.js?pc-fixe-v1=13f4eda"></script></body></html>
+</div></main><script type="module" src="./asset-profiles-lab.js?cpu-detail-v1=next"></script></body></html>
