@@ -1,4 +1,4 @@
-import {createAssetRegistry,installScreenProfile,installDesktopProfile} from "./asset-profiles.js?pc-fixe-v1=86c2d56";
+import {createAssetRegistry,installScreenProfile,installDesktopProfile} from "./asset-profiles.js?cpu-detail-v1=7913ecf";
 import {buildCablingViewModel, renderCablingVisual} from "../shared-ui/v1/cabling-visual.js";
 import {connectNewCable,attachExistingCable,detachExistingCable} from "../shared-ui/v1/cabling-actions.js?connectique-v1=6e89bdd";
 let engine=createAssetRegistry();
@@ -294,6 +294,9 @@ function renderFieldEditor(){
  form.elements.options.value=f?.options?.join(", ")||"";
 }
 function renderFields(){
+ const cpuToggle=id("processor-inventory-toggle"),profile=selectedProfile();
+ cpuToggle.disabled=!profile||profile.name==="PC fixe";
+ cpuToggle.textContent=profile?.processorInventory?"Désactiver les processeurs détaillés":"Activer les processeurs détaillés";
  const p=selectedProfile(),host=id("fields");host.replaceChildren();
  renderCapabilities();
  id("profile-rename").elements.name.value=p?.name||"";
@@ -531,7 +534,7 @@ function renderAsset(){
  }else{
   form.reset();
  }
- if(!a){host.textContent="Crée un actif.";return}
+ if(!a){host.textContent="Crée un actif.";renderProcessors();return}
  const p=engine.getProfile(a.profileId);
  for(const f of p.fields){
   const label=document.createElement("label");label.textContent=f.label+(f.unit?" ("+f.unit+")":"");
@@ -554,7 +557,46 @@ function renderAsset(){
   };
   label.append(input);host.append(label);
  }
+ renderProcessors();
 }
+
+function renderProcessors(){
+ const a=selectedAsset(),p=a&&engine.getProfile(a.profileId);
+ const section=id("processor-inventory"),list=id("processor-list");
+ section.hidden=!p?.processorInventory;
+ list.replaceChildren();
+ if(!p?.processorInventory)return;
+ const items=a.processors||[];
+ if(!items.length){const empty=document.createElement("p");empty.textContent="Aucun processeur détaillé renseigné.";list.append(empty);}
+ for(const cpu of items){
+  const form=document.createElement("form");
+  form.className="item";form.style.flexWrap="wrap";
+  for(const [key,label,kind] of [["marque","Marque","text"],["modele","Modèle","text"],["frequenceMHz","Fréquence (MHz)","number"],["coeurs","Cœurs","number"],["threads","Threads","number"]]){
+   const wrap=document.createElement("label");wrap.textContent=label;
+   const input=document.createElement("input");input.name=key;input.type=kind;input.value=cpu[key]??"";
+   if(kind==="number"){input.min="1";input.step=key==="frequenceMHz"?"any":"1";}
+   if(key==="marque"||key==="modele")input.required=true;
+   wrap.append(input);form.append(wrap);
+  }
+  const save=document.createElement("button");save.type="submit";save.textContent="Enregistrer";
+  const remove=document.createElement("button");remove.type="button";remove.className="subtle";remove.textContent="Retirer";
+  remove.onclick=()=>{const r=engine.removeAssetProcessor(a.id,cpu.id);status("asset-status",r);if(r.success)renderProcessors();};
+  form.onsubmit=e=>{e.preventDefault();const data=Object.fromEntries(new FormData(form));const r=engine.updateAssetProcessor(a.id,cpu.id,data);status("asset-status",r);if(r.success)renderProcessors();};
+  form.append(save,remove);list.append(form);
+ }
+}
+id("processor-inventory-toggle").onclick=()=>{
+ const p=selectedProfile();if(!p||p.name==="PC fixe")return;
+ const r=engine.setProfileProcessorInventory(p.id,!p.processorInventory);
+ status("profile-status",r);if(r.success)refresh();
+};
+id("processor-create").onsubmit=e=>{
+ e.preventDefault();const a=selectedAsset();if(!a)return;
+ const r=engine.addAssetProcessor(a.id,Object.fromEntries(new FormData(e.currentTarget)));
+ status("asset-status",r);
+ if(r.success){e.currentTarget.reset();renderProcessors();}
+};
+
 id("path-search").onsubmit=e=>{
  e.preventDefault();const {from,to}=e.currentTarget.elements;
  showPathResult(engine.explorePhysicalPath(from.value,to.value));
