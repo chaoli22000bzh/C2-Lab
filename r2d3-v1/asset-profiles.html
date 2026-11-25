@@ -54,12 +54,13 @@ button.cv-disconnect{background:#fce8e8;color:#8d2530}
 button.cv-attach{background:#dcefe4;color:#17613d}
 .capabilities{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:5px 14px;margin:8px 0}.capabilities label{display:flex;align-items:center;gap:7px;min-width:0;font-size:13px;font-weight:500}.capabilities input{width:auto;flex:none}.capabilities label:has(input:disabled){opacity:.5}
 .cv-modes{display:flex;gap:6px;flex-wrap:wrap}.cv-modes button{background:#e5edf5;color:#174b75;min-height:38px}.cv-modes button[aria-pressed="true"]{background:#1867a3;color:white}
+.computer-tabs{display:flex;gap:8px;margin:12px 0}.computer-tabs button[aria-pressed="false"]{background:#e5edf5;color:#174b75}.component-actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.component-toolbar{max-width:320px}.component-row{width:100%;text-align:left;display:flex;align-items:center;gap:12px;border:1px solid #ccd6e2;background:#fff;color:#1c3852;font-weight:400}.component-row[aria-checked="true"]{border-color:#1867a3;background:#e7f2fc}.component-row small{display:block;font-size:12px;color:#526478}.component-row:focus-visible{outline:2px solid #1867a3}.component-row + .component-row{margin-top:7px}#component-form{border:1px solid #d5dde9;border-radius:8px;padding:12px;margin:12px 0}#component-form-fields label{min-width:120px}#component-confirm{border:1px solid #d5dde9;padding:12px;border-radius:8px} @media(prefers-color-scheme:dark){.component-row{background:#223446;color:#f4f6fa;border-color:#607085}.component-row[aria-checked="true"]{background:#244c70}.component-row small{color:#c9d2dd}.computer-tabs button[aria-pressed="false"]{background:#263c50;color:#f4f6fa}}
 </style>
 <link rel="stylesheet" href="https://chaoli22000bzh.github.io/R2D3/src/switch-admin-ui-v1.css?pat-actions=8f92063">
 <link rel="stylesheet" href="https://chaoli22000bzh.github.io/R2D3/src/wifi-admin-ui-v1.css">
 <link rel="stylesheet" href="https://chaoli22000bzh.github.io/R2D3/src/box-admin-ui-v1.css?wan-indicator=ec72f05">
 </head><body>
-<header><h1>R2D3 : constructeur de profils matériels <span class="lab-version">V1.2.0</span></h1><p>Créer un profil, ajouter des caractéristiques et inventorier des équipements</p></header>
+<header><h1>R2D3 : constructeur de profils matériels <span class="lab-version">V1.3.0</span></h1><p>Créer un profil, ajouter des caractéristiques et inventorier des équipements</p></header>
 <main><div class="grid">
 <section><h2>1. Profils</h2><p>Un profil décrit les champs d'un type d'équipement, sans imposer un modèle commercial.</p>
 <form id="profile-create"><label>Nom du profil<input name="name" value="Caméra réseau" required></label><button>Créer le profil</button></form>
@@ -99,6 +100,8 @@ button.cv-attach{background:#dcefe4;color:#17613d}
 <h3>Fiche de l'équipement</h3><label>Équipement<select id="assets"></select></label>
 <p>Pour remplacer un équipement, débranche d'abord ses câbles, puis supprime sa fiche. Les câbles restent inventoriés et pourront être raccordés au nouvel équipement.</p>
 <button id="asset-remove" type="button" class="subtle">Supprimer l'équipement</button>
+<div id="computer-tabs" hidden class="computer-tabs"><button type="button" id="computer-tab-general" aria-pressed="true">Général</button><button type="button" id="computer-tab-components" aria-pressed="false">Composants</button></div>
+<div id="computer-general">
 <form id="asset-edit">
 <label>Nom<input name="name" required></label><label>Fabricant<input name="manufacturer"></label>
 <label>Modèle<input name="model"></label><label>Numéro de série<input name="serialNumber"></label>
@@ -119,8 +122,15 @@ button.cv-attach{background:#dcefe4;color:#17613d}
 <label>Préfixe<input name="prefix" value="SFP" required></label><label>Premier numéro<input name="start" type="number" value="1" min="0" max="9999" required></label>
 <label>Quantité<input name="count" type="number" value="1" min="1" max="128" required></label><button class="subtle">Ajouter l'extension</button></form>
 <h3>Caractéristiques du profil</h3><div id="asset-values"></div>
-<div id="processor-inventory" hidden><h3>Processeurs détaillés</h3><div id="processor-list"></div>
-<form id="processor-create"><label>Marque<input name="marque" placeholder="Intel" required></label><label>Modèle<input name="modele" placeholder="Core i7-1260P" required></label><label>Fréquence (MHz)<input name="frequenceMHz" type="number" min="1" step="any" placeholder="2079"></label><label>Cœurs<input name="coeurs" type="number" min="1" step="1"></label><label>Threads<input name="threads" type="number" min="1" step="1"></label><button type="submit">Ajouter le processeur</button></form></div>
+</div>
+<div id="computer-components" hidden>
+<h3>Composants du PC</h3><p>Sélectionne une ligne pour modifier ou supprimer un composant, ou utilise Ajouter.</p>
+<div class="component-toolbar"><label>Famille<select id="component-kind"><option value="cpu">Processeurs</option><option value="ram">Mémoire RAM</option><option value="disk">Disques</option></select></label></div>
+<div id="component-list" role="radiogroup" aria-label="Composants disponibles"></div>
+<div class="component-actions"><button type="button" id="component-add">Ajouter</button><button type="button" id="component-edit" disabled>Modifier</button><button type="button" id="component-delete" disabled>Supprimer</button></div>
+<form id="component-form" hidden><h3 id="component-form-title">Ajouter un composant</h3><div id="component-form-fields" class="fields"></div><div class="component-actions"><button type="submit">Enregistrer</button><button type="button" id="component-cancel" class="subtle">Annuler</button></div></form>
+<div id="component-confirm" hidden><p id="component-confirm-label"></p><button type="button" id="component-delete-confirm">Confirmer la suppression</button> <button type="button" id="component-delete-cancel" class="subtle">Annuler</button></div>
+</div>
 <div id="switch-admin-controls" hidden>
 <h3 id="network-admin-control-title">Administration réseau</h3>
 <button type="button" id="switch-admin-open" class="subtle">Ouvrir l'administration</button>
