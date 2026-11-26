@@ -441,7 +441,7 @@ id("box-internet-integration-form").onsubmit=async e=>{
     "Translations de cette session : "+session.listNat().length;
   }else{
    output.textContent="ACCÈS INTERNET SIMULÉ CONFORME\n"+
-    "Connexion du PC : "+(medium==="wifi"?"Wi-Fi (SSID "+(session.lanSession.clients[0]?.association?.ssid??"?")+")":"Ethernet")+"\n"+
+    "Connexion du PC : "+(medium==="wifi"?"Wi-Fi via "+(engine.getAsset(clientId)?.ports.find(p=>p.type==="wifi")?.name??"interface Wi-Fi")+" (SSID "+(session.lanSession.clients[0]?.association?.ssid??"?")+")":"Ethernet")+"\n"+
     "PC : "+result.nat.internalAddress+":"+result.nat.internalPort+"\n"+
     "Passerelle LAN : "+result.route.gateway+"\n"+
     "PAT : "+result.nat.externalAddress+":"+result.nat.externalPort+"\n"+
