@@ -1,4 +1,4 @@
-import {createAssetRegistry,installScreenProfile,installDesktopProfile} from "./asset-profiles.js?pc-isolation-v1=9cfa97c";
+import {createAssetRegistry,installScreenProfile,installDesktopProfile} from "./asset-profiles.js?ordinateur-rename-v1=1";
 import {buildCablingViewModel, renderCablingVisual} from "../shared-ui/v1/cabling-visual.js";
 import {connectNewCable,attachExistingCable,detachExistingCable} from "../shared-ui/v1/cabling-actions.js?connectique-v1=6e89bdd";
 let engine=createAssetRegistry();
@@ -576,7 +576,7 @@ const componentFields={
  disk:[["marque","Marque","text"],["modele","Modèle","text"],["type","Type de disque","select"],["capaciteGo","Capacité unitaire (Go)","number"],["quantite","Quantité","number"],["numeroSerie","N° de série","text"]]
 };
 let computerTab="general",componentSelected=null,componentEditing=null;
-const computerProfile=p=>!!p&&(p.name==="PC fixe"||p.name.startsWith("PC fixe -"));
+const computerProfile=p=>!!p&&(p.name==="Ordinateur"||p.name==="PC fixe"||p.name.startsWith("PC fixe -"));
 const componentItems=(a,kind)=>kind==="cpu"?(a.processors||[]):kind==="ram"?(a.ramModules||[]):(a.disks||[]);
 
 // L'ancien inventaire séparait technologie et interface. La présentation V1 n'en fait qu'un choix.
