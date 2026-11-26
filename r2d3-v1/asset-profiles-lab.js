@@ -590,8 +590,19 @@ const diskTypeLabel=(c)=>{
 
 const componentSummary=(c,kind)=>{
  const main=(c.marque+" "+c.modele).trim();
- if(kind==="cpu")return c.quantite+" × "+(main||"Processeur")+" · "+(c.frequenceMHz??"—")+" MHz · "+(c.coeurs??"—")+" cœurs · "+(c.threads??"—")+" threads";
- if(kind==="ram")return (main?main+" · ":"")+c.quantite+" × "+c.capaciteGo+" Go"+(c.type?" · "+c.type:"")+" · "+(c.frequenceMHz??"—")+" MHz";
+ if(kind==="cpu"){
+  const parts=[c.quantite+" × "+(main||"Processeur")];
+  if(c.frequenceMHz!=null)parts.push(c.frequenceMHz+" MHz");
+  if(c.coeurs!=null)parts.push(c.coeurs+" cœurs");
+  if(c.threads!=null)parts.push(c.threads+" threads");
+  return parts.join(" · ");
+ }
+ if(kind==="ram"){
+  const parts=[(main?main+" · ":"")+c.quantite+" × "+c.capaciteGo+" Go"];
+  if(c.type)parts.push(c.type);
+  if(c.frequenceMHz!=null)parts.push(c.frequenceMHz+" MHz");
+  return parts.join(" · ");
+ }
  return (main?main+" · ":"")+c.quantite+" × "+c.capaciteGo+" Go"+(diskTypeLabel(c)?" · "+diskTypeLabel(c):"")+(c.numeroSerie?" · S/N "+c.numeroSerie:"");
 };
 function renderComputerOverview(a){
