@@ -643,7 +643,7 @@ const componentSummary=(c,kind)=>{
   if(c.diagonale!=null)parts.push(c.diagonale+" pouces");
   if(c.resolution)parts.push(c.resolution);
   if(c.typeDalle)parts.push(c.typeDalle);
-  if(c.tactile!==null)parts.push("Tactile : "+(c.tactile?"Oui":"Non"));
+  if(c.tactile===true||c.tactile===false)parts.push("Tactile : "+(c.tactile?"Oui":"Non"));
   return parts.length?parts.join(" · "):"Écran intégré";
  }
  const main=(c.marque+" "+c.modele).trim();
@@ -715,8 +715,10 @@ function componentOpenForm(edit=false){
  componentEditing=current?.id??null;
  id("component-form-title").textContent=edit?"Modifier le composant":"Ajouter un composant";
  const host=id("component-form-fields");host.replaceChildren();
+ host.classList.toggle("screen-fields",kind==="screen");
  for(const [key,title,type] of componentFields[kind]){
   const label=document.createElement("label");label.textContent=title;
+  if(kind==="screen")label.classList.add("screen-field-"+key);
   const input=document.createElement(type==="select"?"select":"input");
   input.name=key;
   if(type==="select"){
