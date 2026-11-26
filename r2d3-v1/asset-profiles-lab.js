@@ -573,16 +573,26 @@ function renderAsset(){
 const componentFields={
  cpu:[["marque","Marque","text"],["modele","Modèle","text"],["quantite","Quantité","number"],["frequenceMHz","Fréquence (MHz)","number"],["coeurs","Cœurs","number"],["threads","Threads","number"]],
  ram:[["marque","Marque","text"],["modele","Modèle","text"],["type","Type (DDR4, DDR5...)","text"],["frequenceMHz","Fréquence (MHz)","number"],["capaciteGo","Capacité unitaire (Go)","number"],["quantite","Quantité","number"]],
- disk:[["marque","Marque","text"],["modele","Modèle","text"],["type","Type (SSD, HDD...)","text"],["interface","Interface (SATA, NVMe...)","text"],["capaciteGo","Capacité unitaire (Go)","number"],["quantite","Quantité","number"],["numeroSerie","N° de série","text"]]
+ disk:[["marque","Marque","text"],["modele","Modèle","text"],["type","Type de disque","select"],["capaciteGo","Capacité unitaire (Go)","number"],["quantite","Quantité","number"],["numeroSerie","N° de série","text"]]
 };
 let computerTab="general",componentSelected=null,componentEditing=null;
 const computerProfile=p=>!!p&&(p.name==="PC fixe"||p.name.startsWith("PC fixe -"));
 const componentItems=(a,kind)=>kind==="cpu"?(a.processors||[]):kind==="ram"?(a.ramModules||[]):(a.disks||[]);
+
+// L'ancien inventaire séparait technologie et interface. La présentation V1 n'en fait qu'un choix.
+const diskTypeLabel=(c)=>{
+ const type=(c.type||"").trim().toLowerCase(),interfaceName=(c.interface||"").trim().toLowerCase();
+ if(type==="ssd nvme"||type==="nvme"||(type==="ssd"&&interfaceName.includes("nvme")))return "SSD NVMe";
+ if(type==="ssd 2,5 pouces"||type==="ssd 2.5 pouces"||(type==="ssd"&&interfaceName.includes("sata")))return "SSD 2,5 pouces";
+ if(type==="hdd"||type==="disque mécanique")return "HDD";
+ return c.type||""; // Ne pas inventer une catégorie pour les valeurs anciennes inconnues.
+};
+
 const componentSummary=(c,kind)=>{
  const main=(c.marque+" "+c.modele).trim();
  if(kind==="cpu")return c.quantite+" × "+(main||"Processeur")+" · "+(c.frequenceMHz??"—")+" MHz · "+(c.coeurs??"—")+" cœurs · "+(c.threads??"—")+" threads";
  if(kind==="ram")return (main?main+" · ":"")+c.quantite+" × "+c.capaciteGo+" Go"+(c.type?" · "+c.type:"")+" · "+(c.frequenceMHz??"—")+" MHz";
- return (main?main+" · ":"")+c.quantite+" × "+c.capaciteGo+" Go"+(c.type?" · "+c.type:"")+(c.interface?" · "+c.interface:"")+(c.numeroSerie?" · S/N "+c.numeroSerie:"");
+ return (main?main+" · ":"")+c.quantite+" × "+c.capaciteGo+" Go"+(diskTypeLabel(c)?" · "+diskTypeLabel(c):"")+(c.numeroSerie?" · S/N "+c.numeroSerie:"");
 };
 function renderComputerOverview(a){
  const host=id("computer-overview-list");host.replaceChildren();
@@ -638,7 +648,20 @@ function componentOpenForm(edit=false){
  const host=id("component-form-fields");host.replaceChildren();
  for(const [key,title,type] of componentFields[kind]){
   const label=document.createElement("label");label.textContent=title;
-  const input=document.createElement("input");input.name=key;input.type=type;input.value=current?.[key]??(key==="quantite"?"1":"");
+  const input=document.createElement(type==="select"?"select":"input");
+  input.name=key;
+  if(type==="select"){
+   for(const [value,labelText] of [["","Non renseigné"],["HDD","HDD (mécanique)"],["SSD 2,5 pouces","SSD 2,5 pouces"],["SSD NVMe","SSD NVMe"]]){
+    const option=document.createElement("option");option.value=value;option.textContent=labelText;input.append(option);
+   }
+   const previous=current?diskTypeLabel(current):"";
+   if(previous&&!["HDD","SSD 2,5 pouces","SSD NVMe"].includes(previous)){
+    const option=document.createElement("option");option.value=previous;option.textContent=previous+" (ancien inventaire)";input.append(option);
+   }
+   input.value=previous;
+  }else{
+   input.type=type;input.value=current?.[key]??(key==="quantite"?"1":"");
+  }
   if(type==="number"){input.min="1";input.step=["frequenceMHz","capaciteGo"].includes(key)?"any":"1";}
   input.required=kind==="cpu"?key==="quantite":["quantite","capaciteGo"].includes(key);
   label.append(input);host.append(label);
@@ -668,6 +691,7 @@ id("component-form").onsubmit=e=>{
  e.preventDefault();
  const a=selectedAsset();if(!a)return;
  const kind=id("component-kind").value,raw=Object.fromEntries(new FormData(e.currentTarget));
+ if(kind==="disk")raw.interface=""; // Nouvelle saisie à un seul type, sans ancienne interface séparée.
  const r=kind==="cpu"?(componentEditing?engine.updateAssetProcessor(a.id,componentEditing,raw):engine.addAssetProcessor(a.id,raw)):
     (componentEditing?engine.updateAssetComponent(a.id,kind,componentEditing,raw):engine.addAssetComponent(a.id,kind,raw));
  status("asset-status",r);
