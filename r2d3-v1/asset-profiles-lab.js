@@ -272,6 +272,9 @@ function renderAssetPorts(){
   const row=document.createElement("div");row.className="item";
   const caption=document.createElement("span");
   caption.textContent=p.name+" : "+p.type+(p.origin==="integrated"?" (intégré)":" (extension)");
+  const ipv4=a.interfaceIpv4?.[p.id];
+  if(ipv4)caption.textContent+=" | IPv4 "+ipv4.address+"/"+ipv4.prefix+
+   " ("+(ipv4.mode==="dhcp"?"DHCP":"statique")+", "+(ipv4.status==="connected"?"connecté":"déconnecté")+")";
   row.append(caption);host.append(row);
   if(p.origin==="extension")extensions.set(p.groupId,true);
  }
@@ -317,6 +320,7 @@ const internetServices={
 };
 let internetModule=null;
 const verifiedInternet=new Map();
+const wifiCredentials=new Map();
 function internetObservation(boxId){
  const evidence=verifiedInternet.get(boxId);
  if(!evidence||evidence.revision!==engine.exportState().revision)return null;
@@ -365,6 +369,11 @@ function refreshInternetWifiConfig(){
  const bridge=box?.boxConfig?.mode==="bridge";
  const medium=id("box-internet-medium");
  if(bridge&&[...medium.options].some(o=>o.value==="ethernet"))medium.value="ethernet";
+ const client=engine.getAsset(id("box-internet-client").value);
+ const iface=id("box-internet-interface"),oldInterface=iface.value;
+ const available=client?.ports.filter(p=>p.type===(medium.value==="wifi"?"wifi":"ethernet-rj45"))??[];
+ iface.replaceChildren(...available.map(p=>opt(p.name,p.id)));
+ if(available.some(p=>p.id===oldInterface))iface.value=oldInterface;
  id("box-internet-ssid-field").hidden=bridge||medium.value!=="wifi";
  id("box-internet-password-field").hidden=bridge||medium.value!=="wifi";
  const staticBridge=bridge&&box.boxConfig.wan.mode==="static";
@@ -394,12 +403,32 @@ id("box-internet-integration-form").onsubmit=async e=>{
  e.preventDefault();
  const form=e.currentTarget,boxId=form.elements.boxId.value,clientId=form.elements.clientId.value;
  const type=form.elements.service.value,service=internetServices[type];
- const medium=form.elements.medium.value;
- const clientEntry={assetId:clientId,medium};
+ const medium=form.elements.medium.value,interfaceId=form.elements.interfaceId.value;
+ const clientEntry={assetId:clientId,medium,portId:interfaceId};
  if(medium==="wifi"){
   clientEntry.ssidId=form.elements.ssidId.value;
   clientEntry.password=form.elements.wifiPassword.value;
  }
+ const computer=engine.getAsset(clientId),stored=computer?.interfaceIpv4||{};
+ const allEntries=[clientEntry];
+ if(computer){
+  for(const p of computer.ports){
+   if(p.id===interfaceId)continue;
+   if(p.type==="ethernet-rj45"){
+    const box=engine.getAsset(boxId);
+    if(box?.boxConfig?.mode==="router"&&box.boxConfig.ports.lanPortIds.some(id=>engine.explorePhysicalPath(p.id,id).connected))
+     allEntries.push({assetId:clientId,medium:"ethernet",portId:p.id});
+   }
+   if(p.type==="wifi"){
+    const saved=wifiCredentials.get(boxId+"|"+clientId+"|"+p.id);
+    if(saved&&engine.getAsset(boxId)?.boxConfig?.wifi?.enabled)
+     allEntries.push({assetId:clientId,medium:"wifi",portId:p.id,...saved});
+   }
+  }
+ }
+ // La session Core DHCP traite les interfaces déjà adressées en premier.
+ const ipNumber=id=>stored[id]?.address?.split(".").reduce((n,v)=>n*256+Number(v),0)??Infinity;
+ allEntries.sort((a,b)=>ipNumber(a.portId)-ipNumber(b.portId));
  verifiedInternet.delete(boxId);
  updateInternetAdmin(boxId);
  const output=id("box-internet-integration-result");
@@ -408,7 +437,7 @@ id("box-internet-integration-form").onsubmit=async e=>{
   output.textContent="Sélection de box, PC ou service invalide.";output.className="notice bad";return;
  }
  try{
-  internetModule??=await import("https://chaoli22000bzh.github.io/R2D3/src/box-internet-v1.js?dhcp-bridge=eb57b13");
+  internetModule??=await import("https://chaoli22000bzh.github.io/R2D3/src/box-internet-v1.js?multi-ipv4-v1=1");
   // Aucun faux câble Wi-Fi : association à la vraie borne interne et contrôle
   // des radios/SSID/sécurité par le module partagé, puis bail du Core DHCP.
   const bridge=engine.getAsset(boxId).boxConfig.mode==="bridge";
@@ -416,9 +445,21 @@ id("box-internet-integration-form").onsubmit=async e=>{
    internetModule.createBoxBridgeInternetSession({registry:engine,boxId,
     clients:[clientEntry],services:Object.values(internetServices)}):
    internetModule.createBoxInternetSession({registry:engine,boxId,
-    clients:[clientEntry],services:Object.values(internetServices)});
+    clients:allEntries,services:Object.values(internetServices)});
   if(!session.success){output.textContent="ÉCHEC : "+(session.message||session.code);output.className="notice bad";updateInternetAdmin(boxId);return;}
-  const result=session.request({clientId,targetAddress:service.address,service:service.kind,
+  if(!bridge&&engine.getProfile(computer?.profileId)?.processorInventory===true){
+   for(const entry of allEntries){
+    const allocated=session.lanSession.request(clientId,entry.portId);
+    if(!allocated.success){output.textContent="ÉCHEC DHCP : "+(allocated.message||allocated.code);output.className="notice bad";return;}
+    if(allocated.address&&allocated.prefix!=null){
+     const saved=engine.setAssetInterfaceIpv4(clientId,entry.portId,{
+      mode:"dhcp",status:"connected",address:allocated.address,prefix:allocated.prefix,
+      gateway:allocated.gateway,dns:allocated.dns});
+     if(!saved.success){output.textContent="ÉCHEC IPv4 : "+saved.message;output.className="notice bad";return;}
+    }
+   }
+  }
+  const result=session.request({clientId,...(!bridge?{interfaceId}:{}),targetAddress:service.address,service:service.kind,
    ...(bridge&&engine.getAsset(boxId).boxConfig.wan.mode==="static"?{clientIpv4:{
     mode:"static",address:form.elements.bridgeAddress.value.trim(),
     prefix:Number(form.elements.bridgePrefix.value),
@@ -450,6 +491,9 @@ id("box-internet-integration-form").onsubmit=async e=>{
     "Translations de cette session : "+session.listNat().length;
   }
   output.className="notice good";
+  if(!bridge&&medium==="wifi")wifiCredentials.set(boxId+"|"+clientId+"|"+interfaceId,{
+   ssidId:clientEntry.ssidId,password:clientEntry.password});
+  refresh();
  }catch(error){
   output.textContent="Impossible d'exécuter le moteur Internet : "+(error?.message||String(error));
   output.className="notice bad";updateInternetAdmin(boxId);
