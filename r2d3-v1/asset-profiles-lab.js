@@ -1,4 +1,4 @@
-import {createAssetRegistry,installScreenProfile,installDesktopProfile} from "./asset-profiles.js?ordinateur-rename-v1=1";
+import {createAssetRegistry,installScreenProfile,installDesktopProfile} from "./asset-profiles.js?computer-type-v1=1";
 import {buildCablingViewModel, renderCablingVisual} from "../shared-ui/v1/cabling-visual.js";
 import {connectNewCable,attachExistingCable,detachExistingCable} from "../shared-ui/v1/cabling-actions.js?connectique-v1=6e89bdd";
 let engine=createAssetRegistry();
@@ -552,6 +552,10 @@ function renderAsset(){
    const options=f.type==="boolean"?[["Oui","true"],["Non","false"]]:f.options.map(v=>[v,v]);
    options.forEach(([name,value])=>input.append(opt(name,value)));
    input.value=a.values[f.key]===null?"":String(a.values[f.key]);
+   if(f.key==="type_ordinateur"){
+    label.classList.add("computer-type-field");
+    input.classList.add("computer-type-select");
+   }
   }else{
    input=document.createElement("input");input.type=f.type==="number"?"number":f.type==="date"?"date":"text";
    input.value=a.values[f.key]??"";if(f.type==="number")input.step="any";
