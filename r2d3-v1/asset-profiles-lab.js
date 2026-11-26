@@ -622,11 +622,12 @@ const componentFields={
  cpu:[["marque","Marque","text"],["modele","Modèle","text"],["quantite","Quantité","number"],["frequenceMHz","Fréquence (MHz)","number"],["coeurs","Cœurs","number"],["threads","Threads","number"]],
  ram:[["marque","Marque","text"],["modele","Modèle","text"],["type","Type (DDR4, DDR5...)","text"],["frequenceMHz","Fréquence (MHz)","number"],["capaciteGo","Capacité unitaire (Go)","number"],["quantite","Quantité","number"]],
  disk:[["marque","Marque","text"],["modele","Modèle","text"],["type","Type de disque","select"],["capaciteGo","Capacité unitaire (Go)","number"],["quantite","Quantité","number"],["numeroSerie","N° de série","text"]],
- screen:[["diagonale","Diagonale (pouces)","number"],["resolution","Résolution","text"],["tactile","Tactile","select"],["typeDalle","Type de dalle","select"]]
+ screen:[["diagonale","Diagonale (pouces)","number"],["resolution","Résolution","text"],["tactile","Tactile","select"],["typeDalle","Type de dalle","select"]],
+ camera:[["resolution","Résolution","select"],["microphone","Microphone intégré","select"]]
 };
 let computerTab="general",componentSelected=null,componentEditing=null;
 const computerProfile=p=>!!p&&(p.name==="Ordinateur"||p.name==="PC fixe"||p.name.startsWith("PC fixe -"));
-const componentItems=(a,kind)=>kind==="cpu"?(a.processors||[]):kind==="ram"?(a.ramModules||[]):kind==="screen"?(a.integratedScreen?[a.integratedScreen]:[]):(a.disks||[]);
+const componentItems=(a,kind)=>kind==="cpu"?(a.processors||[]):kind==="ram"?(a.ramModules||[]):kind==="screen"?(a.integratedScreen?[a.integratedScreen]:[]):kind==="camera"?(a.integratedCamera?[a.integratedCamera]:[]):(a.disks||[]);
 
 // L'ancien inventaire séparait technologie et interface. La présentation V1 n'en fait qu'un choix.
 const diskTypeLabel=(c)=>{
@@ -638,6 +639,7 @@ const diskTypeLabel=(c)=>{
 };
 
 const componentSummary=(c,kind)=>{
+ if(kind==="camera")return [c.resolution,c.microphone==null?"":"Microphone : "+(c.microphone?"Oui":"Non")].filter(Boolean).join(" · ")||"Caméra intégrée";
  if(kind==="screen"){
   const parts=[];
   if(c.diagonale!=null)parts.push(c.diagonale+" pouces");
@@ -666,7 +668,7 @@ function renderComputerOverview(a){
  const host=id("computer-overview-list"),overview=id("computer-overview");host.replaceChildren();
  overview.hidden=true;
  if(!a)return;
- for(const [kind,title] of [["cpu","Processeurs"],["ram","Mémoire RAM"],["disk","Disques"],["screen","Écran intégré"]]){
+ for(const [kind,title] of [["cpu","Processeurs"],["ram","Mémoire RAM"],["disk","Disques"],["screen","Écran intégré"],["camera","Caméra intégrée"]]){
   const items=componentItems(a,kind);
   if(!items.length)continue;
   const section=document.createElement("section");section.className="computer-overview-group";
@@ -701,7 +703,7 @@ function renderComponents(){
   button.onclick=()=>{componentSelected=component.id;hideComponentForms();renderComponents();};
   list.append(button);
  }
- id("component-add").disabled=kind==="screen"&&items.length>0;
+ id("component-add").disabled=(kind==="screen"||kind==="camera")&&items.length>0;
  id("component-edit").disabled=!componentSelected;
  id("component-delete").disabled=!componentSelected;
 }
@@ -717,15 +719,17 @@ function componentOpenForm(edit=false){
  componentEditing=current?.id??null;
  id("component-form-title").textContent=edit?"Modifier le composant":"Ajouter un composant";
  const host=id("component-form-fields");host.replaceChildren();
- host.classList.toggle("screen-fields",kind==="screen");
+ host.classList.toggle("screen-fields",kind==="screen"||kind==="camera");
  for(const [key,title,type] of componentFields[kind]){
   const label=document.createElement("label");label.textContent=title;
-  if(kind==="screen")label.classList.add("screen-field-"+key);
+  if(kind==="screen"||kind==="camera")label.classList.add("screen-field-"+key);
   const input=document.createElement(type==="select"?"select":"input");
   input.name=key;
   if(type==="select"){
    let options;
-   if(kind==="screen"&&key==="tactile")options=[["","Non renseigné"],["true","Oui"],["false","Non"]];
+   if(kind==="camera"&&key==="resolution")options=[["","Non renseigné"],...["720p","1080p","2K","4K","Autre"].map(v=>[v,v])];
+   else if(kind==="camera"&&key==="microphone")options=[["","Non renseigné"],["true","Oui"],["false","Non"]];
+   else if(kind==="screen"&&key==="tactile")options=[["","Non renseigné"],["true","Oui"],["false","Non"]];
    else if(kind==="screen"&&key==="typeDalle")options=[["","Non renseigné"],...["IPS","TN","VA","OLED","Autre"].map(v=>[v,v])];
    else options=[["","Non renseigné"],["HDD","HDD (mécanique)"],["SSD 2,5 pouces","SSD 2,5 pouces"],["SSD NVMe","SSD NVMe"]];
    for(const [value,labelText] of options){
@@ -742,7 +746,7 @@ function componentOpenForm(edit=false){
    input.type=type;input.value=current?.[key]??(key==="quantite"?"1":"");
   }
   if(type==="number"){input.min=["quantite","coeurs","threads"].includes(key)?"1":"0.1";input.step=["quantite","coeurs","threads"].includes(key)?"1":"any";}
-  input.required=kind==="screen"?false:kind==="cpu"?key==="quantite":["quantite","capaciteGo"].includes(key);
+  input.required=(kind==="screen"||kind==="camera")?false:kind==="cpu"?key==="quantite":["quantite","capaciteGo"].includes(key);
   label.append(input);host.append(label);
  }
  id("component-form").hidden=false;
@@ -771,6 +775,7 @@ id("component-form").onsubmit=e=>{
  const a=selectedAsset();if(!a)return;
  const kind=id("component-kind").value,raw=Object.fromEntries(new FormData(e.currentTarget));
  if(kind==="screen")raw.tactile=raw.tactile===""?null:raw.tactile==="true";
+ if(kind==="camera")raw.microphone=raw.microphone===""?null:raw.microphone==="true";
  if(kind==="disk")raw.interface=""; // Nouvelle saisie à un seul type, sans ancienne interface séparée.
  const r=kind==="cpu"?(componentEditing?engine.updateAssetProcessor(a.id,componentEditing,raw):engine.addAssetProcessor(a.id,raw)):
     (componentEditing?engine.updateAssetComponent(a.id,kind,componentEditing,raw):engine.addAssetComponent(a.id,kind,raw));
