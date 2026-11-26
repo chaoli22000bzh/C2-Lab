@@ -578,6 +578,11 @@ function renderAsset(){
  if(!a){host.textContent="Crée un actif.";renderComputerTabs();return}
  const p=engine.getProfile(a.profileId);
  for(const f of p.fields){
+  if(computerProfile(p)&&f.key==="ecran_integre"){
+   const title=document.createElement("h4");title.textContent="Affichage intégré";
+   title.className="computer-screen-heading";host.append(title);
+  }
+  if(computerProfile(p)&&f.key.startsWith("ecran_integre_")&&a.values.ecran_integre!==true)continue;
   if(computerProfile(p)){
    const cpu=a.processors||[],ram=a.ramModules||[],disks=a.disks||[];
    if(f.key==="processeur_modele"&&cpu.length)continue;
@@ -603,14 +608,17 @@ function renderAsset(){
   }else{
    input=document.createElement("input");input.type=f.type==="number"?"number":f.type==="date"?"date":"text";
    input.value=a.values[f.key]??"";if(f.type==="number")input.step="any";
-   if(p.name==="Écran"){
+   if(p.name==="Écran"||f.key.startsWith("ecran_integre_")){
     const examples={resolution:"1920 × 1080",haut_parleurs:"Non ou 2x3W",pied_reglable:"Non ou 150mm",vesa:"Non ou 150x150mm"};
-    if(examples[f.key])input.placeholder=examples[f.key];
+    const base=f.key.startsWith("ecran_integre_")?f.key.slice("ecran_integre_".length):f.key;
+    if(examples[base])input.placeholder=examples[base];
    }
   }
   input.onchange=()=>{
    const v=input.value===""?null:f.type==="number"?Number(input.value):f.type==="boolean"?input.value==="true":input.value;
-   status("asset-status",engine.setAssetField(a.id,f.key,v));
+   const result=engine.setAssetField(a.id,f.key,v);
+   status("asset-status",result);
+   if(result.success&&f.key==="ecran_integre")renderAsset();
   };
   label.append(input);host.append(label);
  }
