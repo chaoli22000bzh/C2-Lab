@@ -136,7 +136,7 @@ input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-ou
 </div>
 <div id="computer-components" hidden>
 <h3>Composants du PC</h3><p>Sélectionne une ligne pour modifier ou supprimer un composant, ou utilise Ajouter.</p>
-<div class="component-toolbar"><label>Famille<select id="component-kind"><option value="cpu">Processeurs</option><option value="ram">Mémoire RAM</option><option value="disk">Disques</option></select></label></div>
+<div class="component-toolbar"><label>Famille<select id="component-kind"><option value="cpu">Processeurs</option><option value="ram">Mémoire RAM</option><option value="disk">Disques</option><option value="screen">Écran intégré</option></select></label></div>
 <div id="component-list" role="radiogroup" aria-label="Composants disponibles"></div>
 <div class="component-actions"><button type="button" id="component-add">Ajouter</button><button type="button" id="component-edit" disabled>Modifier</button><button type="button" id="component-delete" disabled>Supprimer</button></div>
 <form id="component-form" hidden><h3 id="component-form-title">Ajouter un composant</h3><div id="component-form-fields" class="fields"></div><div class="component-actions"><button type="submit">Enregistrer</button><button type="button" id="component-cancel" class="subtle">Annuler</button></div></form>
@@ -245,4 +245,4 @@ input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-ou
 <div id="path-result" class="notice" role="status"></div>
 </section>
 <section class="full"><h2>Périmètre du laboratoire</h2><p>Profils personnalisables, équipements avec zéro ou plusieurs ports et extensions, et câbles à deux extrémités. Raccordement et débranchement physiques des connectiques retenues, avec contrôle des prises compatibles et conservation des câbles dans l'inventaire. Les prises murales et panneaux de brassage sont réservés au RJ45. Les ports Wi-Fi et Bluetooth ne sont pas câblables. Les protocoles vidéo, USB et série ne sont pas simulés. Le rechargement réinitialise cet exemple, sans sauvegarde locale.</p><button type="button" id="reset" class="subtle">Recommencer</button></section>
-</div></main><script type="module" src="./asset-profiles-lab.js?integrated-screen-v1=1"></script></body></html>
+</div></main><script type="module" src="./asset-profiles-lab.js?screen-component-v1=1"></script></body></html>
