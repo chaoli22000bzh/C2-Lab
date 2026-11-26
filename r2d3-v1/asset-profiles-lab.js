@@ -1,4 +1,4 @@
-import {createAssetRegistry,installScreenProfile,installDesktopProfile} from "./asset-profiles.js?multi-ipv4-v1=2";
+import {createAssetRegistry,installScreenProfile,installDesktopProfile} from "./asset-profiles.js?camera-component-v1=1";
 import {buildCablingViewModel, renderCablingVisual} from "../shared-ui/v1/cabling-visual.js";
 import {connectNewCable,attachExistingCable,detachExistingCable} from "../shared-ui/v1/cabling-actions.js?connectique-v1=6e89bdd";
 let engine=createAssetRegistry();
