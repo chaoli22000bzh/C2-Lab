@@ -59,12 +59,12 @@ button.cv-attach{background:#dcefe4;color:#17613d}
 /* Champs numériques compacts sans commandes incrémenter/décrémenter. */
 input[type="number"]{-moz-appearance:textfield;appearance:textfield}
 input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
-.computer-overview-group{padding:9px 12px;border:1px solid #cbd9e6;border-radius:7px;background:#edf4fb;margin:8px 0}.computer-overview-group h4{margin:0 0 6px}.computer-overview-group p{margin:4px 0;overflow-wrap:anywhere}.computer-overview-empty{opacity:.75}.computer-overview-total{font-weight:600}@media(prefers-color-scheme:dark){.computer-overview-group{background:#223446;color:#f4f6fa;border-color:#607085}}</style>
+.computer-overview-group{padding:9px 12px;border:1px solid #cbd9e6;border-radius:7px;background:#edf4fb;color:#17334d;margin:8px 0}.computer-overview-group h4{margin:0 0 6px}.computer-overview-group p{margin:4px 0;overflow-wrap:anywhere;color:inherit}.computer-overview-empty{opacity:.75}.computer-overview-total{font-weight:600}@media(prefers-color-scheme:dark){.computer-overview-group{background:#223446;color:#f4f6fa;border-color:#607085}}</style>
 <link rel="stylesheet" href="https://chaoli22000bzh.github.io/R2D3/src/switch-admin-ui-v1.css?pat-actions=8f92063">
 <link rel="stylesheet" href="https://chaoli22000bzh.github.io/R2D3/src/wifi-admin-ui-v1.css">
 <link rel="stylesheet" href="https://chaoli22000bzh.github.io/R2D3/src/box-admin-ui-v1.css?wan-indicator=ec72f05">
 </head><body>
-<header><h1>R2D3 : constructeur de profils matériels <span class="lab-version">V1.3.3</span></h1><p>Créer un profil, ajouter des caractéristiques et inventorier des équipements</p></header>
+<header><h1>R2D3 : constructeur de profils matériels <span class="lab-version">V1.3.4</span></h1><p>Créer un profil, ajouter des caractéristiques et inventorier des équipements</p></header>
 <main><div class="grid">
 <section><h2>1. Profils</h2><p>Un profil décrit les champs d'un type d'équipement, sans imposer un modèle commercial.</p>
 <form id="profile-create"><label>Nom du profil<input name="name" value="Caméra réseau" required></label><button>Créer le profil</button></form>
@@ -106,7 +106,6 @@ input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-ou
 <button id="asset-remove" type="button" class="subtle">Supprimer l'équipement</button>
 <div id="computer-tabs" hidden class="computer-tabs"><button type="button" id="computer-tab-general" aria-pressed="true">Général</button><button type="button" id="computer-tab-components" aria-pressed="false">Composants</button></div>
 <div id="computer-general">
-<section id="computer-overview" aria-label="Configuration matérielle"><h3>Configuration matérielle</h3><div id="computer-overview-list"></div></section>
 <form id="asset-edit">
 <label>Nom<input name="name" required></label><label>Fabricant<input name="manufacturer"></label>
 <label>Modèle<input name="model"></label><label>Numéro de série<input name="serialNumber"></label>
@@ -114,6 +113,8 @@ input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-ou
 <label>Localisation<input name="location"></label>
 <label class="check"><input name="reservable" type="checkbox"> Réservable</label>
 <button class="subtle">Enregistrer la fiche</button></form>
+<section id="computer-overview" aria-label="Configuration matérielle"><h3>Configuration matérielle</h3><div id="computer-overview-list"></div></section>
+
 <h3>Emplacement dans l'arborescence</h3>
 <p>Un équipement raccordé doit être débranché avant tout changement de lieu. Ses câbles restent inventoriés.</p>
 <form id="asset-place-change"><label>Lieu de l'équipement<select id="asset-place" name="placeId"></select></label>
@@ -238,4 +239,4 @@ input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-ou
 <div id="path-result" class="notice" role="status"></div>
 </section>
 <section class="full"><h2>Périmètre du laboratoire</h2><p>Profils personnalisables, équipements avec zéro ou plusieurs ports et extensions, et câbles à deux extrémités. Raccordement et débranchement physiques des connectiques retenues, avec contrôle des prises compatibles et conservation des câbles dans l'inventaire. Les prises murales et panneaux de brassage sont réservés au RJ45. Les ports Wi-Fi et Bluetooth ne sont pas câblables. Les protocoles vidéo, USB et série ne sont pas simulés. Le rechargement réinitialise cet exemple, sans sauvegarde locale.</p><button type="button" id="reset" class="subtle">Recommencer</button></section>
-</div></main><script type="module" src="./asset-profiles-lab.js?overview-v1=1"></script></body></html>
+</div></main><script type="module" src="./asset-profiles-lab.js?disk-v1=1"></script></body></html>
