@@ -9,6 +9,9 @@ h1{font-size:24px;margin:0 0 6px}.lab-version{display:inline-block;vertical-alig
 h2{font-size:19px;margin:0 0 8px}h3{font-size:16px;margin:18px 0 8px}p{font-size:13px;color:#5a6c7f}
 form,.fields{display:flex;flex-wrap:wrap;gap:10px;align-items:end}label{display:grid;gap:4px;font-size:13px;font-weight:600;flex:1;min-width:135px}
 input,select{border:1px solid #adbdce;border-radius:6px;font:inherit;padding:9px;width:100%;min-width:0}
+/* Largeur du choix : plus long libellé + flèche native, sans étirement sur la fiche. */
+#asset-values label.computer-type-field{flex:0 1 auto;width:max-content;max-width:100%;min-width:0}
+#asset-values select.computer-type-select{width:21ch;max-width:100%;min-width:0}
 button{border:0;border-radius:7px;background:#1867a3;color:white;padding:10px 13px;font:inherit;font-weight:600;cursor:pointer}
 button.subtle{background:#e5edf5;color:#174b75}.check{display:flex;align-items:center;gap:8px}.check input{width:auto}.item span:last-child{display:flex;gap:4px}#asset-values label{margin-top:10px}.item{border:1px solid #e1e6ed;border-radius:7px;padding:9px;margin:8px 0;display:flex;align-items:center;justify-content:space-between;gap:10px}
 .item button{padding:5px 8px}.notice{font-size:13px;font-weight:600;min-height:22px;margin-top:10px}.bad{color:#ae283a}.good{color:#17703e}.full{grid-column:1/-1}
@@ -64,7 +67,7 @@ input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-ou
 <link rel="stylesheet" href="https://chaoli22000bzh.github.io/R2D3/src/wifi-admin-ui-v1.css">
 <link rel="stylesheet" href="https://chaoli22000bzh.github.io/R2D3/src/box-admin-ui-v1.css?wan-indicator=ec72f05">
 </head><body>
-<header><h1>R2D3 : constructeur de profils matériels <span class="lab-version">V1.3.8</span></h1><p>Créer un profil, ajouter des caractéristiques et inventorier des équipements</p></header>
+<header><h1>R2D3 : constructeur de profils matériels <span class="lab-version">V1.3.9</span></h1><p>Créer un profil, ajouter des caractéristiques et inventorier des équipements</p></header>
 <main><div class="grid">
 <section><h2>1. Profils</h2><p>Un profil décrit les champs d'un type d'équipement, sans imposer un modèle commercial.</p>
 <form id="profile-create"><label>Nom du profil<input name="name" value="Caméra réseau" required></label><button>Créer le profil</button></form>
@@ -239,4 +242,4 @@ input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-ou
 <div id="path-result" class="notice" role="status"></div>
 </section>
 <section class="full"><h2>Périmètre du laboratoire</h2><p>Profils personnalisables, équipements avec zéro ou plusieurs ports et extensions, et câbles à deux extrémités. Raccordement et débranchement physiques des connectiques retenues, avec contrôle des prises compatibles et conservation des câbles dans l'inventaire. Les prises murales et panneaux de brassage sont réservés au RJ45. Les ports Wi-Fi et Bluetooth ne sont pas câblables. Les protocoles vidéo, USB et série ne sont pas simulés. Le rechargement réinitialise cet exemple, sans sauvegarde locale.</p><button type="button" id="reset" class="subtle">Recommencer</button></section>
-</div></main><script type="module" src="./asset-profiles-lab.js?ordinateur-rename-v1=1"></script></body></html>
+</div></main><script type="module" src="./asset-profiles-lab.js?computer-type-v1=1"></script></body></html>
