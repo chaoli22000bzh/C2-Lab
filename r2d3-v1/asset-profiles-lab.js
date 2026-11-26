@@ -663,17 +663,19 @@ const componentSummary=(c,kind)=>{
  return (main?main+" · ":"")+c.quantite+" × "+c.capaciteGo+" Go"+(diskTypeLabel(c)?" · "+diskTypeLabel(c):"")+(c.numeroSerie?" · S/N "+c.numeroSerie:"");
 };
 function renderComputerOverview(a){
- const host=id("computer-overview-list");host.replaceChildren();
+ const host=id("computer-overview-list"),overview=id("computer-overview");host.replaceChildren();
+ overview.hidden=true;
  if(!a)return;
  for(const [kind,title] of [["cpu","Processeurs"],["ram","Mémoire RAM"],["disk","Disques"],["screen","Écran intégré"]]){
+  const items=componentItems(a,kind);
+  if(!items.length)continue;
   const section=document.createElement("section");section.className="computer-overview-group";
   const heading=document.createElement("h4");heading.textContent=title;section.append(heading);
-  const items=componentItems(a,kind);
-  if(!items.length){const empty=document.createElement("p");empty.className="computer-overview-empty";empty.textContent="Aucun composant renseigné.";section.append(empty);}
   for(const component of items){const item=document.createElement("p");item.textContent=componentSummary(component,kind);section.append(item);}
-  if(kind==="ram"&&items.length){const total=document.createElement("p");total.className="computer-overview-total";total.textContent="Total RAM : "+items.reduce((n,c)=>n+c.capaciteGo*c.quantite,0)+" Go";section.append(total);}
+  if(kind==="ram"){const total=document.createElement("p");total.className="computer-overview-total";total.textContent="Total RAM : "+items.reduce((n,c)=>n+c.capaciteGo*c.quantite,0)+" Go";section.append(total);}
   host.append(section);
  }
+ overview.hidden=host.childElementCount===0;
 }
 function renderComputerTabs(){
  const a=selectedAsset(),p=a&&engine.getProfile(a.profileId),eligible=computerProfile(p);
