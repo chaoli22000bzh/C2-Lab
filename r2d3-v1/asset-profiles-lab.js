@@ -741,7 +741,7 @@ function componentOpenForm(edit=false){
   }else{
    input.type=type;input.value=current?.[key]??(key==="quantite"?"1":"");
   }
-  if(type==="number"){input.min="0.1";input.step=["frequenceMHz","capaciteGo","diagonale"].includes(key)?"any":"1";}
+  if(type==="number"){input.min=["quantite","coeurs","threads"].includes(key)?"1":"0.1";input.step=["quantite","coeurs","threads"].includes(key)?"1":"any";}
   input.required=kind==="screen"?false:kind==="cpu"?key==="quantite":["quantite","capaciteGo"].includes(key);
   label.append(input);host.append(label);
  }
