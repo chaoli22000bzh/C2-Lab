@@ -20,7 +20,7 @@ function refresh(){
  id("assets").replaceChildren(...as.map(a=>opt(a.name+" ("+(ps.find(p=>p.id===a.profileId)?.name||"?")+")",a.id)));
  if(as.some(a=>a.id===oldA))id("assets").value=oldA;
  renderPlaces();renderInfrastructure();renderCables();renderPathChoices();renderFields();renderAsset();renderBoxInternetChoices();refreshCablingVisual();
- if(networkAdmin&&networkAdminKind==="box")networkAdmin.render();
+ if(networkAdmin&&["box","netcam"].includes(networkAdminKind))networkAdmin.render();
 }
 let visualSelectedPort=null,visualSelectedCable=null,visualPendingAttach=null;
 let visualPathMode=false,visualPathPorts=[],visualPathCableIds=[];
@@ -506,12 +506,14 @@ const administrationKinds={
  box:{title:"Administration de la box Internet",moduleUrl:"https://chaoli22000bzh.github.io/R2D3/src/box-admin-ui-v1.js?ssid-v1=5211727",mount:"mountBoxAdmin"},
  switch:{title:"Administration du switch",moduleUrl:"https://chaoli22000bzh.github.io/R2D3/src/switch-admin-ui-v1.js",mount:"mountSwitchAdmin"},
  router:{title:"Administration du routeur",moduleUrl:"https://chaoli22000bzh.github.io/R2D3/src/router-admin-ui-v1.js?pat-actions=28454a0",mount:"mountRouterAdmin"},
- wifi:{title:"Administration de la borne Wi-Fi",moduleUrl:"https://chaoli22000bzh.github.io/R2D3/src/wifi-admin-ui-v1.js",mount:"mountWifiAdmin"}
+ wifi:{title:"Administration de la borne Wi-Fi",moduleUrl:"https://chaoli22000bzh.github.io/R2D3/src/wifi-admin-ui-v1.js",mount:"mountWifiAdmin"},
+ netcam:{title:"Administration de la NetCam",moduleUrl:"https://chaoli22000bzh.github.io/R2D3/src/netcam-admin-ui-v1.js?v=1320",mount:"mountNetCamAdmin"}
 };
 let networkAdmin=null,networkAdminAssetId=null,networkAdminKind=null;
 const adminModules={};
 const networkAdminRoot=()=>id("switch-admin-root");
 function kindForAsset(asset){
+ if(asset&&engine.getProfile(asset.profileId)?.netcamProfile===true)return "netcam";
  if(asset?.boxConfig)return "box";
  if(asset?.networkCapabilities?.includes("ipv4-router"))return "router";
  if(asset?.networkCapabilities?.includes("vlan"))return "switch";
