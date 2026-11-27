@@ -439,7 +439,7 @@ id("box-internet-integration-form").onsubmit=async e=>{
   output.textContent="Sélection de box, PC ou service invalide.";output.className="notice bad";return;
  }
  try{
-  internetModule??=await import("https://chaoli22000bzh.github.io/R2D3/src/box-internet-v1.js?dhcp-sync-v1=1");
+  internetModule??=await import("https://chaoli22000bzh.github.io/R2D3/src/box-internet-v1.js?static-ipv4-pat-v1=1");
   // Aucun faux câble Wi-Fi : association à la vraie borne interne et contrôle
   // des radios/SSID/sécurité par le module partagé, puis bail du Core DHCP.
   const bridge=engine.getAsset(boxId).boxConfig.mode==="bridge";
@@ -451,6 +451,9 @@ id("box-internet-integration-form").onsubmit=async e=>{
   if(!session.success){output.textContent="ÉCHEC : "+(session.message||session.code);output.className="notice bad";updateInternetAdmin(boxId);return;}
   if(!bridge&&engine.getProfile(computer?.profileId)?.processorInventory===true){
    for(const entry of allEntries){
+    // Ne pas faire de DHCP pour une IPv4 fixe. Le moteur commun teste
+    // lui-même le raccordement, la configuration et le PAT.
+    if(engine.getAsset(clientId)?.interfaceIpv4?.[entry.portId]?.mode==="static")continue;
     const allocated=session.lanSession.request(clientId,entry.portId);
     if(!allocated.success){output.textContent="ÉCHEC DHCP : "+(allocated.message||allocated.code);output.className="notice bad";return;}
     if(allocated.address&&allocated.prefix!=null){
