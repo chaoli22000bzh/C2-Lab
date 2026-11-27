@@ -1,9 +1,10 @@
-import {createAssetRegistry,installScreenProfile,installDesktopProfile} from "./asset-profiles.js?camera-component-v1=1";
+import {createAssetRegistry,installScreenProfile,installDesktopProfile,installNetCamProfile} from "./asset-profiles.js?netcam-v1=1";
 import {buildCablingViewModel, renderCablingVisual} from "../shared-ui/v1/cabling-visual.js";
 import {connectNewCable,attachExistingCable,detachExistingCable} from "../shared-ui/v1/cabling-actions.js?connectique-v1=6e89bdd";
 let engine=createAssetRegistry();
 installScreenProfile(engine);
 installDesktopProfile(engine);
+installNetCamProfile(engine);
 const id=x=>document.getElementById(x);
 const opt=(label,value)=>{const e=document.createElement("option");e.value=value;e.textContent=label;return e};
 const status=(who,r)=>{id(who).textContent=r.message;id(who).className="notice "+(r.success?"good":"bad")};
@@ -627,7 +628,8 @@ const componentFields={
 };
 let computerTab="general",componentSelected=null,componentEditing=null;
 const computerProfile=p=>!!p&&(p.name==="Ordinateur"||p.name==="PC fixe"||p.name.startsWith("PC fixe -"));
-const componentItems=(a,kind)=>kind==="cpu"?(a.processors||[]):kind==="ram"?(a.ramModules||[]):kind==="screen"?(a.integratedScreen?[a.integratedScreen]:[]):kind==="camera"?(a.integratedCamera?[a.integratedCamera]:[]):(a.disks||[]);
+const netCamProfile=p=>p?.netcamProfile===true;
+const componentItems=(a,kind)=>kind==="cpu"?(a.processors||[]):kind==="ram"?(a.ramModules||[]):kind==="screen"?(a.integratedScreen?[a.integratedScreen]:[]):kind==="camera"?((a.netCamera||a.integratedCamera)?[a.netCamera||a.integratedCamera]:[]):(a.disks||[]);
 
 // L'ancien inventaire séparait technologie et interface. La présentation V1 n'en fait qu'un choix.
 const diskTypeLabel=(c)=>{
@@ -668,7 +670,8 @@ function renderComputerOverview(a){
  const host=id("computer-overview-list"),overview=id("computer-overview");host.replaceChildren();
  overview.hidden=true;
  if(!a)return;
- for(const [kind,title] of [["cpu","Processeurs"],["ram","Mémoire RAM"],["disk","Disques"],["screen","Écran intégré"],["camera","Caméra intégrée"]]){
+ const isNetCam=netCamProfile(engine.getProfile(a.profileId));
+ for(const [kind,title] of (isNetCam?[["camera","Caméra"]]:[["cpu","Processeurs"],["ram","Mémoire RAM"],["disk","Disques"],["screen","Écran intégré"],["camera","Caméra intégrée"]])){
   const items=componentItems(a,kind);
   if(!items.length)continue;
   const section=document.createElement("section");section.className="computer-overview-group";
@@ -680,7 +683,10 @@ function renderComputerOverview(a){
  overview.hidden=host.childElementCount===0;
 }
 function renderComputerTabs(){
- const a=selectedAsset(),p=a&&engine.getProfile(a.profileId),eligible=computerProfile(p);
+ const a=selectedAsset(),p=a&&engine.getProfile(a.profileId),isNetCam=netCamProfile(p),eligible=computerProfile(p)||isNetCam;
+ if(isNetCam)id("component-kind").value="camera";
+ for(const option of id("component-kind").options){option.hidden=isNetCam&&option.value!=="camera";option.disabled=isNetCam&&option.value!=="camera";}
+ id("computer-components-title").textContent=isNetCam?"Composant de la NetCam":"Composants du PC";
  id("computer-tabs").hidden=!eligible;
  id("computer-general").hidden=eligible&&computerTab!=="general";
  id("computer-components").hidden=!eligible||computerTab!=="components";
@@ -703,9 +709,10 @@ function renderComponents(){
   button.onclick=()=>{componentSelected=component.id;hideComponentForms();renderComponents();};
   list.append(button);
  }
- id("component-add").disabled=(kind==="screen"||kind==="camera")&&items.length>0;
+ const isNetCam=netCamProfile(engine.getProfile(a.profileId));
+ id("component-add").disabled=isNetCam||((kind==="screen"||kind==="camera")&&items.length>0);
  id("component-edit").disabled=!componentSelected;
- id("component-delete").disabled=!componentSelected;
+ id("component-delete").disabled=!componentSelected||isNetCam;
 }
 function hideComponentForms(){
  id("component-form").hidden=true;id("component-confirm").hidden=true;componentEditing=null;
@@ -934,7 +941,7 @@ id("asset-edit").onsubmit=e=>{
  status("asset-status",r);refresh();
 };
 id("profiles").onchange=renderFields;id("assets").onchange=renderAsset;
-id("reset").onclick=()=>{closeNetworkAdmin();verifiedInternet.clear();engine=createAssetRegistry();installScreenProfile(engine);installDesktopProfile(engine);visualPathPorts=[];visualPathCableIds=[];visualSelectedPort=null;visualSelectedCable=null;visualPendingAttach=null;id("cabling-visual-status").textContent="";refresh();id("asset-status").textContent="";id("profile-status").textContent="";id("cable-status").textContent="";id("infrastructure-status").textContent="";id("place-status").textContent="";id("path-result").textContent=""};
+id("reset").onclick=()=>{closeNetworkAdmin();verifiedInternet.clear();engine=createAssetRegistry();installScreenProfile(engine);installDesktopProfile(engine);installNetCamProfile(engine);visualPathPorts=[];visualPathCableIds=[];visualSelectedPort=null;visualSelectedCable=null;visualPendingAttach=null;id("cabling-visual-status").textContent="";refresh();id("asset-status").textContent="";id("profile-status").textContent="";id("cable-status").textContent="";id("infrastructure-status").textContent="";id("place-status").textContent="";id("path-result").textContent=""};
 id("cabling-visual-place").onchange=()=>{visualSelectedPort=null;visualPendingAttach=null;drawCablingVisual()};
 id("cabling-mode-connect").onclick=()=>{visualPathMode=false;visualPathPorts=[];visualPathCableIds=[];visualSelectedPort=null;id("cabling-mode-connect").setAttribute("aria-pressed","true");id("cabling-mode-path").setAttribute("aria-pressed","false");visualMessage("Mode branchement : sélectionne deux ports libres.");drawCablingVisual()};
 id("cabling-mode-path").onclick=()=>{visualPathMode=true;visualPathPorts=[];visualPathCableIds=[];visualSelectedPort=null;visualPendingAttach=null;id("cabling-mode-path").setAttribute("aria-pressed","true");id("cabling-mode-connect").setAttribute("aria-pressed","false");visualMessage("Mode chemin : sélectionne un départ et une arrivée.");drawCablingVisual()};
