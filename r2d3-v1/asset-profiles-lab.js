@@ -1,4 +1,4 @@
-import {createAssetRegistry,installScreenProfile,installDesktopProfile,installNetCamProfile} from "./asset-profiles.js?netcam-v1=1";
+import {createAssetRegistry,installScreenProfile,installDesktopProfile,installNetCamProfile} from "./asset-profiles.js?netcam-ip-v1=1";
 import {buildCablingViewModel, renderCablingVisual} from "../shared-ui/v1/cabling-visual.js";
 import {connectNewCable,attachExistingCable,detachExistingCable} from "../shared-ui/v1/cabling-actions.js?connectique-v1=6e89bdd";
 let engine=createAssetRegistry();
@@ -600,11 +600,17 @@ function renderAsset(){
   }
   const label=document.createElement("label");label.textContent=f.label+(f.unit?" ("+f.unit+")":"");
   if(isNetCam)label.dataset.field=f.key;
-  let input;if(f.type==="select"||f.type==="boolean"){
+  const ipProtection=isNetCam&&f.key==="protection_ip";
+  let input;if(f.type==="select"||f.type==="boolean"||ipProtection){
    input=document.createElement("select");input.append(opt("Non renseigné",""));
-   const options=f.type==="boolean"?[["Oui","true"],["Non","false"]]:f.options.map(v=>[v,v]);
+   const options=ipProtection?["IP54","IP65","IP66","IP67","IP68"].map(v=>[v,v]):
+    f.type==="boolean"?[["Oui","true"],["Non","false"]]:f.options.map(v=>[v,v]);
    options.forEach(([name,value])=>input.append(opt(name,value)));
-   input.value=a.values[f.key]===null?"":String(a.values[f.key]);
+   // Conserver lisible une protection enregistrée par l'ancien champ texte.
+   const savedValue=a.values[f.key]===null?"":String(a.values[f.key]);
+   if(ipProtection&&savedValue&&!options.some(([name])=>name===savedValue))
+    input.append(opt(savedValue+" (ancienne valeur)",savedValue));
+   input.value=savedValue;
    if(f.key==="type_ordinateur"){
     label.classList.add("computer-type-field");
     input.classList.add("computer-type-select");
@@ -619,7 +625,9 @@ function renderAsset(){
   }
   input.onchange=()=>{
    const v=input.value===""?null:f.type==="number"?Number(input.value):f.type==="boolean"?input.value==="true":input.value;
-   status("asset-status",engine.setAssetField(a.id,f.key,v));
+   const result=engine.setAssetField(a.id,f.key,v);
+   status("asset-status",result);
+   if(!result.success)renderAsset();
   };
   label.append(input);fieldHost.append(label);
  }
