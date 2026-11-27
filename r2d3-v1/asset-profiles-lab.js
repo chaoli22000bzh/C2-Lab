@@ -641,7 +641,7 @@ const diskTypeLabel=(c)=>{
 };
 
 const componentSummary=(c,kind)=>{
- if(kind==="camera")return [c.resolution,c.microphone==null?"":"Microphone : "+(c.microphone?"Oui":"Non")].filter(Boolean).join(" · ")||"Caméra intégrée";
+ if(kind==="camera")return [c.resolution,c.microphone==null?"":"Microphone : "+(c.microphone?"Oui":"Non")].filter(Boolean).join(" · ")||"Caméra";
  if(kind==="screen"){
   const parts=[];
   if(c.diagonale!=null)parts.push(c.diagonale+" pouces");
