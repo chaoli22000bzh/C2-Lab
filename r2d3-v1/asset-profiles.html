@@ -94,10 +94,11 @@ input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-ou
 <link rel="stylesheet" href="https://chaoli22000bzh.github.io/R2D3/src/wifi-admin-ui-v1.css">
 <link rel="stylesheet" href="https://chaoli22000bzh.github.io/R2D3/src/box-admin-ui-v1.css?wan-indicator=ec72f05">
 </head><body>
-<header><h1>R2D3 : constructeur de profils matériels <span class="lab-version">V1.3.18</span></h1><p>Créer un profil, ajouter des caractéristiques et inventorier des équipements</p></header>
+<header><h1>R2D3 : constructeur de profils matériels <span class="lab-version">V1.3.19</span></h1><p>Créer un profil, ajouter des caractéristiques et inventorier des équipements</p></header>
 <main><div class="grid">
 <section><h2>1. Profils</h2><p>Un profil décrit les champs d'un type d'équipement, sans imposer un modèle commercial.</p>
-<form id="profile-create"><label>Nom du profil<input name="name" value="Caméra réseau" required></label><button>Créer le profil</button></form>
+<p>Le profil NetCam est déjà disponible. Sélectionne-le pour définir ses interfaces, puis crée un actif NetCam à partir de ce même profil.</p>
+<form id="profile-create"><label>Nom du profil<input name="name" placeholder="Nouveau type de matériel" required></label><button>Créer le profil</button></form>
 <h3>Modifier le profil</h3><div class="fields"><label>Profil<select id="profiles"></select></label><button id="duplicate" type="button" class="subtle">Dupliquer</button></div>
 <form id="profile-rename"><label>Nouveau nom du profil<input name="name" required></label><button class="subtle">Renommer</button></form>
 <div id="fields"></div>
@@ -271,4 +272,4 @@ input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-ou
 <div id="path-result" class="notice" role="status"></div>
 </section>
 <section class="full"><h2>Périmètre du laboratoire</h2><p>Profils personnalisables, équipements avec zéro ou plusieurs ports et extensions, et câbles à deux extrémités. Raccordement et débranchement physiques des connectiques retenues, avec contrôle des prises compatibles et conservation des câbles dans l'inventaire. Les prises murales et panneaux de brassage sont réservés au RJ45. Les ports Wi-Fi et Bluetooth ne sont pas câblables. Les protocoles vidéo, USB et série ne sont pas simulés. Le rechargement réinitialise cet exemple, sans sauvegarde locale.</p><button type="button" id="reset" class="subtle">Recommencer</button></section>
-</div></main><script type="module" src="./asset-profiles-lab.js?netcam-dhcp-v1=1"></script></body></html>
+</div></main><script type="module" src="./asset-profiles-lab.js?netcam-unified-v1=1"></script></body></html>
