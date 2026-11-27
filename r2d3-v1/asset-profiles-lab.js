@@ -683,7 +683,7 @@ function renderComputerOverview(a){
   const items=componentItems(a,kind);
   if(!items.length)continue;
   const section=document.createElement("section");section.className="computer-overview-group";
-  const heading=document.createElement("h4");heading.textContent=title;section.append(heading);
+  if(!isNetCam){const heading=document.createElement("h4");heading.textContent=title;section.append(heading);}
   for(const component of items){const item=document.createElement("p");item.textContent=componentSummary(component,kind);section.append(item);}
   if(kind==="ram"){const total=document.createElement("p");total.className="computer-overview-total";total.textContent="Total RAM : "+items.reduce((n,c)=>n+c.capaciteGo*c.quantite,0)+" Go";section.append(total);}
   host.append(section);
