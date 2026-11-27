@@ -80,12 +80,12 @@ input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-ou
 #netcam-characteristics{margin:12px 0;padding:12px;border:1px solid #cbd9e6;border-radius:8px}
 #netcam-characteristics h3{margin:0 0 10px}
 #netcam-values{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px}
-#netcam-values label{flex:0 1 auto;min-width:0;width:150px;max-width:100%;margin:0}
-#netcam-values label[data-field="usage_netcam"]{width:155px}
+#netcam-values label{flex:0 1 auto;min-width:0;width:max-content;max-width:100%;margin:0}
+#netcam-values label[data-field="usage_netcam"]{width:145px}
 #netcam-values label[data-field="vision_nocturne"],
-#netcam-values label[data-field="vue_panoramique"]{width:145px}
-#netcam-values label[data-field="protection_ip"]{width:105px}
-#netcam-values label[data-field="alimentation_netcam"]{width:155px}
+#netcam-values label[data-field="vue_panoramique"]{width:137px}
+#netcam-values label[data-field="protection_ip"]{width:126px}
+#netcam-values label[data-field="alimentation_netcam"]{width:141px}
 #netcam-values input,#netcam-values select{width:100%;min-width:0;max-width:100%}
 @media(max-width:420px){#netcam-values label{width:100%;flex:1 1 135px}}
 @media(prefers-color-scheme:dark){#netcam-characteristics{border-color:#607085}}
@@ -94,7 +94,7 @@ input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-ou
 <link rel="stylesheet" href="https://chaoli22000bzh.github.io/R2D3/src/wifi-admin-ui-v1.css">
 <link rel="stylesheet" href="https://chaoli22000bzh.github.io/R2D3/src/box-admin-ui-v1.css?wan-indicator=ec72f05">
 </head><body>
-<header><h1>R2D3 : constructeur de profils matériels <span class="lab-version">V1.3.16</span></h1><p>Créer un profil, ajouter des caractéristiques et inventorier des équipements</p></header>
+<header><h1>R2D3 : constructeur de profils matériels <span class="lab-version">V1.3.17</span></h1><p>Créer un profil, ajouter des caractéristiques et inventorier des équipements</p></header>
 <main><div class="grid">
 <section><h2>1. Profils</h2><p>Un profil décrit les champs d'un type d'équipement, sans imposer un modèle commercial.</p>
 <form id="profile-create"><label>Nom du profil<input name="name" value="Caméra réseau" required></label><button>Créer le profil</button></form>
@@ -271,4 +271,4 @@ input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-ou
 <div id="path-result" class="notice" role="status"></div>
 </section>
 <section class="full"><h2>Périmètre du laboratoire</h2><p>Profils personnalisables, équipements avec zéro ou plusieurs ports et extensions, et câbles à deux extrémités. Raccordement et débranchement physiques des connectiques retenues, avec contrôle des prises compatibles et conservation des câbles dans l'inventaire. Les prises murales et panneaux de brassage sont réservés au RJ45. Les ports Wi-Fi et Bluetooth ne sont pas câblables. Les protocoles vidéo, USB et série ne sont pas simulés. Le rechargement réinitialise cet exemple, sans sauvegarde locale.</p><button type="button" id="reset" class="subtle">Recommencer</button></section>
-</div></main><script type="module" src="./asset-profiles-lab.js?netcam-layout-v1=1"></script></body></html>
+</div></main><script type="module" src="./asset-profiles-lab.js?netcam-ip-v1=1"></script></body></html>
