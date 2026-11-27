@@ -564,7 +564,13 @@ id("switch-admin-open").onclick=async()=>{
  }finally{button.disabled=false;}
 };
 function renderAsset(){
- const a=selectedAsset(),host=id("asset-values"),form=id("asset-edit");host.replaceChildren();
+ const a=selectedAsset(),host=id("asset-values"),netcamHost=id("netcam-values"),form=id("asset-edit");
+ host.replaceChildren();netcamHost.replaceChildren();
+ const profile=a&&engine.getProfile(a.profileId);
+ const isNetCam=profile?.netcamProfile===true;
+ id("netcam-characteristics").hidden=!isNetCam;
+ id("asset-values-title").hidden=isNetCam;
+ host.hidden=isNetCam;
  form.querySelectorAll("input,select,button").forEach(control=>control.disabled=!a);
  id("asset-remove").disabled=!a;
  id("extension-create").querySelectorAll("input,select,button").forEach(control=>control.disabled=!a);
@@ -577,7 +583,8 @@ function renderAsset(){
   form.reset();
  }
  if(!a){host.textContent="Crée un actif.";renderComputerTabs();return}
- const p=engine.getProfile(a.profileId);
+ const p=profile;
+ const fieldHost=isNetCam?netcamHost:host;
  for(const f of p.fields){
   if(computerProfile(p)){
    const cpu=a.processors||[],ram=a.ramModules||[],disks=a.disks||[];
@@ -592,6 +599,7 @@ function renderAsset(){
    }
   }
   const label=document.createElement("label");label.textContent=f.label+(f.unit?" ("+f.unit+")":"");
+  if(isNetCam)label.dataset.field=f.key;
   let input;if(f.type==="select"||f.type==="boolean"){
    input=document.createElement("select");input.append(opt("Non renseigné",""));
    const options=f.type==="boolean"?[["Oui","true"],["Non","false"]]:f.options.map(v=>[v,v]);
@@ -613,7 +621,7 @@ function renderAsset(){
    const v=input.value===""?null:f.type==="number"?Number(input.value):f.type==="boolean"?input.value==="true":input.value;
    status("asset-status",engine.setAssetField(a.id,f.key,v));
   };
-  label.append(input);host.append(label);
+  label.append(input);fieldHost.append(label);
  }
  renderComputerTabs();
 }
@@ -680,6 +688,7 @@ function renderComputerOverview(a){
   if(kind==="ram"){const total=document.createElement("p");total.className="computer-overview-total";total.textContent="Total RAM : "+items.reduce((n,c)=>n+c.capaciteGo*c.quantite,0)+" Go";section.append(total);}
   host.append(section);
  }
+ id("computer-overview-title").textContent=netCamProfile(engine.getProfile(a.profileId))?"Caméra":"Configuration matérielle";
  overview.hidden=host.childElementCount===0;
 }
 function renderComputerTabs(){
