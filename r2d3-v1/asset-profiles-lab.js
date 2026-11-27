@@ -1,4 +1,4 @@
-import {createAssetRegistry,installScreenProfile,installDesktopProfile,installNetCamProfile} from "./asset-profiles.js?netcam-dhcp-v1=1";
+import {createAssetRegistry,installScreenProfile,installDesktopProfile,installNetCamProfile} from "./asset-profiles.js?netcam-unified-v1=1";
 import {buildCablingViewModel, renderCablingVisual} from "../shared-ui/v1/cabling-visual.js";
 import {connectNewCable,attachExistingCable,detachExistingCable} from "../shared-ui/v1/cabling-actions.js?connectique-v1=6e89bdd";
 let engine=createAssetRegistry();
@@ -269,11 +269,12 @@ function renderAssetPorts(){
  if(!a){host.textContent="Crée un actif pour afficher ses ports.";return}
  if(!a.ports.length){host.textContent="Aucun port ni interface.";return}
  const extensions=new Map();
+ const networkByPort=new Map(engine.listAssetNetworkInterfaces(a.id).map(p=>[p.id,p]));
  for(const p of a.ports.filter(p=>!a.boxConfig?.internalPortIds?.includes(p.id))){
   const row=document.createElement("div");row.className="item";
   const caption=document.createElement("span");
   caption.textContent=p.name+" : "+p.type+(p.origin==="integrated"?" (intégré)":" (extension)");
-  const ipv4=a.interfaceIpv4?.[p.id];
+  const ipv4=networkByPort.get(p.id)?.ipv4;
   if(ipv4)caption.textContent+=" | IPv4 "+ipv4.address+"/"+ipv4.prefix+
    " ("+(ipv4.mode==="dhcp"?"DHCP":"statique")+", "+(ipv4.status==="connected"?"connecté":"déconnecté")+")";
   row.append(caption);host.append(row);
