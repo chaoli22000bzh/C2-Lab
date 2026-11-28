@@ -1553,4 +1553,25 @@ export function installNetCamProfile(registry){
  }
  return {success:true,code:"created",profile:registry.getProfile(profileId)};
 }
+/* Profil descriptif Scanner autonome : fonctions réseau et destinations dans des lots futurs. */
+export const scannerFieldDefinitions=[
+ {key:"scanner_type",label:"Type de scanner",type:"select",options:["À plat","Défilement","Mixte"]},
+ {key:"scanner_adf",label:"Chargeur automatique (ADF)",type:"boolean"},
+ {key:"scanner_adf_capacite",label:"Capacité ADF",type:"number",unit:"feuilles"},
+ {key:"scanner_recto_verso",label:"Recto verso automatique",type:"boolean"},
+ {key:"scanner_resolution",label:"Résolution optique",type:"select",options:["300 dpi","600 dpi","1200 dpi"]},
+ {key:"scanner_format",label:"Formats acceptés",type:"select",options:["A4","A3","A4 et A3"]},
+ {key:"scanner_mode",label:"Mode de numérisation",type:"select",options:["Couleur","Niveaux de gris","Noir et blanc"]}
+];
+export function installScannerProfile(registry){
+ const existing=registry.listProfiles().find(p=>p.name==="Scanner");
+ if(existing)return {success:true,code:"already_present",profile:existing};
+ const created=registry.createProfile("Scanner");
+ if(!created.success)return created;
+ for(const field of scannerFieldDefinitions){
+  const added=registry.addField(created.profile.id,field);
+  if(!added.success)throw Error("Impossible d'ajouter le champ Scanner : "+field.key);
+ }
+ return {success:true,code:"created",profile:registry.getProfile(created.profile.id)};
+}
 export const restoreAssetRegistry=saved=>createAssetRegistry(saved);
