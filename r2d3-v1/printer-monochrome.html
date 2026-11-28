@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>R2D3 | Imprimante laser monochrome</title>
+<style>
+:root{color-scheme:light;--bg:#eef2f7;--panel:#fff;--fg:#193650;--muted:#576a7e;--line:#cad5e1;--input:#fff;--accent:#176a9f;--soft:#e9f1f8}
+@media(prefers-color-scheme:dark){:root{color-scheme:dark;--bg:#121d29;--panel:#203041;--fg:#edf3fa;--muted:#c0ccda;--line:#5d7287;--input:#283e52;--accent:#277fb3;--soft:#2b4055}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.55 "Segoe UI",Arial,sans-serif}
+header{background:#1a4465;color:#fff;padding:18px max(16px,calc((100vw - 920px)/2))}
+h1{font-size:21px;margin:0}header p{color:#d9e8f3;margin:2px 0 0}
+main{max-width:950px;margin:16px auto;padding:0 16px}section{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:14px}
+h2{font-size:17px;margin:0 0 10px}p{color:var(--muted);margin:8px 0}.fields{display:flex;flex-wrap:wrap;gap:12px;align-items:end}
+label{display:grid;gap:4px;flex:0 1 auto;font-size:13px;font-weight:600;min-width:0}
+.small{width:120px}.medium{width:175px}.ip{width:155px}.tiny{width:85px}
+input,select{font:inherit;width:100%;min-width:0;padding:8px 12px;border:1px solid var(--line);background:var(--input);color:var(--fg);border-radius:999px;min-height:36px}
+select{appearance:none;-webkit-appearance:none;padding-right:29px;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='m1 1 5 5 5-5' fill='none' stroke='%237c9eb7' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-position:right 11px center;background-repeat:no-repeat}
+input[type=number]{appearance:textfield;-moz-appearance:textfield}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+button{border:0;border-radius:7px;padding:9px 14px;background:var(--accent);color:#fff;cursor:pointer;font:inherit;font-weight:600;margin-top:12px}
+button.secondary{background:var(--soft);color:var(--fg);border:1px solid var(--line)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #3a9bdb;outline-offset:2px}
+.summary{background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:12px;overflow-wrap:anywhere}
+#message{min-height:24px;font-weight:600}#message.error{color:#d54c5f}
+[hidden]{display:none!important}@media(max-width:480px){label{max-width:100%;flex:1 1 120px}}
+</style></head><body>
+<header><h1>Imprimante laser monochrome <small>V1.0</small></h1><p>Recette du premier profil réseau R2D3, sans impression simulée</p></header>
+<main>
+<section><h2>Équipement d'essai</h2><p><strong>IMP-ETH-01</strong> : Laser, Monochrome, A4, un bac standard, un port Ethernet RJ45 LAN01. Aucun Wi-Fi, Scanner, USB local ni service Port 9100.</p><div id="physical" class="summary"></div></section>
+<section><h2>Caractéristiques matérielles</h2>
+<form id="hardware"><div class="fields">
+<label class="small">Bac 1 (feuilles)<input name="printer_bac1" inputmode="numeric" type="number" min="1" step="1" placeholder="Non renseigné"></label>
+<label class="small">Recto verso<select name="printer_recto_verso"><option value="">Non renseigné</option><option value="true">Oui</option><option value="false">Non</option></select></label>
+<label class="small">Vitesse (ppm)<input name="printer_vitesse" inputmode="decimal" type="number" min="0.1" step="any" placeholder="Non renseigné"></label>
+</div><button type="submit">Enregistrer</button></form></section>
+<section><h2>Interface Ethernet et IPv4</h2>
+<form id="network"><div class="fields">
+<label class="small">Mode<select name="mode"><option value="dhcp">DHCP</option><option value="static">Statique</option></select></label>
+<label class="small">État du lien<select name="status"><option value="disconnected">Déconnecté</option><option value="connected">Connecté</option></select></label>
+<label class="ip">Adresse IPv4<input name="address" placeholder="192.168.1.120"></label>
+<label class="tiny">Préfixe<input name="prefix" type="number" min="1" max="32" step="1" placeholder="24"></label>
+<label class="ip">Passerelle<input name="gateway" placeholder="192.168.1.1"></label>
+<label class="ip">DNS (facultatif)<input name="dns" placeholder="192.168.1.1"></label>
+</div><button type="submit">Enregistrer IPv4</button> <button id="clear" class="secondary" type="button">Retirer l'IPv4</button></form>
+<p>DHCP : la configuration reste sans bail dans ce banc d'essai isolé. Un bail réel dépendra d'un serveur DHCP raccordé dans le futur parc R2D3.</p></section>
+<section><h2>État du registre</h2><div id="summary" class="summary"></div><button id="restore" class="secondary" type="button">Tester export / restauration</button><p id="message" role="status"></p></section>
+</main>
+<script type="module">
+import {createAssetRegistry,restoreAssetRegistry,installMonochromePrinterProfile} from "./asset-profiles.js?printer-v1=1";
+let engine=createAssetRegistry();
+const profile=installMonochromePrinterProfile(engine).profile;
+const asset=engine.createAsset(profile.id,{name:"IMP-ETH-01"}).asset;
+const assetId=asset.id,portId=asset.ports[0].id;
+const $=id=>document.getElementById(id),hw=$("hardware"),net=$("network");
+function msg(s,error=false){$("message").textContent=s;$("message").classList.toggle("error",error)}
+function values(){return engine.getAsset(assetId).values}
+function paint(){
+ const a=engine.getAsset(assetId),v=a.values,n=a.interfaceIpv4?.[portId];
+ $("physical").textContent="Port : "+a.ports[0].name+" (Ethernet RJ45) | Interfaces Wi-Fi : "+a.ports.filter(p=>p.type==="wifi").length+" | Scanner : "+(a.scanner?"Oui":"Non");
+ hw.elements.printer_bac1.value=v.printer_bac1??"";
+ hw.elements.printer_recto_verso.value=v.printer_recto_verso===null?"":String(v.printer_recto_verso);
+ hw.elements.printer_vitesse.value=v.printer_vitesse??"";
+ $("summary").textContent="Bac 1 : "+(v.printer_bac1??"non renseigné")+" feuilles | Recto verso : "+(v.printer_recto_verso===null?"non renseigné":v.printer_recto_verso?"Oui":"Non")+" | Vitesse : "+(v.printer_vitesse??"non renseignée")+" ppm | IPv4 : "+(n?.address??"non attribuée")+" | Mode : "+(n?.mode??"non configuré");
+ if(n){net.elements.mode.value=n.mode;net.elements.status.value=n.status;net.elements.address.value=n.address??"";net.elements.prefix.value=n.prefix??"";net.elements.gateway.value=n.gateway??"";net.elements.dns.value=n.dns.join(", ");}
+ else{net.elements.mode.value="dhcp";net.elements.status.value="disconnected";for(const k of ["address","prefix","gateway","dns"])net.elements[k].value="";}
+ syncMode();
+}
+function syncMode(){
+ const dhcp=net.elements.mode.value==="dhcp";
+ for(const k of ["address","prefix","gateway","dns"])net.elements[k].disabled=dhcp;
+}
+net.elements.mode.onchange=syncMode;
+hw.onsubmit=e=>{
+ e.preventDefault();const v=new FormData(hw);
+ const values=[
+  ["printer_bac1",v.get("printer_bac1")===""?null:Number(v.get("printer_bac1"))],
+  ["printer_recto_verso",v.get("printer_recto_verso")===""?null:v.get("printer_recto_verso")==="true"],
+  ["printer_vitesse",v.get("printer_vitesse")===""?null:Number(v.get("printer_vitesse"))]
+ ];
+ for(const [key,val] of values){const r=engine.setAssetField(assetId,key,val);if(!r.success){msg(r.message,true);return;}}
+ msg("Caractéristiques enregistrées.");paint();
+};
+net.onsubmit=e=>{
+ e.preventDefault();const v=new FormData(net),dhcp=v.get("mode")==="dhcp";
+ const config=dhcp?{mode:"dhcp",status:v.get("status"),address:null,prefix:null,gateway:null,dns:[]}:
+ {mode:"static",status:v.get("status"),address:String(v.get("address")).trim(),prefix:Number(v.get("prefix")),gateway:String(v.get("gateway")).trim()||null,dns:String(v.get("dns")).split(",").map(x=>x.trim()).filter(Boolean)};
+ const r=engine.setAssetInterfaceIpv4(assetId,portId,config);
+ msg(r.message,!r.success);if(r.success)paint();
+};
+$("clear").onclick=()=>{const r=engine.setAssetInterfaceIpv4(assetId,portId,null);msg(r.message,!r.success);paint();};
+$("restore").onclick=()=>{
+ try{const saved=engine.exportState(),restored=restoreAssetRegistry(saved);
+ if(JSON.stringify(saved)!==JSON.stringify(restored.exportState()))throw Error("État différent");
+ engine=restored;paint();msg("Export et restauration conformes.");
+ }catch(error){msg("Restauration impossible : "+error.message,true);}
+};
+paint();
+</script></body></html>
