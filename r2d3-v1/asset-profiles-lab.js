@@ -1,4 +1,4 @@
-import {createAssetRegistry,installScreenProfile,installDesktopProfile,installNetCamProfile,installScannerProfile} from "./asset-profiles.js?scanner-v1=1";
+import {createAssetRegistry,installScreenProfile,installDesktopProfile,installNetCamProfile,installScannerProfile} from "./asset-profiles.js?scanner-v1=2";
 import {buildCablingViewModel, renderCablingVisual} from "../shared-ui/v1/cabling-visual.js";
 import {connectNewCable,attachExistingCable,detachExistingCable} from "../shared-ui/v1/cabling-actions.js?connectique-v1=6e89bdd";
 let engine=createAssetRegistry();
