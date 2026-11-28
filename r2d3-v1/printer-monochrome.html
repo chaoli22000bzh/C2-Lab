@@ -22,7 +22,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 #message{min-height:24px;font-weight:600}#message.error{color:#d54c5f}
 [hidden]{display:none!important}@media(max-width:480px){label{max-width:100%;flex:1 1 120px}}
 </style></head><body>
-<header><h1>Imprimante laser monochrome <small>V1.0</small></h1><p>Recette du premier profil réseau R2D3, sans impression simulée</p></header>
+<header><h1>Imprimante laser monochrome <small>V1.1</small></h1><p>Recette du premier profil réseau R2D3, sans impression simulée</p></header>
 <main>
 <section><h2>Équipement d'essai</h2><p><strong>IMP-ETH-01</strong> : Laser, Monochrome, A4, un bac standard, un port Ethernet RJ45 LAN01. Aucun Wi-Fi, Scanner, USB local ni service Port 9100.</p><div id="physical" class="summary"></div></section>
 <section><h2>Caractéristiques matérielles</h2>
@@ -40,11 +40,12 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 <label class="ip">Passerelle<input name="gateway" placeholder="192.168.1.1"></label>
 <label class="ip">DNS (facultatif)<input name="dns" placeholder="192.168.1.1"></label>
 </div><button type="submit">Enregistrer IPv4</button> <button id="clear" class="secondary" type="button">Retirer l'IPv4</button></form>
-<p>DHCP : la configuration reste sans bail dans ce banc d'essai isolé. Un bail réel dépendra d'un serveur DHCP raccordé dans le futur parc R2D3.</p></section>
+<p>DHCP : sans serveur accessible, le moteur R2D3 fournit une adresse APIPA en 169.254.x.x/16, sans passerelle ni DNS. Aucun bail DHCP n’est inventé.</p></section>
 <section><h2>État du registre</h2><div id="summary" class="summary"></div><button id="restore" class="secondary" type="button">Tester export / restauration</button><p id="message" role="status"></p></section>
 </main>
 <script type="module">
 import {createAssetRegistry,restoreAssetRegistry,installMonochromePrinterProfile} from "./asset-profiles.js?printer-v1=1";
+import {requestAssetInterfaceDhcp} from "https://chaoli22000bzh.github.io/R2D3/src/network-client-dhcp-v1.js?printer-apipa=1";
 let engine=createAssetRegistry();
 const profile=installMonochromePrinterProfile(engine).profile;
 const asset=engine.createAsset(profile.id,{name:"IMP-ETH-01"}).asset;
@@ -58,7 +59,7 @@ function paint(){
  hw.elements.printer_bac1.value=v.printer_bac1??"";
  hw.elements.printer_recto_verso.value=v.printer_recto_verso===null?"":String(v.printer_recto_verso);
  hw.elements.printer_vitesse.value=v.printer_vitesse??"";
- $("summary").textContent="Bac 1 : "+(v.printer_bac1??"non renseigné")+" feuilles | Recto verso : "+(v.printer_recto_verso===null?"non renseigné":v.printer_recto_verso?"Oui":"Non")+" | Vitesse : "+(v.printer_vitesse??"non renseignée")+" ppm | IPv4 : "+(n?.address??"non attribuée")+" | Mode : "+(n?.mode??"non configuré");
+ $("summary").textContent="Bac 1 : "+(v.printer_bac1??"non renseigné")+" feuilles | Recto verso : "+(v.printer_recto_verso===null?"non renseigné":v.printer_recto_verso?"Oui":"Non")+" | Vitesse : "+(v.printer_vitesse??"non renseignée")+" ppm | IPv4 : "+(n?.address??"non attribuée")+" | Mode : "+(n?.mode??"non configuré")+(n?.mode==="dhcp"&&n?.address?.startsWith("169.254.")?" | APIPA /16 (sans passerelle ni DNS)":"");
  if(n){net.elements.mode.value=n.mode;net.elements.status.value=n.status;net.elements.address.value=n.address??"";net.elements.prefix.value=n.prefix??"";net.elements.gateway.value=n.gateway??"";net.elements.dns.value=n.dns.join(", ");}
  else{net.elements.mode.value="dhcp";net.elements.status.value="disconnected";for(const k of ["address","prefix","gateway","dns"])net.elements[k].value="";}
  syncMode();
@@ -83,7 +84,12 @@ net.onsubmit=e=>{
  const config=dhcp?{mode:"dhcp",status:v.get("status"),address:null,prefix:null,gateway:null,dns:[]}:
  {mode:"static",status:v.get("status"),address:String(v.get("address")).trim(),prefix:Number(v.get("prefix")),gateway:String(v.get("gateway")).trim()||null,dns:String(v.get("dns")).split(",").map(x=>x.trim()).filter(Boolean)};
  const r=engine.setAssetInterfaceIpv4(assetId,portId,config);
- msg(r.message,!r.success);if(r.success)paint();
+ if(!r.success){msg(r.message,true);return;}
+ if(dhcp){
+  const lease=requestAssetInterfaceDhcp({registry:engine,assetId,portId});
+  msg(lease.success?(lease.code==="apipa"?"APIPA attribuée par le Core, sans serveur DHCP.":"Configuration DHCP actualisée."):(lease.message||"Demande DHCP échouée."),!lease.success);
+ }else msg("Configuration IPv4 statique enregistrée.");
+ paint();
 };
 $("clear").onclick=()=>{const r=engine.setAssetInterfaceIpv4(assetId,portId,null);msg(r.message,!r.success);paint();};
 $("restore").onclick=()=>{
@@ -92,5 +98,8 @@ $("restore").onclick=()=>{
  engine=restored;paint();msg("Export et restauration conformes.");
  }catch(error){msg("Restauration impossible : "+error.message,true);}
 };
+const initialized=requestAssetInterfaceDhcp({registry:engine,assetId,portId});
+if(!initialized.success)msg("Initialisation DHCP : "+initialized.message,true);
+else if(initialized.code==="apipa")msg("Adresse APIPA fournie par le moteur R2D3.");
 paint();
 </script></body></html>
