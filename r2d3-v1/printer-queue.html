@@ -24,7 +24,7 @@ table{border-collapse:collapse;width:100%;margin-top:10px}th,td{text-align:left;
 .scroll{overflow-x:auto}
 small{color:var(--muted)}[hidden]{display:none!important}
 </style></head><body>
-<header><h1>Imprimante réseau : TCP 9100 <small style="color:#dce7f2">V1.3</small></h1><p>File d'attente pédagogique, sans pilote ni impression physique</p></header>
+<header><h1>Imprimante réseau : TCP 9100 <small style="color:#dce7f2">V1.4</small></h1><p>File d'attente pédagogique, sans pilote ni impression physique</p></header>
 <main>
 <section><h2>Réseau de test</h2>
 <div class="info">PC-01 : 192.168.10.10/24 → câble RJ45 → IMP-ETH-01 : 192.168.10.20/24<br>Service d'impression RAW : TCP 9100</div>
@@ -45,12 +45,12 @@ small{color:var(--muted)}[hidden]{display:none!important}
 <section><h2>File d'attente de l'imprimante</h2>
 <div class="actions"><button id="next" class="secondary">Traiter l'étape suivante</button><button id="restore" class="secondary">Tester sauvegarde / restauration</button></div>
 <div class="scroll"><table><thead><tr><th>Travail</th><th>Document</th><th>Pages</th><th>État</th><th>Action</th></tr></thead><tbody id="jobs"><tr><td colspan="5">Aucun travail reçu.</td></tr></tbody></table></div>
-<p><small>Un envoi impossible ne crée pas de travail. Un travail accepté est placé « En attente », puis passe « En cours » et enfin « Imprimé ». Un arrêt de l'imprimante pendant le traitement produit « Erreur ».</small></p>
+<p><small>Un envoi impossible ne crée pas de travail. Un travail accepté est placé « En attente », puis passe « En cours » et enfin « Imprimé ». Lors d'une panne, les travaux « En attente » restent dans la file ; seul un travail « En cours » passe à « Erreur ». Après remise en service, la file peut reprendre.</small></p>
 </section>
 </main>
 <script type="module">
 import {createAssetRegistry,restoreAssetRegistry,installMonochromePrinterProfile} from "./asset-profiles.js?printer-queue-v1=1";
-import {createPrintServiceV1} from "./print-service-v1.js?printer-queue-v1=1";
+import {createPrintServiceV1} from "./print-service-v1.js?printer-queue-v1=2";
 let registry=createAssetRegistry();
 const printerProfile=installMonochromePrinterProfile(registry).profile;
 const pcProfile=registry.createProfile("PC Ethernet de recette").profile;
@@ -91,7 +91,13 @@ function render(){
 }
 $("wire").onclick=()=>{if(connected())registry.disconnectCableEnd(ids.cable,1);else connect();render();};
 $("port").onclick=()=>{spool.setEnabled(!spool.getStatus().enabled);render();};
-$("offline").onclick=()=>{const online=registry.getAsset(ids.printer).status==="En service";registry.updateAsset(ids.printer,{status:online?"Hors service":"En service"});render();};
+$("offline").onclick=()=>{
+ const online=registry.getAsset(ids.printer).status==="En service";
+ registry.updateAsset(ids.printer,{status:online?"Hors service":"En service"});
+ const result=spool.syncPrinterState();
+ msg(online?(result.job?"Travail "+result.job.id+" en erreur : imprimante hors service.":"Imprimante hors service : les travaux en attente sont conservés."):"Imprimante de nouveau en service : la file peut reprendre.",!online);
+ render();
+};
 $("subnet").onclick=()=>{const current=registry.getAsset(ids.pc).interfaceIpv4[ids.pcPort].address;ipv4(ids.pc,ids.pcPort,current==="192.168.10.10"?"192.168.20.10":"192.168.10.10");render();};
 $("send").onsubmit=e=>{e.preventDefault();const d=new FormData(e.target),r=spool.submit({sourceAssetId:ids.pc,document:String(d.get("document")),pages:Number(d.get("pages"))});msg(r.success?"Travail "+r.job.id+" reçu et placé en attente.":r.message,r.success);render();};
 $("next").onclick=()=>{const r=spool.advance();msg(r.success?(r.job.status==="en_cours"?"Travail en cours.":"Travail imprimé."):(r.job?"Travail en erreur : "+r.job.error:r.message),r.success);render();};
