@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>R2D3 : service d'impression TCP 9100</title>
+<style>
+:root{color-scheme:light;--bg:#f0f3f7;--fg:#1d3851;--muted:#576c82;--panel:#fff;--line:#cbd7e3;--input:#fff;--soft:#eaf1f8;--accent:#166ca2;--bad:#ad3349;--good:#22754b}
+@media(prefers-color-scheme:dark){:root{color-scheme:dark;--bg:#121b27;--fg:#e9f1f9;--muted:#c3cfdd;--panel:#203041;--line:#5a7288;--input:#2b4054;--soft:#2c4155;--accent:#2478ae;--bad:#ff9ba9;--good:#8ae2aa}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 "Segoe UI",Arial,sans-serif}
+header{background:#1d4261;color:#fff;padding:15px max(16px,calc((100vw - 920px)/2))}
+header h1{font-size:21px;margin:0}header p{color:#d4e2f0;margin:2px 0 0}
+main{max-width:955px;margin:16px auto;padding:0 15px}section{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:15px;margin-bottom:13px}
+h2{font-size:17px;margin:0 0 10px}p{color:var(--muted)}.fields,.actions{display:flex;flex-wrap:wrap;align-items:end;gap:10px}
+label{display:grid;gap:5px;font-size:13px;font-weight:600}.document{width:210px}.tiny{width:95px}
+input,select{width:100%;min-height:36px;padding:7px 12px;background:var(--input);color:var(--fg);border:1px solid var(--line);border-radius:999px;font:inherit}
+input[type=number]{appearance:textfield;-moz-appearance:textfield}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+button{border:0;border-radius:7px;background:var(--accent);color:#fff;font:inherit;font-weight:600;cursor:pointer;padding:9px 12px}
+button.secondary{background:var(--soft);color:var(--fg);border:1px solid var(--line)}
+button:disabled{opacity:.5;cursor:not-allowed}
+button:focus-visible,input:focus-visible{outline:2px solid #3b9be0;outline-offset:2px}
+.info{border-radius:8px;background:var(--soft);border:1px solid var(--line);padding:11px;margin-top:9px;overflow-wrap:anywhere}
+.message{font-weight:600;min-height:23px;margin:9px 0 0}.message.bad{color:var(--bad)}.message.good{color:var(--good)}
+table{border-collapse:collapse;width:100%;margin-top:10px}th,td{text-align:left;padding:9px 7px;border-bottom:1px solid var(--line)}th{font-size:12px;color:var(--muted)}
+.tag{display:inline-block;padding:2px 8px;border-radius:12px;background:var(--soft);border:1px solid var(--line);white-space:nowrap}
+.scroll{overflow-x:auto}
+small{color:var(--muted)}[hidden]{display:none!important}
+</style></head><body>
+<header><h1>Imprimante réseau : TCP 9100 <small style="color:#dce7f2">V1.2</small></h1><p>File d'attente pédagogique, sans pilote ni impression physique</p></header>
+<main>
+<section><h2>Réseau de test</h2>
+<div class="info">PC-01 : 192.168.10.10/24 → câble RJ45 → IMP-ETH-01 : 192.168.10.20/24<br>Service d'impression RAW : TCP 9100</div>
+<div class="actions" style="margin-top:12px">
+<button class="secondary" id="wire">Débrancher le câble</button>
+<button class="secondary" id="port">Désactiver TCP 9100</button>
+<button class="secondary" id="offline">Mettre l'imprimante hors service</button>
+<button class="secondary" id="subnet">Modifier le réseau du PC</button>
+</div>
+<p id="network-status"></p></section>
+<section><h2>Envoyer un travail d'impression</h2>
+<form id="send" class="fields">
+<label class="document">Document<input name="document" value="rapport.pdf" required maxlength="120"></label>
+<label class="tiny">Pages<input name="pages" type="number" min="1" max="9999" step="1" value="3" required></label>
+<button type="submit">Envoyer au port 9100</button>
+</form>
+<p id="message" class="message" role="status"></p></section>
+<section><h2>File d'attente de l'imprimante</h2>
+<div class="actions"><button id="next" class="secondary">Traiter l'étape suivante</button><button id="restore" class="secondary">Tester sauvegarde / restauration</button></div>
+<div class="scroll"><table><thead><tr><th>Travail</th><th>Document</th><th>Pages</th><th>État</th><th>Action</th></tr></thead><tbody id="jobs"><tr><td colspan="5">Aucun travail reçu.</td></tr></tbody></table></div>
+<p><small>Un envoi impossible ne crée pas de travail. Un travail accepté est placé « En attente », puis passe « En cours » et enfin « Imprimé ». Un arrêt de l'imprimante pendant le traitement produit « Erreur ».</small></p>
+</section>
+</main>
+<script type="module">
+import {createAssetRegistry,restoreAssetRegistry,installMonochromePrinterProfile} from "./asset-profiles.js?printer-queue-v1=1";
+import {createPrintServiceV1} from "./print-service-v1.js?printer-queue-v1=1";
+let registry=createAssetRegistry();
+const printerProfile=installMonochromePrinterProfile(registry).profile;
+const pcProfile=registry.createProfile("PC Ethernet de recette").profile;
+registry.addPortGroup(pcProfile.id,{type:"ethernet-rj45",prefix:"LAN",start:1,count:1,digits:2});
+const pc=registry.createAsset(pcProfile.id,{name:"PC-01"}).asset;
+const printer=registry.createAsset(printerProfile.id,{name:"IMP-ETH-01"}).asset;
+const ids={pc:pc.id,printer:printer.id,pcPort:pc.ports[0].id,printerPort:printer.ports[0].id};
+const cable=registry.createCable().cable;ids.cable=cable.id;
+function ipv4(assetId,portId,address){return registry.setAssetInterfaceIpv4(assetId,portId,{
+ mode:"static",status:"connected",address,prefix:24,gateway:null,dns:[]});}
+ipv4(ids.pc,ids.pcPort,"192.168.10.10");
+ipv4(ids.printer,ids.printerPort,"192.168.10.20");
+function connect(){registry.connectCableEnd(ids.cable,0,ids.pcPort);return registry.connectCableEnd(ids.cable,1,ids.printerPort);}
+connect();
+let spool=createPrintServiceV1({registry,printerAssetId:ids.printer});
+const $=id=>document.getElementById(id);
+function msg(message,good){$("message").textContent=message;$("message").className="message "+(good?"good":"bad");}
+function connected(){return registry.getCable(ids.cable).ends.every(x=>x!==null);}
+function render(){
+ const linked=connected(),enabled=spool.getStatus().enabled,online=registry.getAsset(ids.printer).status==="En service";
+ const client=registry.getAsset(ids.pc).interfaceIpv4[ids.pcPort].address;
+ $("wire").textContent=linked?"Débrancher le câble":"Rebrancher le câble";
+ $("port").textContent=enabled?"Désactiver TCP 9100":"Activer TCP 9100";
+ $("offline").textContent=online?"Mettre l'imprimante hors service":"Remettre l'imprimante en service";
+ $("subnet").textContent=client.startsWith("192.168.10.")?"Passer le PC sur 192.168.20.10":"Remettre le PC sur 192.168.10.10";
+ $("network-status").textContent="Câble : "+(linked?"branché":"débranché")+" | Port 9100 : "+(enabled?"actif":"inactif")+" | Imprimante : "+(online?"en service":"hors service")+" | IPv4 PC : "+client;
+ const jobs=spool.getJobs(),body=$("jobs");body.replaceChildren();
+ if(!jobs.length){const tr=document.createElement("tr"),td=document.createElement("td");td.colSpan=5;td.textContent="Aucun travail reçu.";tr.append(td);body.append(tr);}
+ for(const job of jobs){
+  const tr=document.createElement("tr");
+  for(const value of [job.id,job.document,String(job.pages),job.status.replaceAll("_"," ")]){const td=document.createElement("td");td.textContent=value;if(value===job.status.replaceAll("_"," "))td.className="tag";tr.append(td);}
+  const td=document.createElement("td");
+  if(job.status==="erreur"){const btn=document.createElement("button");btn.className="secondary";btn.textContent="Relancer";btn.onclick=()=>{const r=spool.retry(job.id);msg(r.success?"Travail replacé en attente.":r.message,r.success);render();};td.append(btn);}
+  else td.textContent=job.error??"";
+  tr.append(td);body.append(tr);
+ }
+}
+$("wire").onclick=()=>{if(connected())registry.disconnectCableEnd(ids.cable,1);else connect();render();};
+$("port").onclick=()=>{spool.setEnabled(!spool.getStatus().enabled);render();};
+$("offline").onclick=()=>{const online=registry.getAsset(ids.printer).status==="En service";registry.updateAsset(ids.printer,{status:online?"Hors service":"En service"});render();};
+$("subnet").onclick=()=>{const current=registry.getAsset(ids.pc).interfaceIpv4[ids.pcPort].address;ipv4(ids.pc,ids.pcPort,current==="192.168.10.10"?"192.168.20.10":"192.168.10.10");render();};
+$("send").onsubmit=e=>{e.preventDefault();const d=new FormData(e.target),r=spool.submit({sourceAssetId:ids.pc,document:String(d.get("document")),pages:Number(d.get("pages"))});msg(r.success?"Travail "+r.job.id+" reçu et placé en attente.":r.message,r.success);render();};
+$("next").onclick=()=>{const r=spool.advance();msg(r.success?(r.job.status==="en_cours"?"Travail en cours.":"Travail imprimé."):(r.job?"Travail en erreur : "+r.job.error:r.message),r.success);render();};
+$("restore").onclick=()=>{try{const oldRegistry=registry.exportState(),oldSpool=spool.exportState();const newRegistry=restoreAssetRegistry(oldRegistry);const newSpool=createPrintServiceV1({registry:newRegistry,printerAssetId:ids.printer,saved:oldSpool});if(JSON.stringify(oldRegistry)!==JSON.stringify(newRegistry.exportState())||JSON.stringify(oldSpool)!==JSON.stringify(newSpool.exportState()))throw Error("Données différentes");registry=newRegistry;spool=newSpool;msg("Sauvegarde et restauration conformes.",true);render();}catch(e){msg("Restauration échouée : "+e.message,false);}};
+render();
+</script></body></html>
