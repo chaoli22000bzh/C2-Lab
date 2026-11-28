@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>R2D3 : recette du composant Scanner</title>
+<style>
+:root{color-scheme:light;--bg:#f0f3f7;--fg:#1c3852;--panel:#fff;--muted:#586b7f;--line:#c7d3e0;--input:#fff;--accent:#1867a3;--soft:#e5edf5}
+@media(prefers-color-scheme:dark){:root{color-scheme:dark;--bg:#141d28;--fg:#e8eff7;--panel:#1e2b3a;--muted:#bfcede;--line:#536579;--input:#27394b;--accent:#2676b4;--soft:#30475f}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 "Segoe UI",Arial,sans-serif}
+header{background:#193e60;color:#fff;padding:16px max(16px,calc((100vw - 900px)/2))}
+h1{font-size:21px;margin:0}header p{color:#d5e2ee;margin:4px 0 0;font-size:13px}
+main{max-width:930px;margin:auto;padding:16px}section{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:17px;margin-bottom:14px}
+h2{font-size:17px;margin:0 0 8px}p{color:var(--muted)}.grid{display:flex;flex-wrap:wrap;gap:12px;margin:12px 0}
+label{display:grid;gap:4px;font-weight:600;font-size:13px;flex:0 0 auto;width:130px}
+label.type{width:145px}label.adf{width:110px}label.duplex{width:130px}label.resolution{width:130px}label.format{width:125px}
+input,select{width:100%;min-width:0;background:var(--input);color:var(--fg);border:1px solid var(--line);font:inherit;padding:8px 12px;min-height:37px;border-radius:999px}
+select{appearance:none;-webkit-appearance:none;cursor:pointer;padding-right:32px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='m1 1 5 5 5-5' fill='none' stroke='%235b819c' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+@media(prefers-color-scheme:dark){select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='m1 1 5 5 5-5' fill='none' stroke='%23c1cfdd' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E")}}
+input[type="number"]{-moz-appearance:textfield;appearance:textfield}
+input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid #2688ca;outline-offset:2px}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+button{font:inherit;font-weight:600;cursor:pointer;border:0;border-radius:7px;background:var(--accent);color:#fff;padding:9px 13px}
+button.secondary{background:var(--soft);border:1px solid var(--line);color:var(--fg)}
+button:disabled{opacity:.5;cursor:not-allowed}[hidden]{display:none!important}
+.status{min-height:22px;margin:8px 0;font-weight:600}.status.error{color:#b7354a}
+@media(prefers-color-scheme:dark){.status.error{color:#ff9da9}}
+small{color:var(--muted)}.summary{border:1px solid var(--line);border-radius:8px;background:var(--soft);padding:11px}
+@media(max-width:510px){label{max-width:calc(100vw - 64px)}section{padding:12px}}
+</style>
+</head>
+<body>
+<header><h1>R2D3 : composant Scanner <small style="color:#dce7f2">V1.0</small></h1><p>Recette isolée du composant réutilisable, sans scanner autonome</p></header>
+<main>
+<section>
+<h2>Équipement hôte de test</h2>
+<p>Un actif générique nommé <strong>IMP-TEST-01</strong> héberge le composant Scanner. Ce n'est pas encore l'imprimante réseau ni le photocopieur définitif.</p>
+<div class="actions">
+<button id="add" type="button">Ajouter Scanner</button>
+<button id="remove" class="secondary" type="button" disabled>Supprimer Scanner</button>
+<button id="restore" class="secondary" type="button">Tester sauvegarde / restauration</button>
+</div>
+<p id="status" class="status" role="status"></p>
+</section>
+<section id="detail" hidden>
+<h2>Caractéristiques du composant</h2>
+<form id="form">
+<div class="grid">
+<label class="type">Type<select name="type"><option value="">Non renseigné</option><option>À plat</option><option>Défilement</option><option>Mixte</option></select></label>
+<label class="adf">ADF (feuilles)<input name="adfFeuilles" type="number" min="0" step="1" placeholder="0 si absent"></label>
+<label class="duplex">Recto verso<select name="rectoVerso"><option value="">Non renseigné</option><option value="true">Oui</option><option value="false">Non</option></select></label>
+<label class="resolution">Résolution<select name="resolution"><option value="">Non renseigné</option><option>300 dpi</option><option>600 dpi</option><option>1200 dpi</option></select></label>
+<label class="format">Format<select name="format"><option value="">Non renseigné</option><option>A4</option><option>A3</option><option>A4 et A3</option></select></label>
+</div>
+<button type="submit">Enregistrer les caractéristiques</button>
+</form>
+</section>
+<section>
+<h2>État enregistré dans le registre</h2>
+<div id="summary" class="summary">Aucun composant Scanner.</div>
+<p><small>Le test de sauvegarde / restauration reconstruit le registre à partir de son export JSON et contrôle l'égalité des données. Le rechargement de cette page remet le banc d'essai à zéro. Les futures destinations SMB, SMTP, clé USB et Cloud ne sont pas implémentées ici.</small></p>
+</section>
+</main>
+<script type="module">
+import {createAssetRegistry,restoreAssetRegistry} from "./asset-profiles.js?scanner-component=1";
+let engine=createAssetRegistry();
+const profile=engine.createProfile("Hôte de test du composant Scanner").profile;
+const assetId=engine.createAsset(profile.id,{name:"IMP-TEST-01"}).asset.id;
+const id=x=>document.getElementById(x),form=id("form");
+function component(){return engine.getAsset(assetId)?.scanner??null;}
+function message(msg,error=false){const node=id("status");node.textContent=msg;node.classList.toggle("error",error);}
+function render(){
+ const v=component();
+ id("detail").hidden=!v;id("add").disabled=!!v;id("remove").disabled=!v;
+ id("summary").textContent=v?
+  "Composant "+v.id+" | Type : "+(v.type||"non renseigné")+
+  " | ADF : "+(v.adfFeuilles===null?"non renseigné":v.adfFeuilles+" feuilles")+
+  " | Recto verso : "+(v.rectoVerso===null?"non renseigné":v.rectoVerso?"Oui":"Non")+
+  " | Résolution : "+(v.resolution||"non renseignée")+
+  " | Format : "+(v.format||"non renseigné"):
+  "Aucun composant Scanner.";
+ if(v){form.elements.type.value=v.type;form.elements.adfFeuilles.value=v.adfFeuilles??"";
+ form.elements.rectoVerso.value=v.rectoVerso===null?"":String(v.rectoVerso);
+ form.elements.resolution.value=v.resolution;form.elements.format.value=v.format;}
+}
+id("add").onclick=()=>{const result=engine.addAssetComponent(assetId,"scanner",{});message(result.message,!result.success);render();};
+id("remove").onclick=()=>{const result=engine.removeAssetComponent(assetId,"scanner","scanner-1");message(result.message,!result.success);render();};
+form.onsubmit=e=>{
+ e.preventDefault();const d=new FormData(form);
+ const result=engine.updateAssetComponent(assetId,"scanner","scanner-1",{
+  type:d.get("type"),adfFeuilles:d.get("adfFeuilles"),rectoVerso:d.get("rectoVerso")===""?null:d.get("rectoVerso")==="true",
+  resolution:d.get("resolution"),format:d.get("format")});
+ message(result.message,!result.success);if(result.success)render();
+};
+id("restore").onclick=()=>{
+ try{const saved=engine.exportState();const restored=restoreAssetRegistry(saved);
+ if(JSON.stringify(restored.exportState())!==JSON.stringify(saved))throw Error("Données différentes après restauration");
+ engine=restored;message("Sauvegarde et restauration conformes.");render();
+ }catch(e){message("Échec de restauration : "+e.message,true);}
+};
+render();
+</script>
+</body></html>
