@@ -1,4 +1,4 @@
-import {createAssetRegistry,installScreenProfile,installDesktopProfile,installNetCamProfile,installScannerProfile} from "./asset-profiles.js?scanner-v1=2";
+import {createAssetRegistry,installScreenProfile,installDesktopProfile,installNetCamProfile,installScannerProfile} from "./asset-profiles.js?scanner-v1=3";
 import {buildCablingViewModel, renderCablingVisual} from "../shared-ui/v1/cabling-visual.js";
 import {connectNewCable,attachExistingCable,detachExistingCable} from "../shared-ui/v1/cabling-actions.js?connectique-v1=6e89bdd";
 let engine=createAssetRegistry();
@@ -626,6 +626,7 @@ function renderAsset(){
   }else{
    input=document.createElement("input");input.type=f.type==="number"?"number":f.type==="date"?"date":"text";
    input.value=a.values[f.key]??"";if(f.type==="number")input.step="any";
+   if(isScanner&&f.key==="scanner_adf_capacite"){input.min="0";input.step="1";input.placeholder="0 si absent";}
    if(p.name==="Écran"){
     const examples={resolution:"1920 × 1080",haut_parleurs:"Non ou 2x3W",pied_reglable:"Non ou 150mm",vesa:"Non ou 150x150mm"};
     if(examples[f.key])input.placeholder=examples[f.key];
