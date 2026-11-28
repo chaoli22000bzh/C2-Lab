@@ -24,7 +24,7 @@ table{border-collapse:collapse;width:100%;margin-top:10px}th,td{text-align:left;
 .scroll{overflow-x:auto}
 small{color:var(--muted)}[hidden]{display:none!important}
 </style></head><body>
-<header><h1>Imprimante réseau : TCP 9100 <small style="color:#dce7f2">V1.2</small></h1><p>File d'attente pédagogique, sans pilote ni impression physique</p></header>
+<header><h1>Imprimante réseau : TCP 9100 <small style="color:#dce7f2">V1.3</small></h1><p>File d'attente pédagogique, sans pilote ni impression physique</p></header>
 <main>
 <section><h2>Réseau de test</h2>
 <div class="info">PC-01 : 192.168.10.10/24 → câble RJ45 → IMP-ETH-01 : 192.168.10.20/24<br>Service d'impression RAW : TCP 9100</div>
@@ -81,7 +81,8 @@ function render(){
  if(!jobs.length){const tr=document.createElement("tr"),td=document.createElement("td");td.colSpan=5;td.textContent="Aucun travail reçu.";tr.append(td);body.append(tr);}
  for(const job of jobs){
   const tr=document.createElement("tr");
-  for(const value of [job.id,job.document,String(job.pages),job.status.replaceAll("_"," ")]){const td=document.createElement("td");td.textContent=value;if(value===job.status.replaceAll("_"," "))td.className="tag";tr.append(td);}
+  const statusLabel={en_attente:"En attente",en_cours:"En cours",imprime:"Imprimé",erreur:"Erreur"}[job.status]??job.status;
+  for(const value of [job.id,job.document,String(job.pages),statusLabel]){const td=document.createElement("td");td.textContent=value;if(value===statusLabel)td.className="tag";tr.append(td);}
   const td=document.createElement("td");
   if(job.status==="erreur"){const btn=document.createElement("button");btn.className="secondary";btn.textContent="Relancer";btn.onclick=()=>{const r=spool.retry(job.id);msg(r.success?"Travail replacé en attente.":r.message,r.success);render();};td.append(btn);}
   else td.textContent=job.error??"";
