@@ -716,6 +716,7 @@ function renderComputerTabs(){
  id("computer-tabs").hidden=!eligible;
  id("computer-general").hidden=eligible&&computerTab!=="general";
  id("computer-components").hidden=!eligible||computerTab!=="components";
+ if(!eligible)id("computer-overview").hidden=true;
  for(const tab of ["general","components"])id("computer-tab-"+tab).setAttribute("aria-pressed",String(computerTab===tab));
  if(eligible){renderComputerOverview(a);renderComponents();}
 }
