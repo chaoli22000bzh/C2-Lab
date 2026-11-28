@@ -76,18 +76,29 @@ export function createPrintServiceV1({registry,printerAssetId,saved}={}){
   state.jobs.push(job);
   return {success:true,code:"job_queued",job:copy(job)};
  }
+ function syncPrinterState(){
+  if(registry.getAsset(printerAssetId)?.status==="En service")
+   return {success:true,code:"printer_ready"};
+  const current=state.jobs.find(j=>j.status==="en_cours");
+  if(current){
+   current.status="erreur";
+   current.error="Imprimante hors service.";
+   return {success:false,code:"printer_offline",job:copy(current)};
+  }
+  return {success:false,code:"queue_paused",message:"Imprimante hors service : les travaux en attente sont conservés."};
+ }
  function advance(){
+  const printerState=syncPrinterState();
+  if(!printerState.success)return printerState;
   const inProgress=state.jobs.find(j=>j.status==="en_cours");
   const job=inProgress??state.jobs.find(j=>j.status==="en_attente");
   if(!job)return error("queue_empty","Aucun travail en attente ou en cours.");
-  const printer=registry.getAsset(printerAssetId);
-  if(printer?.status!=="En service"){
-   job.status="erreur";job.error="Imprimante hors service.";
-   return {success:false,code:"printer_offline",job:copy(job)};
-  }
   if(!state.enabled){
-   job.status="erreur";job.error="Service TCP 9100 arrêté pendant le traitement.";
-   return {success:false,code:"service_disabled",job:copy(job)};
+   if(job.status==="en_cours"){
+    job.status="erreur";job.error="Service TCP 9100 arrêté pendant le traitement.";
+    return {success:false,code:"service_disabled",job:copy(job)};
+   }
+   return error("queue_paused","Service TCP 9100 désactivé : les travaux en attente sont conservés.");
   }
   if(job.status==="en_attente"){
    job.status="en_cours";
@@ -104,5 +115,5 @@ export function createPrintServiceV1({registry,printerAssetId,saved}={}){
   job.status="en_attente";job.error=null;
   return {success:true,code:"job_requeued",job:copy(job)};
  }
- return {submit,advance,retry,setEnabled,getJobs,exportState:view,getStatus:()=>({printerAssetId,port:9100,enabled:state.enabled,waiting:state.jobs.filter(j=>j.status==="en_attente").length})};
+ return {submit,advance,syncPrinterState,retry,setEnabled,getJobs,exportState:view,getStatus:()=>({printerAssetId,port:9100,enabled:state.enabled,waiting:state.jobs.filter(j=>j.status==="en_attente").length})};
 }
