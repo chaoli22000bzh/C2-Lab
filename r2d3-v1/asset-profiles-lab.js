@@ -510,7 +510,7 @@ const administrationKinds={
  switch:{title:"Administration du switch",moduleUrl:"https://chaoli22000bzh.github.io/R2D3/src/switch-admin-ui-v1.js",mount:"mountSwitchAdmin"},
  router:{title:"Administration du routeur",moduleUrl:"https://chaoli22000bzh.github.io/R2D3/src/router-admin-ui-v1.js?pat-actions=28454a0",mount:"mountRouterAdmin"},
  wifi:{title:"Administration de la borne Wi-Fi",moduleUrl:"https://chaoli22000bzh.github.io/R2D3/src/wifi-admin-ui-v1.js",mount:"mountWifiAdmin"},
- netcam:{title:"Administration de la NetCam",moduleUrl:"https://chaoli22000bzh.github.io/R2D3/src/netcam-admin-ui-v1.js?v=1328",mount:"mountNetCamAdmin"}
+ netcam:{title:"Administration de la NetCam",moduleUrl:"https://chaoli22000bzh.github.io/R2D3/src/netcam-admin-ui-v1.js?v=1329",mount:"mountNetCamAdmin"}
 };
 let networkAdmin=null,networkAdminAssetId=null,networkAdminKind=null;
 const adminModules={};
