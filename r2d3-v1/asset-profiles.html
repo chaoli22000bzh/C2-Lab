@@ -119,13 +119,53 @@ input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-ou
 }
 @media(max-width:420px){#scanner-values label{max-width:calc(100vw - 58px)}}
 @media(prefers-color-scheme:dark){#scanner-characteristics{border-color:#607085}}
+/* Palette du laboratoire : suivre le thème du navigateur sans changer les interfaces métier embarquées. */
+:root{color-scheme:light;--lab-bg:#f0f3f7;--lab-fg:#1c3852;--lab-panel:#fff;--lab-border:#d5dde9;--lab-muted:#5a6c7f;--lab-input:#fff;--lab-input-border:#adbdce;--lab-subtle:#e5edf5;--lab-subtle-fg:#174b75}
+body{background:var(--lab-bg);color:var(--lab-fg)}
+main > .grid > section{background:var(--lab-panel);border-color:var(--lab-border);color:var(--lab-fg)}
+main > .grid > section p{color:var(--lab-muted)}
+main > .grid > section input:not([type="checkbox"]):not([type="radio"]),
+main > .grid > section select,
+main > .grid > section textarea{background-color:var(--lab-input);border-color:var(--lab-input-border);color:var(--lab-fg);color-scheme:inherit}
+main > .grid > section input::placeholder{color:var(--lab-muted);opacity:1}
+main > .grid > section button.subtle{background:var(--lab-subtle);color:var(--lab-subtle-fg)}
+#scanner-characteristics{background:var(--lab-panel);border-color:var(--lab-border);color:var(--lab-fg)}
+#scanner-characteristics p{color:var(--lab-muted)}
+#scanner-values select{background-color:var(--lab-input);color:var(--lab-fg)}
+#scanner-values input[type="number"]{background:var(--lab-input);color:var(--lab-fg);border-color:var(--lab-input-border)}
+@media(prefers-color-scheme:dark){
+ :root{color-scheme:dark;--lab-bg:#141d28;--lab-fg:#e8eff7;--lab-panel:#1e2b3a;--lab-border:#536579;--lab-muted:#c0cddd;--lab-input:#27394b;--lab-input-border:#72859a;--lab-subtle:#30475f;--lab-subtle-fg:#e4effb}
+ header{background:#15283a}
+ header p{color:#c9d9e8}
+ .lab-version{background:#254968;border-color:#65819a}
+ main > .grid > section .item{background:#243647;border-color:#596e82;color:#e8eff7}
+ main > .grid > section .component-derived{background:#25394d;border-color:#62788e;color:#e8eff7}
+ main > .grid > section .component-row{background:#223446;color:#f4f6fa;border-color:#607085}
+ main > .grid > section .component-row[aria-checked="true"]{background:#244c70}
+ main > .grid > section .component-row small{color:#c9d2dd}
+ main > .grid > section #component-form,main > .grid > section #component-confirm{border-color:#62788e;background:#223446}
+ main > .grid > section .cv-device{background:#243649;border-color:#5d7187}
+ main > .grid > section .cv-kind,main > .grid > section .cv-free,main > .grid > section .cv-muted{color:#c4d2e0}
+ main > .grid > section .cv-connection{background:#223447;border-color:#5d7187}
+ main > .grid > section .cv-cable-id{color:#c0d9ed}
+ main > .grid > section .cv-port:not(.cv-occupied){background:#30475c;border-color:#72869b;color:#eaf0f8}
+ main > .grid > section .cv-occupied{background:#584526;border-color:#bc9753;color:#ffecbe}
+ main > .grid > section .cv-connection-selected{background:#33465b;border-color:#c49d53}
+ main > .grid > section button.cv-free{background:#30475c;color:#eaf0f8;border-color:#72869b}
+ main > .grid > section button.cv-selected{background:#25547b;color:#fff}
+ main > .grid > section button.cv-cable-choice,main > .grid > section button.cv-disconnect,main > .grid > section button.cv-attach{background:#30475f;color:#e4effb}
+ main > .grid > section .good{color:#85e2aa}
+ main > .grid > section .bad{color:#ff9caa}
+ main > .grid > section .computer-screen-heading{color:#e6eff6;border-color:#607085}
+ #scanner-values select{--scanner-menu-bg:var(--lab-input)}
+}
 </style>
 <link rel="stylesheet" href="https://chaoli22000bzh.github.io/R2D3/src/switch-admin-ui-v1.css?select-style=136">
 <link rel="stylesheet" href="https://chaoli22000bzh.github.io/R2D3/src/wifi-admin-ui-v1.css?select-style=136">
 <link rel="stylesheet" href="https://chaoli22000bzh.github.io/R2D3/src/box-admin-ui-v1.css?wan-indicator=ec72f05">
 <link rel="stylesheet" href="https://chaoli22000bzh.github.io/R2D3/src/netcam-admin-ui-v1.css?v=1335">
 </head><body>
-<header><h1>R2D3 : constructeur de profils matériels <span class="lab-version">V1.3.39</span></h1><p>Créer un profil, ajouter des caractéristiques et inventorier des équipements</p></header>
+<header><h1>R2D3 : constructeur de profils matériels <span class="lab-version">V1.3.40</span></h1><p>Créer un profil, ajouter des caractéristiques et inventorier des équipements</p></header>
 <main><div class="grid">
 <section><h2>1. Profils</h2><p>Un profil décrit les champs d'un type d'équipement, sans imposer un modèle commercial.</p>
 <p>Le profil NetCam est déjà disponible. Sélectionne-le pour définir ses interfaces, puis crée un actif NetCam à partir de ce même profil.</p>
