@@ -1,10 +1,11 @@
-import {createAssetRegistry,installScreenProfile,installDesktopProfile,installNetCamProfile} from "./asset-profiles.js?netcam-unified-v1=1";
+import {createAssetRegistry,installScreenProfile,installDesktopProfile,installNetCamProfile,installScannerProfile} from "./asset-profiles.js?scanner-v1=1";
 import {buildCablingViewModel, renderCablingVisual} from "../shared-ui/v1/cabling-visual.js";
 import {connectNewCable,attachExistingCable,detachExistingCable} from "../shared-ui/v1/cabling-actions.js?connectique-v1=6e89bdd";
 let engine=createAssetRegistry();
 installScreenProfile(engine);
 installDesktopProfile(engine);
 installNetCamProfile(engine);
+installScannerProfile(engine);
 const id=x=>document.getElementById(x);
 const opt=(label,value)=>{const e=document.createElement("option");e.value=value;e.textContent=label;return e};
 const status=(who,r)=>{id(who).textContent=r.message;id(who).className="notice "+(r.success?"good":"bad")};
@@ -570,13 +571,14 @@ id("switch-admin-open").onclick=async()=>{
  }finally{button.disabled=false;}
 };
 function renderAsset(){
- const a=selectedAsset(),host=id("asset-values"),netcamHost=id("netcam-values"),form=id("asset-edit");
- host.replaceChildren();netcamHost.replaceChildren();
+ const a=selectedAsset(),host=id("asset-values"),netcamHost=id("netcam-values"),scannerHost=id("scanner-values"),form=id("asset-edit");
+ host.replaceChildren();netcamHost.replaceChildren();scannerHost.replaceChildren();
  const profile=a&&engine.getProfile(a.profileId);
- const isNetCam=profile?.netcamProfile===true;
+ const isNetCam=profile?.netcamProfile===true,isScanner=profile?.name==="Scanner";
  id("netcam-characteristics").hidden=!isNetCam;
- id("asset-values-title").hidden=isNetCam;
- host.hidden=isNetCam;
+ id("scanner-characteristics").hidden=!isScanner;
+ id("asset-values-title").hidden=isNetCam||isScanner;
+ host.hidden=isNetCam||isScanner;
  form.querySelectorAll("input,select,button").forEach(control=>control.disabled=!a);
  id("asset-remove").disabled=!a;
  id("extension-create").querySelectorAll("input,select,button").forEach(control=>control.disabled=!a);
@@ -590,7 +592,7 @@ function renderAsset(){
  }
  if(!a){host.textContent="Crée un actif.";renderComputerTabs();return}
  const p=profile;
- const fieldHost=isNetCam?netcamHost:host;
+ const fieldHost=isNetCam?netcamHost:isScanner?scannerHost:host;
  for(const f of p.fields){
   if(computerProfile(p)){
    const cpu=a.processors||[],ram=a.ramModules||[],disks=a.disks||[];
@@ -605,7 +607,7 @@ function renderAsset(){
    }
   }
   const label=document.createElement("label");label.textContent=f.label+(f.unit?" ("+f.unit+")":"");
-  if(isNetCam)label.dataset.field=f.key;
+  if(isNetCam||isScanner)label.dataset.field=f.key;
   const ipProtection=isNetCam&&f.key==="protection_ip";
   let input;if(f.type==="select"||f.type==="boolean"||ipProtection){
    input=document.createElement("select");input.append(opt("Non renseigné",""));
@@ -964,7 +966,7 @@ id("asset-edit").onsubmit=e=>{
  status("asset-status",r);refresh();
 };
 id("profiles").onchange=renderFields;id("assets").onchange=renderAsset;
-id("reset").onclick=()=>{closeNetworkAdmin();verifiedInternet.clear();engine=createAssetRegistry();installScreenProfile(engine);installDesktopProfile(engine);installNetCamProfile(engine);visualPathPorts=[];visualPathCableIds=[];visualSelectedPort=null;visualSelectedCable=null;visualPendingAttach=null;id("cabling-visual-status").textContent="";refresh();id("asset-status").textContent="";id("profile-status").textContent="";id("cable-status").textContent="";id("infrastructure-status").textContent="";id("place-status").textContent="";id("path-result").textContent=""};
+id("reset").onclick=()=>{closeNetworkAdmin();verifiedInternet.clear();engine=createAssetRegistry();installScreenProfile(engine);installDesktopProfile(engine);installNetCamProfile(engine);installScannerProfile(engine);visualPathPorts=[];visualPathCableIds=[];visualSelectedPort=null;visualSelectedCable=null;visualPendingAttach=null;id("cabling-visual-status").textContent="";refresh();id("asset-status").textContent="";id("profile-status").textContent="";id("cable-status").textContent="";id("infrastructure-status").textContent="";id("place-status").textContent="";id("path-result").textContent=""};
 id("cabling-visual-place").onchange=()=>{visualSelectedPort=null;visualPendingAttach=null;drawCablingVisual()};
 id("cabling-mode-connect").onclick=()=>{visualPathMode=false;visualPathPorts=[];visualPathCableIds=[];visualSelectedPort=null;id("cabling-mode-connect").setAttribute("aria-pressed","true");id("cabling-mode-path").setAttribute("aria-pressed","false");visualMessage("Mode branchement : sélectionne deux ports libres.");drawCablingVisual()};
 id("cabling-mode-path").onclick=()=>{visualPathMode=true;visualPathPorts=[];visualPathCableIds=[];visualSelectedPort=null;visualPendingAttach=null;id("cabling-mode-path").setAttribute("aria-pressed","true");id("cabling-mode-connect").setAttribute("aria-pressed","false");visualMessage("Mode chemin : sélectionne un départ et une arrivée.");drawCablingVisual()};
